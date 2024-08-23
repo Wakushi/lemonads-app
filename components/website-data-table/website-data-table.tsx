@@ -2,7 +2,6 @@
 import {
   ColumnDef,
   ColumnFiltersState,
-  SortingState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -261,4 +260,5 @@ const columnsLabels = {
   url: "URL",
   category: "Category",
   trafficVolume: "Traffic Volume",
+  contactEmail: "Contact email",
 }
