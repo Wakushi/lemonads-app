@@ -6,23 +6,25 @@ import { LiaLemon } from "react-icons/lia"
 import Link from "next/link"
 import { useDisconnect } from "wagmi"
 import { useUser } from "@/lib/hooks/useUser"
+import TooltipWrapper from "./ui/custom-tooltip"
 
 export default function Header() {
   const { user } = useUser()
   const { disconnect } = useDisconnect()
 
   return (
-    <header className="fixed top-0 left-0 w-full flex items-center justify-between px-8 py-4 bg-brand">
+    <header className="fixed top-0 left-0 w-full flex items-center justify-between px-8 py-4 bg-white bg-opacity-[0.02] shadow-sm backdrop-blur-sm z-10 shadow-2xl z-[99]">
       <Logo />
       <div className="flex items-center gap-4">
         <Navlink href="/" label="Home" />
-        {user ? (
-          <IoMdLogOut
-            className="text-2xl text-white cursor-pointer hover:opacity-80"
-            onClick={() => disconnect()}
-          />
-        ) : (
-          <Navlink href="/signup" label="Signup" />
+        {!user?.registered && <Navlink href="/signup" label="Signup" />}
+        {user && (
+          <TooltipWrapper message="Disconnect wallet">
+            <IoMdLogOut
+              className="text-2xl text-brand cursor-pointer hover:opacity-80"
+              onClick={() => disconnect()}
+            />
+          </TooltipWrapper>
         )}
       </div>
     </header>
@@ -33,7 +35,7 @@ function Logo() {
   return (
     <Link
       href="/"
-      className={`${comfortaa.className} flex text-2xl font-semibold text-white items-center`}
+      className={`${comfortaa.className} flex text-2xl font-semibold text-brand items-center`}
     >
       <span>Lem</span>
       <LiaLemon />
@@ -44,7 +46,7 @@ function Logo() {
 
 function Navlink({ href, label }: { href: string; label: string }) {
   return (
-    <Link className="text-white text-lg hover:underline" href={href}>
+    <Link className="text-brand text-lg hover:underline" href={href}>
       {label}
     </Link>
   )

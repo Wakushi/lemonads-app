@@ -104,6 +104,10 @@ export function WebsiteDataTable<TData, TValue>({
   }
 
   function DeleteAlertDialog() {
+    if (!getSelecteRowsAmount()) return null
+
+    if (loading) return <LoaderSmall />
+
     return (
       <AlertDialog>
         <AlertDialogTrigger asChild>
@@ -134,7 +138,7 @@ export function WebsiteDataTable<TData, TValue>({
       <div className="px-4">
         <div className="flex items-center justify-between gap-2">
           {/* TABLE FILTERS */}
-          <div className="flex flex-wrap items-center w-full gap-2">
+          <div className="flex flex-wrap items-center w-full gap-2 mb-2">
             <Input
               placeholder="Website Name"
               value={
@@ -157,14 +161,7 @@ export function WebsiteDataTable<TData, TValue>({
             />
           </div>
           <div className="flex items-center gap-2">
-            {loading || !getSelecteRowsAmount() ? (
-              <div className="w-[400px] flex justify-center">
-                <LoaderSmall />
-              </div>
-            ) : (
-              <DeleteAlertDialog />
-            )}
-
+            <DeleteAlertDialog />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="flex-1 w-full">
