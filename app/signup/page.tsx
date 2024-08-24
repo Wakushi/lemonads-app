@@ -1,13 +1,13 @@
 "use client"
 
 import { useConnect } from "wagmi"
-import { useUser } from "@/lib/hooks/useUser"
 import { Button } from "@/components/ui/button"
 import SignupForm from "@/components/signup-form"
 import { useEffect } from "react"
 import LoaderSmall from "@/components/ui/loader-small/loader-small"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
+import { useUser } from "@/service/user.service"
 
 export default function SignUpPage() {
   const { user, loading } = useUser()

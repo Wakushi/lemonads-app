@@ -4,6 +4,7 @@ import { WagmiProvider, createConfig, http } from "wagmi"
 import { sepolia } from "wagmi/chains"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import Web3AuthConnectorInstance from "./lib/Web3AuthConnectorInstance"
+import UserContextProvider from "./service/user.service"
 
 export default function Providers({ children }: { children: ReactNode }) {
   const queryClient = new QueryClient()
@@ -17,7 +18,9 @@ export default function Providers({ children }: { children: ReactNode }) {
   })
   return (
     <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <UserContextProvider>{children}</UserContextProvider>
+      </QueryClientProvider>
     </WagmiProvider>
   )
 }

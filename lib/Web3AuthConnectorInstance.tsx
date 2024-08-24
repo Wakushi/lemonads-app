@@ -2,8 +2,7 @@ import { Web3AuthConnector } from "@web3auth/web3auth-wagmi-connector"
 import { Web3Auth } from "@web3auth/modal"
 import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider"
 import { CHAIN_NAMESPACES, WEB3AUTH_NETWORK } from "@web3auth/base"
-import { Chain, sepolia } from "wagmi/chains"
-import { WalletServicesPlugin } from "@web3auth/wallet-services-plugin"
+import { sepolia } from "wagmi/chains"
 
 const chains = [sepolia]
 const name = "Lemonads"
@@ -33,22 +32,13 @@ export const web3AuthInstance = new Web3Auth({
     modalZIndex: "2147483647",
     logoLight: "https://web3auth.io/images/web3authlog.png",
     logoDark: "https://web3auth.io/images/web3authlogodark.png",
-    uxMode: "redirect",
+    uxMode: "popup",
     mode: "light",
   },
   web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
 })
 
 export default function Web3AuthConnectorInstance() {
-  const walletServicesPlugin = new WalletServicesPlugin({
-    walletInitOptions: {
-      whiteLabel: {
-        showWidgetButton: true,
-      },
-    },
-  })
-  // web3AuthInstance.addPlugin(walletServicesPlugin)
-
   return Web3AuthConnector({
     web3AuthInstance,
   })

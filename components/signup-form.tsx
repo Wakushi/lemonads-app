@@ -22,10 +22,10 @@ import {
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useState } from "react"
-import { User, UserType } from "@/lib/types/user.type"
+import { UserType } from "@/lib/types/user.type"
 import { useRouter } from "next/navigation"
 import LoaderSmall from "./ui/loader-small/loader-small"
-import { useUser } from "@/lib/hooks/useUser"
+import { useUser } from "@/service/user.service"
 
 const formSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
@@ -85,7 +85,6 @@ export default function SignupForm() {
       router.push(formValues.userType.toLowerCase())
     } catch (error) {
       console.error("Failed to submit:", error)
-    } finally {
       setIsSubmitting(false)
     }
   }

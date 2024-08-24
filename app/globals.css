@@ -67,3 +67,18 @@
     @apply bg-background text-foreground;
   }
 }
+
+.fade-in-top {
+  animation: fade-in-top 500ms ease-in-out;
+}
+
+@keyframes fade-in-top {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+}

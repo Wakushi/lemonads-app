@@ -148,9 +148,7 @@ export const columns: ColumnDef<Website>[] = [
           <Button variant="outline" size="sm">
             Edit
           </Button>
-          <Button variant="destructive" size="sm">
-            Delete
-          </Button>
+          <Button size="sm">Delete</Button>
         </div>
       )
     },
