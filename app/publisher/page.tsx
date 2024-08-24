@@ -4,7 +4,7 @@ import mockWebsites from "@/lib/website-list-mock"
 
 export default function PublisherDashboard() {
   return (
-    <div className="p-4 pt-20">
+    <div className="pt-20">
       <WebsiteDataTable data={mockWebsites} columns={columns} />
     </div>
   )

@@ -73,5 +73,5 @@ export function useUser() {
     return registeredUser
   }
 
-  return { user, connect, connectors, disconnect, loading, error }
+  return { user, setUser, connect, connectors, disconnect, loading, error }
 }

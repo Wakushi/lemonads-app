@@ -9,7 +9,7 @@ import LoaderSmall from "@/components/ui/loader-small/loader-small"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 
-export default function SignupPage() {
+export default function SignUpPage() {
   const { user, loading } = useUser()
   const router = useRouter()
 
@@ -40,7 +40,7 @@ export default function SignupPage() {
 
   return (
     <div className="mx-auto flex flex-col justify-center items-center gap-4 pt-20 h-[100vh]">
-      <SignupForm user={user} />
+      <SignupForm />
     </div>
   )
 }

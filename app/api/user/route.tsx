@@ -5,8 +5,8 @@ import { NextRequest, NextResponse } from "next/server"
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const user: User = await req.json()
-    await createUser(user)
-    return NextResponse.json({ message: "Registration successful" })
+    const createdUser = await createUser(user)
+    return NextResponse.json({ createdUser })
   } catch (error) {
     console.error("API error:", error)
     return NextResponse.json({ error: "Failed to add client" }, { status: 500 })

@@ -24,6 +24,8 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { useState } from "react"
 import { User, UserType } from "@/lib/types/user.type"
 import { useRouter } from "next/navigation"
+import LoaderSmall from "./ui/loader-small/loader-small"
+import { useUser } from "@/lib/hooks/useUser"
 
 const formSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
@@ -42,8 +44,9 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>
 
-export default function SignupForm({ user }: { user: User }) {
+export default function SignupForm() {
   const router = useRouter()
+  const { user, setUser } = useUser()
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
 
   const signupForm = useForm<FormValues>({
@@ -58,6 +61,7 @@ export default function SignupForm({ user }: { user: User }) {
   })
 
   async function onSubmit(formValues: FormValues) {
+    if (!user?.address) return
     setIsSubmitting(true)
 
     try {
@@ -76,13 +80,18 @@ export default function SignupForm({ user }: { user: User }) {
         }),
       })
 
-      await response.json()
+      const { createdUser } = await response.json()
+      setUser(createdUser)
       router.push(formValues.userType.toLowerCase())
     } catch (error) {
       console.error("Failed to submit:", error)
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  if (isSubmitting) {
+    return <LoaderSmall />
   }
 
   return (

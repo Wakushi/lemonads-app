@@ -3,9 +3,11 @@ import { User } from "./types/user.type"
 
 const USER_COLLECTION = "users"
 
-export const createUser = async (user: User): Promise<void> => {
+export const createUser = async (user: User): Promise<User | null> => {
   try {
-    await adminDb.collection(USER_COLLECTION).add({ ...user, registered: true })
+    const newUser = { ...user, registered: true }
+    await adminDb.collection(USER_COLLECTION).add(newUser)
+    return newUser
   } catch (error) {
     console.error("Error adding user:", error)
     throw new Error("Failed to add user")
