@@ -22,11 +22,13 @@ import {
 } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useState } from "react"
+import { User, UserType } from "@/lib/types/user.type"
+import { useRouter } from "next/navigation"
 
 const formSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
   email: z.string().email("Invalid email address"),
-  userType: z.enum(["Publisher", "Announcer"], {
+  userType: z.enum([UserType.PUBLISHER, UserType.ANNOUNCER], {
     required_error: "You must select a user type",
   }),
   companyName: z.string().optional(),
@@ -40,7 +42,8 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>
 
-export default function SignupForm() {
+export default function SignupForm({ user }: { user: User }) {
+  const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
 
   const signupForm = useForm<FormValues>({
@@ -48,7 +51,7 @@ export default function SignupForm() {
     defaultValues: {
       fullName: "",
       email: "",
-      userType: "Publisher",
+      userType: UserType.PUBLISHER,
       companyName: "",
       agreeToTerms: false,
     },
@@ -58,7 +61,23 @@ export default function SignupForm() {
     setIsSubmitting(true)
 
     try {
-      console.log("Form submitted:", formValues)
+      const { fullName, email, userType, companyName } = formValues
+
+      const response = await fetch("/api/user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...user,
+          name: fullName,
+          email,
+          type: userType,
+          companyName,
+          address: user.address,
+        }),
+      })
+
+      await response.json()
+      router.push(formValues.userType.toLowerCase())
     } catch (error) {
       console.error("Failed to submit:", error)
     } finally {
@@ -123,8 +142,12 @@ export default function SignupForm() {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="Publisher">Publisher</SelectItem>
-                    <SelectItem value="Announcer">Announcer</SelectItem>
+                    <SelectItem value={UserType.PUBLISHER}>
+                      Publisher
+                    </SelectItem>
+                    <SelectItem value={UserType.ANNOUNCER}>
+                      Announcer
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -152,9 +175,10 @@ export default function SignupForm() {
             control={signupForm.control}
             name="agreeToTerms"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="flex items-center gap-2">
                 <FormControl>
                   <Checkbox
+                    className="mt-2"
                     checked={field.value}
                     onCheckedChange={field.onChange}
                     onBlur={field.onBlur}

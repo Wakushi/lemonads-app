@@ -1,6 +1,6 @@
 "use client"
 
-import { useConnect, useDisconnect } from "wagmi"
+import { useConnect } from "wagmi"
 import { useUser } from "@/lib/hooks/useUser"
 import useHasMounted from "@/lib/hooks/useHasMounted"
 import { Button } from "@/components/ui/button"
@@ -10,32 +10,30 @@ import LoaderSmall from "@/components/ui/loader-small/loader-small"
 import { useRouter } from "next/navigation"
 
 export default function SignupPage() {
-  const { user } = useUser()
+  const { user, loading } = useUser()
   const router = useRouter()
   const [isRegistered, setIsRegistered] = useState<boolean>(false)
 
   useEffect(() => {
-    console.log("User updated: ", user)
     if (user) {
-      // Either it's an already registered user => to dashboard
-      if (isRegistered) {
-        // Figure out the type of the user publisher or annoncer
-        const userType = "annoncer"
-        router.push(userType)
+      if (user.registered && user.type) {
+        router.push(user.type.toLowerCase())
         return
       }
-
-      // Else we display the registration form
     }
   }, [user])
 
   function getSignupDisplay() {
+    if (loading) {
+      return <LoaderSmall />
+    }
+
     if (!user) {
       return <Connectors />
     }
 
     if (user && !isRegistered) {
-      return <SignupForm />
+      return <SignupForm user={user} />
     }
   }
 

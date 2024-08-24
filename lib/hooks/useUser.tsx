@@ -23,7 +23,8 @@ export function useUser() {
 
       try {
         if (connector?.name !== "Web3Auth" && address) {
-          setUser({ address })
+          const registeredUser = await getRegisteredUser(address)
+          setUser(registeredUser ? registeredUser : { address })
           setLoading(false)
           return
         }
@@ -34,10 +35,16 @@ export function useUser() {
 
           if (!web3AuthAddress) return
 
-          setUser({
-            address: web3AuthAddress,
-            web3AuthData: userInfo,
-          })
+          const registeredUser = await getRegisteredUser(web3AuthAddress)
+
+          setUser(
+            registeredUser
+              ? registeredUser
+              : {
+                  address: web3AuthAddress,
+                  web3AuthData: userInfo,
+                }
+          )
         }
       } catch (err) {
         console.error("Failed to fetch user data:", err)
@@ -58,6 +65,12 @@ export function useUser() {
 
     const accounts: any[] = await RPC.getAccounts(web3AuthInstance.provider)
     return accounts && accounts.length ? accounts[0] : null
+  }
+
+  async function getRegisteredUser(address: string): Promise<User | null> {
+    const response = await fetch(`/api/user?address=${address}`)
+    const { registeredUser } = await response.json()
+    return registeredUser
   }
 
   return { user, connect, connectors, disconnect, loading, error }
