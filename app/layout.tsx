@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import "./globals.css"
 import Header from "@/components/header"
 import { roboto } from "@/lib/fonts"
+import Providers from "@/providers"
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -17,8 +18,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body suppressHydrationWarning={true} className={roboto.className}>
-        <Header />
-        {children}
+        <Providers>
+          <Header />
+          {children}
+        </Providers>
       </body>
     </html>
   )
