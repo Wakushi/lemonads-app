@@ -86,7 +86,7 @@ export default function SignupForm({ user }: { user: User }) {
   }
 
   return (
-    <div className="max-w-[400px] m-auto pt-8">
+    <div className="max-w-[400px]">
       <h2 className="text-3xl mb-4 font-bold">
         We'll need a few information about you !
       </h2>

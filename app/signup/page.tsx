@@ -2,17 +2,16 @@
 
 import { useConnect } from "wagmi"
 import { useUser } from "@/lib/hooks/useUser"
-import useHasMounted from "@/lib/hooks/useHasMounted"
 import { Button } from "@/components/ui/button"
 import SignupForm from "@/components/signup-form"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import LoaderSmall from "@/components/ui/loader-small/loader-small"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 
 export default function SignupPage() {
   const { user, loading } = useUser()
   const router = useRouter()
-  const [isRegistered, setIsRegistered] = useState<boolean>(false)
 
   useEffect(() => {
     if (user) {
@@ -23,24 +22,25 @@ export default function SignupPage() {
     }
   }, [user])
 
-  function getSignupDisplay() {
-    if (loading) {
-      return <LoaderSmall />
-    }
+  if (loading) {
+    return (
+      <div className="mx-auto flex flex-col justify-center items-center gap-4 pt-20 h-[100vh]">
+        <LoaderSmall />
+      </div>
+    )
+  }
 
-    if (!user) {
-      return <Connectors />
-    }
-
-    if (user && !isRegistered) {
-      return <SignupForm user={user} />
-    }
+  if (!user) {
+    return (
+      <div className="mx-auto flex flex-col justify-center items-center gap-4 pt-20 h-[100vh]">
+        <Connectors />
+      </div>
+    )
   }
 
   return (
-    <div className="m-auto flex flex-col justify-center items-center gap-8  h-[100vh]">
-      <h1 className="font-bold uppercase text-6xl">Signup</h1>
-      {getSignupDisplay()}
+    <div className="mx-auto flex flex-col justify-center items-center gap-4 pt-20 h-[100vh]">
+      <SignupForm user={user} />
     </div>
   )
 }
@@ -48,23 +48,29 @@ export default function SignupPage() {
 function Connectors() {
   const { connect, connectors } = useConnect()
 
-  const hasMounted = useHasMounted()
-
-  if (!hasMounted) return <LoaderSmall />
-
   return (
     <div className="flex flex-col gap-4">
       {connectors.map((connector) => {
+        const { id, icon, name } = connector
         return (
           <Button
-            className="bg-brand px-8"
-            key={connector.id}
+            className="bg-brand px-8 flex gap-2"
+            key={id}
             onClick={() => connect({ connector })}
           >
-            Signup using {connector.name}
+            Signup using {name}
+            {icon && <ConnectorIcon url={icon} name={name} />}
           </Button>
         )
       })}
+    </div>
+  )
+}
+
+function ConnectorIcon({ url, name }: { url: string; name: string }) {
+  return (
+    <div className="w-[20px] h-[20px]">
+      <Image width="100" height="100" src={url} alt={name}></Image>
     </div>
   )
 }
