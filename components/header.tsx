@@ -1,80 +1,51 @@
 "use client"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 
-import { useConnect, useDisconnect } from "wagmi"
+import { IoMdLogOut } from "react-icons/io"
 import { comfortaa } from "@/lib/fonts"
 import { LiaLemon } from "react-icons/lia"
-import useHasMounted from "@/lib/hooks/useHasMounted"
-import { Button } from "./ui/button"
+import Link from "next/link"
+import { useDisconnect } from "wagmi"
 import { useUser } from "@/lib/hooks/useUser"
 
 export default function Header() {
+  const { user } = useUser()
+  const { disconnect } = useDisconnect()
+
   return (
-    <header className="flex items-center justify-between p-4 bg-amber-500">
+    <header className="fixed top-0 left-0 w-full flex items-center justify-between px-8 py-4 bg-brand">
       <Logo />
-      <Connectors />
+      <div className="flex items-center gap-4">
+        <Navlink href="/" label="Home" />
+        {user ? (
+          <IoMdLogOut
+            className="text-2xl text-white cursor-pointer hover:opacity-80"
+            onClick={() => disconnect()}
+          />
+        ) : (
+          <Navlink href="/signup" label="Signup" />
+        )}
+      </div>
     </header>
   )
 }
 
 function Logo() {
   return (
-    <div
+    <Link
+      href="/"
       className={`${comfortaa.className} flex text-2xl font-semibold text-white items-center`}
     >
       <span>Lem</span>
       <LiaLemon />
       <span>nAds</span>
-    </div>
+    </Link>
   )
 }
 
-function Connectors() {
-  const { connect, connectors } = useConnect()
-  const { disconnect } = useDisconnect()
-  const { user } = useUser()
-
-  function checkUser() {
-    console.log("user: ", user)
-  }
-
-  const hasMounted = useHasMounted()
-
-  if (!hasMounted) return <span>Not mounted</span>
-
+function Navlink({ href, label }: { href: string; label: string }) {
   return (
-    <div>
-      <DropdownMenu>
-        {user ? (
-          <div className="flex items-center gap-2">
-            <Button onClick={() => disconnect()}>Disconnect</Button>
-            <Button onClick={checkUser}>Info</Button>
-          </div>
-        ) : (
-          <DropdownMenuTrigger asChild>
-            <Button variant="secondary">Connect</Button>
-          </DropdownMenuTrigger>
-        )}
-        <DropdownMenuContent>
-          {connectors.map((connector) => {
-            return (
-              <DropdownMenuItem key={connector.id}>
-                <Button
-                  variant="secondary"
-                  onClick={() => connect({ connector })}
-                >
-                  {connector.name}
-                </Button>
-              </DropdownMenuItem>
-            )
-          })}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+    <Link className="text-white text-lg hover:underline" href={href}>
+      {label}
+    </Link>
   )
 }

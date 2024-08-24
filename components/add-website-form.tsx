@@ -206,7 +206,7 @@ export default function AddWebsiteForm() {
         {/* SUBMIT BUTTON */}
         <Button
           type="submit"
-          className="mt-4 bg-amber-500 hover:bg-white hover:text-amber-500 hover:border hover:border-amber-500"
+          className="mt-4 bg-brand hover:bg-white hover:text-brand hover:border hover:border-brand"
           disabled={!websiteForm.formState.isValid || isSubmitting}
         >
           {isSubmitting ? "Submitting..." : "Create Website"}
