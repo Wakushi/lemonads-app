@@ -1,4 +1,7 @@
-import { createUser, getUserByAddress } from "@/lib/data/firebase-actions"
+import {
+  createUser,
+  getUserByAddress,
+} from "@/lib/actions/server/firebase-actions"
 import { User } from "@/lib/types/user.type"
 import { NextRequest, NextResponse } from "next/server"
 

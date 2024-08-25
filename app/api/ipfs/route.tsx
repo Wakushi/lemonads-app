@@ -1,4 +1,4 @@
-import { unpinFile } from "@/lib/data/pinata-actions"
+import { unpinFile } from "@/lib/actions/server/pinata-actions"
 import { NextRequest, NextResponse } from "next/server"
 
 /**

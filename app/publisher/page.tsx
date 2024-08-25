@@ -1,6 +1,6 @@
 import { WebsiteDataTable } from "@/components/website-data-table/website-data-table"
 import { columns } from "@/components/website-data-table/website-data-table-column"
-import { mockWebsites } from "@/lib/website-list-mock"
+import { mockWebsites } from "@/lib/data/website-list-mock"
 
 export default function PublisherDashboard() {
   return (

@@ -1,4 +1,4 @@
-import { pinJSONToIPFS } from "@/lib/data/pinata-actions"
+import { pinJSONToIPFS } from "@/lib/actions/server/pinata-actions"
 import { NextRequest, NextResponse } from "next/server"
 
 /**
