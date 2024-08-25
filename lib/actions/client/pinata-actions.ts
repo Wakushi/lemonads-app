@@ -1,3 +1,4 @@
+import { AdParcelTraits } from "@/lib/types/ad-parcel.type"
 import { Website } from "@/lib/types/website.type"
 
 /**
@@ -41,4 +42,31 @@ export async function pinWebsiteMetadata(website: Website): Promise<Website> {
 
   const { IpfsHash } = await response.json()
   return { ...website, ipfsHash: IpfsHash }
+}
+
+export async function pinAdParcelTraits(
+  adParcelTraits: AdParcelTraits,
+  adParcelId: string
+): Promise<string> {
+  const response = await fetch("/api/ipfs/json", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      json: adParcelTraits,
+      filename: adParcelId,
+    }),
+  })
+
+  const { IpfsHash } = await response.json()
+  return IpfsHash
+}
+
+export async function getTraitsByHash(
+  hash: string
+): Promise<AdParcelTraits | null> {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_PINATA_GATEWAY_BASE_URL}/${hash}`
+  )
+  const data = await response.json()
+  return (data as AdParcelTraits) || null
 }

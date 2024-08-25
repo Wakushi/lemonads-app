@@ -1,6 +1,6 @@
 import { Address } from "viem"
 
-type AdParcelTraits = {
+export type AdParcelTraits = {
   width: string
   height: string
   font: string
@@ -8,11 +8,13 @@ type AdParcelTraits = {
 
 export type AdParcel = {
   id: string
-  siteMetadata: string
   bid: number
   minBid: number
   owner: Address
   renter: Address
+  traitsHash: string
+  contentHash?: string
+  websiteInfoHash?: string
   active: boolean
   traits: AdParcelTraits
 }
