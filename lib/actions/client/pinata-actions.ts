@@ -78,6 +78,14 @@ export async function getWebsiteByHash(hash: string): Promise<Website | null> {
   return (data as Website) || null
 }
 
+export async function getAdContentByHash(
+  hash: string
+): Promise<AdContent | null> {
+  const response = await fetch(`${PINATA_GATEWAY_BASE_URL}/${hash}`)
+  const data = await response.json()
+  return (data as AdContent) || null
+}
+
 export async function pinFile(formData: FormData): Promise<string> {
   const response = await fetch("/api/ipfs/file", {
     method: "POST",

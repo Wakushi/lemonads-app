@@ -4,6 +4,7 @@ import "./globals.css"
 import Header from "@/components/header"
 import { roboto } from "@/lib/fonts"
 import Providers from "@/providers"
+import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -22,6 +23,7 @@ export default function RootLayout({
           <Header />
           {children}
         </Providers>
+        <Toaster />
       </body>
     </html>
   )

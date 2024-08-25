@@ -19,9 +19,14 @@ import { mockWebsites } from "@/lib/data/website-list-mock"
 import { Input } from "@/components/ui/input"
 import { useUser } from "@/service/user.service"
 import { createAdContent } from "@/lib/actions/client/firebase-actions"
+import { uuidToUint256 } from "@/lib/utils"
+import { useToast } from "@/components/ui/use-toast"
+import { ToastAction } from "@/components/ui/toast"
+import { SEPOLIA_ETHERSCAN_TX_URL } from "@/lib/constants"
 
 export default function Home() {
   const { user } = useUser()
+  const { toast } = useToast()
   const [website, setWebsite] = useState<Website>(mockWebsites[0])
   const [loading, setLoading] = useState<boolean>(false)
   const [file, setFile] = useState<File>()
@@ -52,14 +57,40 @@ export default function Home() {
     }
 
     const adParcelId = uuidv4()
+
     const traitsHash = await pinAdParcelTraits(traits, adParcelId)
 
-    writeAdParcel({
-      id: uuidv4(),
-      minBid: 1,
-      traitsHash,
-      websiteInfoHash: website?.ipfsHash,
-    })
+    try {
+      const transactionHash = await writeAdParcel({
+        id: uuidToUint256(uuidv4()),
+        minBid: 1,
+        traitsHash,
+        websiteInfoHash: website?.ipfsHash,
+      })
+
+      toast({
+        title: "Ad parcel created !",
+        description: "See on block explorer",
+        action: (
+          <ToastAction
+            altText="See details"
+            onClick={() =>
+              window.open(
+                `${SEPOLIA_ETHERSCAN_TX_URL}/${transactionHash}`,
+                "_blank"
+              )
+            }
+          >
+            See details
+          </ToastAction>
+        ),
+      })
+    } catch (error) {
+      toast({
+        title: "Error during parcel creation",
+        description: "Please try again. Error: " + error,
+      })
+    }
   }
 
   async function getTraits(adParcel: AdParcel): Promise<AdParcelTraits | null> {

@@ -139,4 +139,5 @@ export default {
   getBalance,
   sendTransaction,
   signMessage,
+  getViewChain,
 }
