@@ -1,5 +1,5 @@
 import { adminDb } from "@/firebase-admin"
-import { User } from "./types/user.type"
+import { User } from "@/lib/types/user.type"
 
 const USER_COLLECTION = "users"
 

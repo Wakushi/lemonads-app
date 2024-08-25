@@ -3,8 +3,8 @@ import { createContext, ReactNode, useContext } from "react"
 import { useState, useEffect } from "react"
 import { useAccount, useConnect, useDisconnect } from "wagmi"
 import { User } from "@/lib/types/user.type"
-import { web3AuthInstance } from "@/lib/Web3AuthConnectorInstance"
-import RPC from "@/lib/viemRPC"
+import { web3AuthInstance } from "@/lib/web3/Web3AuthConnectorInstance"
+import RPC from "@/lib/web3/viemRPC"
 
 interface UserContextProviderProps {
   children: ReactNode

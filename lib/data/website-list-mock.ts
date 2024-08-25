@@ -1,4 +1,4 @@
-import { Website } from "./types/website.type"
+import { Website } from "@/lib/types/website.type"
 
 export const mockWebsites: Website[] = [
   {
