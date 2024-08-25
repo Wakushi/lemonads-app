@@ -1,15 +1,20 @@
 import { adminDb } from "@/firebase-admin"
 import { User } from "@/lib/types/user.type"
+import { Website } from "@/lib/types/website.type"
 
 const USER_COLLECTION = "users"
 
 export const createUser = async (user: User): Promise<User | null> => {
   try {
-    const newUser = { ...user, registered: true }
-    const docRef = await adminDb.collection(USER_COLLECTION).add(newUser)
-    const createdUser = { ...newUser, firebaseId: docRef.id }
+    const firebaseId = user.address; 
+    const newUser = {
+      ...user,
+      firebaseId: firebaseId,
+      registered: true,
+    };
 
-    return createdUser
+    await adminDb.collection(USER_COLLECTION).doc(firebaseId).set(newUser);
+    return newUser;
   } catch (error) {
     console.error("Error adding user:", error)
     throw new Error("Failed to add user")
@@ -47,4 +52,24 @@ export const addWebsiteToUser = async (
     console.error("Error adding website:", error)
     throw new Error("Failed to add website")
   }
-}
+};
+
+export const getWebsitesByUser = async (firebaseId: string): Promise<Website[]> => {
+  try {
+    const websitesSnapshot = await adminDb
+      .collection("users")
+      .doc(firebaseId)
+      .collection("websites")
+      .get();
+
+    const websites: Website[] = websitesSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Website[];
+
+    return websites;
+  } catch (error) {
+    console.error("Error fetching websites:", error);
+    throw new Error("Failed to fetch websites");
+  }
+};
