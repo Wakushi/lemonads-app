@@ -97,45 +97,89 @@ export const columns: ColumnDef<Website>[] = [
     },
   },
   {
-    accessorKey: "trafficVolume",
+    accessorKey: "trafficAverage",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Traffic Volume
+          Traffic Average
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       )
     },
     cell: ({ row }) => {
-      const trafficVolume: string = row.getValue("trafficVolume")
+      const trafficAverage: string = row.getValue("trafficAverage")
       return (
         <div className="pl-4 font-medium flex items-center gap-2">
-          <span>{trafficVolume}</span>
+          <span>{trafficAverage}</span>
         </div>
       )
     },
   },
   {
-    accessorKey: "contactEmail",
+    accessorKey: "language",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Contact Email
+          Language
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       )
     },
     cell: ({ row }) => {
-      const contactEmail: string = row.getValue("contactEmail")
+      const language: string = row.getValue("language")
       return (
         <div className="pl-4 font-medium flex items-center gap-2">
-          <span>{contactEmail}</span>
+          <span>{language}</span>
+        </div>
+      )
+    },
+  },
+  {
+    accessorKey: "geoReach",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Geographical Reach
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
+    cell: ({ row }) => {
+      const geoReach: string[] = row.getValue("geoReach")
+      return (
+        <div className="pl-4 font-medium flex items-center gap-2">
+          <span>{geoReach.join(", ")}</span>
+        </div>
+      )
+    },
+  },
+  {
+    accessorKey: "keywords",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Keywords
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
+    cell: ({ row }) => {
+      const keywords: string[] = row.getValue("keywords")
+      return (
+        <div className="pl-4 font-medium flex items-center gap-2">
+          <span>{keywords.join(", ")}</span>
         </div>
       )
     },

@@ -1,8 +1,10 @@
 export type Website = {
   id: string
-  name: string
   url: string
+  name: string
   category: string
-  trafficVolume: string
-  contactEmail: string
+  keywords: string[]
+  trafficAverage: string
+  language: string
+  geoReach: string[]
 }

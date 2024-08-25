@@ -256,6 +256,8 @@ const columnsLabels = {
   name: "Website Name",
   url: "URL",
   category: "Category",
-  trafficVolume: "Traffic Volume",
-  contactEmail: "Contact email",
+  trafficAverage: "Traffic Average",
+  language: "Language",
+  geoReach: "Geographical Reach",
+  keywords: "Keywords",
 }
