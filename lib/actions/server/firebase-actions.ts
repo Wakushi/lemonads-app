@@ -1,20 +1,19 @@
 import { adminDb } from "@/firebase-admin"
+import { AdContent } from "@/lib/types/ad-content.type"
 import { User } from "@/lib/types/user.type"
 import { Website } from "@/lib/types/website.type"
 
 const USER_COLLECTION = "users"
+const WEBSITE_COLLECTION = "websites"
+const AD_CONTENT_COLLECTION = "adContent"
 
 export const createUser = async (user: User): Promise<User | null> => {
   try {
-    const firebaseId = user.address; 
-    const newUser = {
-      ...user,
-      firebaseId: firebaseId,
-      registered: true,
-    };
+    const newUser = { ...user, registered: true }
+    const docRef = await adminDb.collection(USER_COLLECTION).add(newUser)
+    const createdUser = { ...newUser, firebaseId: docRef.id }
 
-    await adminDb.collection(USER_COLLECTION).doc(firebaseId).set(newUser);
-    return newUser;
+    return createdUser
   } catch (error) {
     console.error("Error adding user:", error)
     throw new Error("Failed to add user")
@@ -38,38 +37,56 @@ export const getUserByAddress = async (
 }
 
 export const addWebsiteToUser = async (
-  firebaseId: string,
+  userFirebaseId: string,
   websiteData: any
 ) => {
   try {
     const userCollectionRef = adminDb
-      .collection("users")
-      .doc(firebaseId)
-      .collection("websites")
+      .collection(USER_COLLECTION)
+      .doc(userFirebaseId)
+      .collection(WEBSITE_COLLECTION)
+
     await userCollectionRef.add(websiteData)
-    console.log("Website added successfully")
   } catch (error) {
     console.error("Error adding website:", error)
     throw new Error("Failed to add website")
   }
-};
+}
 
-export const getWebsitesByUser = async (firebaseId: string): Promise<Website[]> => {
+export const getWebsitesByUser = async (
+  firebaseId: string
+): Promise<Website[]> => {
   try {
     const websitesSnapshot = await adminDb
-      .collection("users")
+      .collection(USER_COLLECTION)
       .doc(firebaseId)
-      .collection("websites")
-      .get();
+      .collection(WEBSITE_COLLECTION)
+      .get()
 
     const websites: Website[] = websitesSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
-    })) as Website[];
+    })) as Website[]
 
-    return websites;
+    return websites
   } catch (error) {
-    console.error("Error fetching websites:", error);
-    throw new Error("Failed to fetch websites");
+    console.error("Error fetching websites:", error)
+    throw new Error("Failed to fetch websites")
   }
-};
+}
+
+export const addAdContentToUser = async (
+  userFirebaseId: string,
+  adContent: AdContent
+) => {
+  try {
+    const userCollectionRef = adminDb
+      .collection(USER_COLLECTION)
+      .doc(userFirebaseId)
+      .collection(AD_CONTENT_COLLECTION)
+    await userCollectionRef.add(adContent)
+  } catch (error) {
+    console.error("Error adding ad content:", error)
+    throw new Error("Failed to ad content")
+  }
+}

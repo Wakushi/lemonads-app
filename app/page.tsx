@@ -19,8 +19,12 @@ import {
 import { mockWebsites } from "@/lib/data/website-list-mock"
 import { Input } from "@/components/ui/input"
 import { fileToBuffer } from "@/lib/utils"
+import { PINATA_GATEWAY_BASE_URL } from "@/lib/constants"
+import { useUser } from "@/service/user.service"
+import { createAdContent } from "@/lib/actions/client/firebase-actions"
 
 export default function Home() {
+  const { user } = useUser()
   const [website, setWebsite] = useState<Website>(mockWebsites[0])
   const [loading, setLoading] = useState<boolean>(false)
   const [file, setFile] = useState<File>()
@@ -87,28 +91,31 @@ export default function Home() {
     console.log("Website: ", adParcelWebsite)
   }
 
-  async function createAdContent() {
-    setLoading(true)
+  async function submitAdContent() {
+    if (!user) return
 
-    const content = {
-      title: "Opensea",
-      description: "Biggest NFT marketplace!",
-      linkUrl: "https://opensea.io/fr",
-    }
+    const title = "Opensea"
+    const description = "Biggest NFT marketplace !"
+    const linkUrl = "https://opensea.io/fr"
 
     if (!file) {
       console.error("No file selected")
       return
     }
 
-    const fileBuffer = await fileToBuffer(file)
-    const blob = new Blob([fileBuffer], { type: file.type })
-    const formData = new FormData()
-    formData.append("file", blob, `${content.title}`)
+    setLoading(true)
 
-    const hash = await pinFile(formData)
+    const createdAdContent = await createAdContent({
+      user,
+      file,
+      title,
+      description,
+      linkUrl,
+    })
 
-    console.log("Image hash: ", hash)
+    console.log("createdAdContent: ", createdAdContent)
+
+    setLoading(false)
   }
 
   return (
@@ -124,13 +131,14 @@ export default function Home() {
           </div>
         )}
         <Button onClick={() => createAdParcel()}>Create ad parcel</Button>
-        <Button onClick={() => createAdContent()}>Create ad content</Button>
+        <Button onClick={() => submitAdContent()}>Create ad content</Button>
         <Button
           onClick={() => getAdParcel("017c1dd5-359a-4b16-94bb-32545f244ddf")}
         >
           Get ad parcel
         </Button>
         <Button onClick={() => console.log(website)}>Check website</Button>
+        <Button onClick={() => console.log(user)}>Check user</Button>
         <Input type="file" onChange={(e) => onSelectMedia(e)}></Input>
         <Button onClick={() => console.log(file)}>Check file</Button>
       </div>
