@@ -7,4 +7,5 @@ export type Website = {
   trafficAverage: string
   language: string
   geoReach: string[]
+  ipfsHash?: string
 }
