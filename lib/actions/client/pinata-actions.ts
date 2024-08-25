@@ -70,3 +70,11 @@ export async function getTraitsByHash(
   const data = await response.json()
   return (data as AdParcelTraits) || null
 }
+
+export async function getWebsiteByHash(hash: string): Promise<Website | null> {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_PINATA_GATEWAY_BASE_URL}/${hash}`
+  )
+  const data = await response.json()
+  return (data as Website) || null
+}
