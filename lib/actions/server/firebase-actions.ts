@@ -7,7 +7,7 @@ export const createUser = async (user: User): Promise<User | null> => {
   try {
     const newUser = { ...user, registered: true }
     const docRef = await adminDb.collection(USER_COLLECTION).add(newUser)
-    const createdUser = { ...newUser, id: docRef.id }
+    const createdUser = { ...newUser, firebaseId: docRef.id }
 
     return createdUser
   } catch (error) {
