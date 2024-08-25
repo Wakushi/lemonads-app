@@ -1,7 +1,7 @@
 "use client"
 import { createContext, ReactNode, useContext } from "react"
 import { useState, useEffect } from "react"
-import { useAccount, useConnect, useDisconnect } from "wagmi"
+import { useAccount, useDisconnect } from "wagmi"
 import { User } from "@/lib/types/user.type"
 import { web3AuthInstance } from "@/lib/web3/Web3AuthConnectorInstance"
 import RPC from "@/lib/web3/viemRPC"
@@ -26,7 +26,6 @@ const UserContext = createContext<UserContextProps>({
 
 export default function UserContextProvider(props: UserContextProviderProps) {
   const { address, connector, isConnected } = useAccount()
-  const { connect, connectors } = useConnect()
   const { disconnect } = useDisconnect()
 
   const [user, setUser] = useState<User | null>(null)
