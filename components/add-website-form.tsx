@@ -1,3 +1,4 @@
+"use client"
 import { useUser } from "@/service/user.service"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -32,15 +33,20 @@ const formSchema = z.object({
   geoReach: z
     .array(z.string())
     .nonempty("At least one geographic reach is required"),
-  ipfsHash: z.string().optional(),
 })
 
 type FormValues = z.infer<typeof formSchema>
 
-export default function AddWebsiteForm() {
-  const { user } = useUser()
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+interface AddWebsiteFormProps {
+  setIsSuccess: (bool: boolean) => void
+  setIsSubmitting: (bool: boolean) => void
+}
 
+export default function AddWebsiteForm({
+  setIsSuccess,
+  setIsSubmitting,
+}: AddWebsiteFormProps) {
+  const { user } = useUser()
   const [keywords, setKeywords] = useState<string[]>([])
   const [geoReach, setGeoReach] = useState<string[]>([])
   const [keywordInput, setKeywordInput] = useState<string>("")
@@ -56,7 +62,6 @@ export default function AddWebsiteForm() {
       trafficAverage: "<10k",
       language: "",
       geoReach: [],
-      ipfsHash: "",
     },
   })
 
@@ -123,12 +128,11 @@ export default function AddWebsiteForm() {
       if (!response.ok) {
         throw new Error("Failed to add website")
       }
-
-      console.log("Website added successfully")
     } catch (error) {
       console.error("Failed to submit:", error)
     } finally {
       setIsSubmitting(false)
+      setIsSuccess(true)
     }
   }
 
@@ -136,7 +140,7 @@ export default function AddWebsiteForm() {
     <Form {...websiteForm}>
       <form
         onSubmit={websiteForm.handleSubmit(onSubmit)}
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-4 px-2"
       >
         {/* WEBSITE NAME */}
         <FormField
@@ -286,31 +290,13 @@ export default function AddWebsiteForm() {
           </div>
         </FormItem>
 
-        {/* IPFS HASH (Optional) */}
-        <FormField
-          control={websiteForm.control}
-          name="ipfsHash"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>IPFS Hash (Optional)</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Enter the IPFS hash if available"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         {/* SUBMIT BUTTON */}
         <Button
           type="submit"
           className="mt-4 bg-brand hover:bg-white hover:text-brand hover:border hover:border-brand"
-          disabled={!websiteForm.formState.isValid || isSubmitting}
+          disabled={!websiteForm.formState.isValid}
         >
-          {isSubmitting ? "Submitting..." : "Create Website"}
+          Create Website
         </Button>
       </form>
     </Form>

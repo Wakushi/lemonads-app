@@ -6,7 +6,6 @@ import {
   getTraitsByHash,
   getWebsiteByHash,
   pinAdParcelTraits,
-  pinFile,
   pinWebsiteMetadata,
 } from "@/lib/actions/client/pinata-actions"
 import { Website } from "@/lib/types/website.type"
@@ -18,8 +17,6 @@ import {
 } from "@/lib/actions/onchain/contrat-actions"
 import { mockWebsites } from "@/lib/data/website-list-mock"
 import { Input } from "@/components/ui/input"
-import { fileToBuffer } from "@/lib/utils"
-import { PINATA_GATEWAY_BASE_URL } from "@/lib/constants"
 import { useUser } from "@/service/user.service"
 import { createAdContent } from "@/lib/actions/client/firebase-actions"
 

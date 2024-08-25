@@ -29,7 +29,10 @@ export default function Header() {
           {user && user?.registered && <RegisteredUserNavOptions user={user} />}
           {user && (
             <>
-              <div className="text-white bg-brand px-4 py-2 rounded-md shadow">
+              <div
+                onClick={() => console.log("User: ", user)}
+                className="text-white bg-brand px-4 py-2 rounded-md shadow hover:text-brand hover:bg-white cursor-pointer"
+              >
                 {shortenAddress(user.address)}
               </div>
               <TooltipWrapper message="Disconnect wallet">
