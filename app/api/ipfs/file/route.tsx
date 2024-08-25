@@ -4,7 +4,7 @@ import { pinFileToIPFS } from "@/lib/actions/server/pinata-actions"
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const formData = await req.formData()
 
-  const file = formData.get("file")
+  const file: any = formData.get("file")
   if (!file) {
     return NextResponse.json({ error: "No files received." }, { status: 400 })
   }
