@@ -92,9 +92,9 @@ export default function UserContextProvider(props: UserContextProviderProps) {
   }
 
   async function getRegisteredUser(address: string): Promise<User | null> {
-    const response = await fetch(`/api/user?address=${address}`)
-    const { registeredUser } = await response.json()
-    return registeredUser
+    const response = await fetch(`/api/user?address=${address}`);
+    const { registeredUser } = await response.json();
+    return registeredUser; 
   }
 
   const context: UserContextProps = {

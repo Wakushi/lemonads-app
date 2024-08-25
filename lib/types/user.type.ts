@@ -13,4 +13,5 @@ export type User = {
   email?: string
   type?: UserType
   companyName?: string
+  firebaseId?: string 
 }

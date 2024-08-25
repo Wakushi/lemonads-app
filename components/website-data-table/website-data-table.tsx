@@ -43,6 +43,7 @@ import { Website } from "@/lib/types/website.type"
 import { Input } from "../ui/input"
 import LoaderSmall from "../ui/loader-small/loader-small"
 import { DataTablePagination } from "../data-table-pagination"
+import AddWebsiteForm from "../add-website-form"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -133,6 +134,29 @@ export function WebsiteDataTable<TData, TValue>({
     )
   }
 
+  function AddWebsiteDialog() {
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+
+    return (
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button variant="secondary">Add new website</Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent className="max-w-lg mx-auto my-8 p-6 bg-white rounded-lg shadow-lg">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Add New Website</AlertDialogTitle>
+          </AlertDialogHeader>
+          <div className="max-h-[60vh] overflow-y-auto">
+            <AddWebsiteForm />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    )
+  }
+
   return (
     <>
       <div className="px-4">
@@ -159,6 +183,7 @@ export function WebsiteDataTable<TData, TValue>({
               }
               className="max-w-[200px]"
             />
+            <AddWebsiteDialog />
           </div>
           <div className="flex items-center gap-2">
             <DeleteAlertDialog />
