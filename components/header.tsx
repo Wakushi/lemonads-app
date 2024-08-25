@@ -10,7 +10,6 @@ import { usePathname, useRouter } from "next/navigation"
 import clsx from "clsx"
 import { User } from "@/lib/types/user.type"
 import { useUser } from "@/service/user.service"
-import { useEffect } from "react"
 
 export default function Header() {
   const { user, loading } = useUser()
