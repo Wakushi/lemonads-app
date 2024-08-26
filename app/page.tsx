@@ -13,6 +13,7 @@ import { useState } from "react"
 import { AdParcel, AdParcelTraits } from "@/lib/types/ad-parcel.type"
 import {
   getAdParcelById,
+  getAllPublisherAdParcels,
   writeAdParcel,
 } from "@/lib/actions/onchain/contrat-actions"
 import { mockWebsites } from "@/lib/data/website-list-mock"
@@ -111,7 +112,7 @@ export default function Home() {
     return website
   }
 
-  async function getAdParcel(adParcelId: string) {
+  async function getAdParcel(adParcelId: number) {
     const adParcel = await getAdParcelById(adParcelId)
 
     if (!adParcel) return
@@ -121,6 +122,12 @@ export default function Home() {
     console.log("Adparcel: ", adParcel)
     console.log("Traits: ", adParcelTraits)
     console.log("Website: ", adParcelWebsite)
+  }
+
+  async function getPublisherAdParcels() {
+    if (!user?.address) return
+    const adParcels = await getAllPublisherAdParcels(user?.address)
+    console.log("Ad parcels: ", adParcels)
   }
 
   async function submitAdContent() {
@@ -164,13 +171,10 @@ export default function Home() {
         )}
         <Button onClick={() => createAdParcel()}>Create ad parcel</Button>
         <Button onClick={() => submitAdContent()}>Create ad content</Button>
-        <Button
-          onClick={() => getAdParcel("017c1dd5-359a-4b16-94bb-32545f244ddf")}
-        >
-          Get ad parcel
-        </Button>
         <Button onClick={() => console.log(website)}>Check website</Button>
-        <Button onClick={() => console.log(user)}>Check user</Button>
+        <Button onClick={() => getPublisherAdParcels()}>
+          Get publisher parcels
+        </Button>
         <Input type="file" onChange={(e) => onSelectMedia(e)}></Input>
         <Button onClick={() => console.log(file)}>Check file</Button>
       </div>

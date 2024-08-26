@@ -1,4 +1,3 @@
-import { adParcelMock } from "@/lib/data/ad-parcel-mock"
 import { AdParcel } from "@/lib/types/ad-parcel.type"
 import { createWalletClient, custom, Address } from "viem"
 import RPC from "@/lib/web3/viemRPC"
@@ -7,7 +6,7 @@ import {
   LEMONADS_CONTRACT_ABI,
   LEMONADS_CONTRACT_ADDRESS,
 } from "@/lib/constants"
-import { simulateContract, writeContract } from "@wagmi/core"
+import { simulateContract, writeContract, readContract } from "@wagmi/core"
 import { config } from "@/providers"
 
 interface WriteAdParcelArgs {
@@ -57,9 +56,40 @@ export async function writeAdParcel({
   }
 }
 
+export async function getAllPublisherAdParcels(
+  address: Address
+): Promise<AdParcel[]> {
+  const adParcelIds: any = await readContract(config, {
+    address: LEMONADS_CONTRACT_ADDRESS,
+    abi: LEMONADS_CONTRACT_ABI,
+    functionName: "getOwnerParcels",
+    args: [address],
+  })
+
+  const adParcels: AdParcel[] = []
+
+  for (let i = 0; i < adParcelIds.length; i++) {
+    const adParcel = await getAdParcelById(Number(adParcelIds[i]))
+    if (!adParcel) continue
+    adParcels.push(adParcel)
+  }
+
+  return adParcels
+}
+
 export async function getAdParcelById(
-  adParcelId: string
+  adParcelId: number
 ): Promise<AdParcel | null> {
-  // TODO : Call getAdParcelById(parcelId) on contract
-  return { ...adParcelMock, id: adParcelId } // Temporary mock response
+  const adParcel: any = await readContract(config, {
+    address: LEMONADS_CONTRACT_ADDRESS,
+    abi: LEMONADS_CONTRACT_ABI,
+    functionName: "getAdParcelById",
+    args: [adParcelId],
+  })
+
+  return {
+    ...adParcel,
+    bid: Number(adParcel.bid),
+    minBid: Number(adParcel.minBid),
+  } as AdParcel
 }
