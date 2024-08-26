@@ -4,7 +4,7 @@ export const PINATA_GATEWAY_BASE_URL =
 export const SEPOLIA_ETHERSCAN_TX_URL = "https://sepolia.etherscan.io/tx"
 
 export const LEMONADS_CONTRACT_ADDRESS =
-  "0xC5e7A8f3699f1691B463651418556c5Af4124A7c"
+  "0x300D1A260C7419893035A666c4AAC1eE10C08aE3"
 
 export const LEMONADS_CONTRACT_ABI = [
   {
@@ -12,47 +12,6 @@ export const LEMONADS_CONTRACT_ABI = [
     name: "addFunds",
     outputs: [],
     stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_parcelId",
-        type: "uint256",
-      },
-    ],
-    name: "closeParcel",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_parcelId",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_minBid",
-        type: "uint256",
-      },
-      {
-        internalType: "string",
-        name: "_traitsHash",
-        type: "string",
-      },
-      {
-        internalType: "string",
-        name: "_websiteInfoHash",
-        type: "string",
-      },
-    ],
-    name: "createAdParcel",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -147,6 +106,47 @@ export const LEMONADS_CONTRACT_ABI = [
     type: "event",
   },
   {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_parcelId",
+        type: "uint256",
+      },
+    ],
+    name: "closeParcel",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_parcelId",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_minBid",
+        type: "uint256",
+      },
+      {
+        internalType: "string",
+        name: "_traitsHash",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "_websiteInfoHash",
+        type: "string",
+      },
+    ],
+    name: "createAdParcel",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     anonymous: false,
     inputs: [
       {
@@ -227,6 +227,25 @@ export const LEMONADS_CONTRACT_ABI = [
     type: "function",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "parcelId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "traitsHash",
+        type: "string",
+      },
+    ],
+    name: "TraitsUpdated",
+    type: "event",
+  },
+  {
     inputs: [
       {
         internalType: "uint256",
@@ -243,6 +262,61 @@ export const LEMONADS_CONTRACT_ABI = [
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_parcelId",
+        type: "uint256",
+      },
+      {
+        internalType: "string",
+        name: "_traitsHash",
+        type: "string",
+      },
+    ],
+    name: "updateTraits",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_parcelId",
+        type: "uint256",
+      },
+      {
+        internalType: "string",
+        name: "_websiteInfoHash",
+        type: "string",
+      },
+    ],
+    name: "updateWebsite",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "parcelId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "websiteInfoHash",
+        type: "string",
+      },
+    ],
+    name: "WebsiteInfoUpdated",
+    type: "event",
   },
   {
     inputs: [

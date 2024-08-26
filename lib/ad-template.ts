@@ -7,8 +7,9 @@ interface AdTemplateProps {
 }
 
 export function getAdTemplate({ traits, adContent }: AdTemplateProps): string {
-  const { width, height, font } = traits
+  const { width, font, primaryColor } = traits
   const { title, imageUrl, linkUrl, description } = adContent
+  const color = primaryColor ? primaryColor : "#007bff"
 
   return `
     <div class="ad-content">
@@ -24,8 +25,8 @@ export function getAdTemplate({ traits, adContent }: AdTemplateProps): string {
     <style>
         /* Ad Block Styles */
         .ad-content {
-            width: 100%;
-            max-width: 300px;
+            width: ${width};
+            height: auto;
             margin: 0 auto;
             border: 1px solid #ddd;
             border-radius: 8px;
@@ -33,6 +34,7 @@ export function getAdTemplate({ traits, adContent }: AdTemplateProps): string {
             background-color: #fff;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             text-align: center;
+            ${font ? "font-family:" + font : ""};
         }
 
         .ad-image {
@@ -61,7 +63,7 @@ export function getAdTemplate({ traits, adContent }: AdTemplateProps): string {
         .ad-link {
             display: inline-block;
             padding: 10px 15px;
-            background-color: #007bff;
+            background-color: ${color};
             color: #fff;
             text-decoration: none;
             border-radius: 5px;
@@ -69,7 +71,7 @@ export function getAdTemplate({ traits, adContent }: AdTemplateProps): string {
         }
 
         .ad-link:hover {
-            background-color: #0056b3;
+            opacity:0.7
         }
     </style>
 `

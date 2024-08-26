@@ -1,9 +1,9 @@
 import { Address } from "viem"
 
 export type AdParcelTraits = {
-  width: string
-  height: string
-  font: string
+  width?: string
+  font?: string
+  primaryColor?: string
 }
 
 export type AdParcel = {

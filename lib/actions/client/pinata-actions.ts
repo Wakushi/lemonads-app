@@ -5,15 +5,7 @@ import { Website } from "@/lib/types/website.type"
 
 export async function pinWebsiteMetadata(website: Website): Promise<Website> {
   if (website.ipfsHash) {
-    const response = await fetch("/api/ipfs", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        hash: website.ipfsHash,
-      }),
-    })
-
-    await response.json()
+    await unpinFile(website.ipfsHash)
     delete website.ipfsHash
   }
 
@@ -49,7 +41,7 @@ export async function pinAdParcelTraits(
 
 export async function pinAdContent(
   adContent: AdContent,
-  adParcelId: string
+  adParcelId: number
 ): Promise<string> {
   const response = await fetch("/api/ipfs/json", {
     method: "POST",
@@ -94,4 +86,16 @@ export async function pinFile(formData: FormData): Promise<string> {
 
   const { IpfsHash } = await response.json()
   return IpfsHash
+}
+
+export async function unpinFile(hash: string): Promise<void> {
+  const response = await fetch("/api/ipfs", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      hash,
+    }),
+  })
+
+  await response.json()
 }

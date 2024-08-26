@@ -10,7 +10,6 @@ import {
   getTraitsByHash,
 } from "@/lib/actions/client/pinata-actions"
 import { zeroAddress } from "viem"
-import { act } from "react"
 
 /**
  * @notice Receives an adParcelId query param, find the associated ad parcel by id and returns the template
