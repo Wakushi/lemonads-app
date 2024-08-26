@@ -1,6 +1,9 @@
 ;(function () {
   window.onload = () => {
-    const domainURL = "http://localhost:3000/api"
+    const DEV_MODE = false
+    const domainURL = DEV_MODE
+      ? "http://localhost:3000/api"
+      : "https://lemonads.vercel.app/api"
 
     const container = document.getElementById("ad-parcel-container")
     const adParcelId = container.getAttribute("data-ad-parcel-id")
