@@ -4,6 +4,7 @@ import { Button } from "../ui/button"
 import { ArrowUpDown } from "lucide-react"
 import { Checkbox } from "../ui/checkbox"
 import { Website } from "@/lib/types/website.type"
+import Link from "next/link"
 
 export const columns: ColumnDef<Website>[] = [
   {
@@ -187,14 +188,17 @@ export const columns: ColumnDef<Website>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
+      const websiteId = row.original.id; // Récupérer l'ID du site web
       return (
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            Edit
-          </Button>
+          <Link href={`/website/${websiteId}`}>
+            <Button variant="outline" size="sm">
+              Edit
+            </Button>
+          </Link>
           <Button size="sm">Delete</Button>
         </div>
-      )
+      );
     },
   },
 ]
