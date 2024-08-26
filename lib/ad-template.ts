@@ -1,18 +1,15 @@
+import { AdContent } from "./types/ad-content.type"
+import { AdParcelTraits } from "./types/ad-parcel.type"
+
 interface AdTemplateProps {
-  id: string
-  title: string
-  description: string
-  imageUrl: string
-  linkUrl: string
+  traits: AdParcelTraits
+  adContent: AdContent
 }
 
-export function getAdTemplate({
-  id,
-  title,
-  imageUrl,
-  linkUrl,
-  description,
-}: AdTemplateProps): string {
+export function getAdTemplate({ traits, adContent }: AdTemplateProps): string {
+  const { width, height, font } = traits
+  const { title, imageUrl, linkUrl, description } = adContent
+
   return `
     <div class="ad-content">
         <a href=${linkUrl} target="_blank">   

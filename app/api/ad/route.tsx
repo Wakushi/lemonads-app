@@ -1,5 +1,16 @@
 import { getAdTemplate } from "@/lib/ad-template"
 import { NextRequest, NextResponse } from "next/server"
+import { ethers } from "ethers"
+import {
+  LEMONADS_CONTRACT_ABI,
+  LEMONADS_CONTRACT_ADDRESS,
+} from "@/lib/constants"
+import {
+  getAdContentByHash,
+  getTraitsByHash,
+} from "@/lib/actions/client/pinata-actions"
+import { zeroAddress } from "viem"
+import { act } from "react"
 
 /**
  * @notice Receives an adParcelId query param, find the associated ad parcel by id and returns the template
@@ -32,14 +43,63 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       "Content-Type": "application/json",
     })
 
+    const provider = new ethers.JsonRpcProvider(
+      process.env.NEXT_PUBLIC_ALCHEMY_SEPOLIA_RPC
+    )
+
+    const contract = new ethers.Contract(
+      LEMONADS_CONTRACT_ADDRESS,
+      LEMONADS_CONTRACT_ABI,
+      provider
+    )
+
+    const data = await contract.getAdParcelById(adParcelId)
+
+    const [
+      bid,
+      minBid,
+      owner,
+      renter,
+      traitsHash,
+      contentHash,
+      websiteInfoHash,
+      active,
+    ] = data
+
+    if (renter === zeroAddress || !contentHash || !active) {
+      return new NextResponse(
+        JSON.stringify({ error: "No content available" }),
+        {
+          status: 404,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Content-Type": "application/json",
+          },
+        }
+      )
+    }
+
+    const traits = await getTraitsByHash(traitsHash)
+    const adContent = await getAdContentByHash(contentHash)
+
+    if (!traits || !adContent) {
+      return new NextResponse(
+        JSON.stringify({ error: "No content available" }),
+        {
+          status: 404,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Content-Type": "application/json",
+          },
+        }
+      )
+    }
+
     return new NextResponse(
       JSON.stringify({
         htmlContent: getAdTemplate({
-          id: adParcelId,
-          title: "Opensea",
-          description: "Biggest NFT marketplace",
-          imageUrl: "https://static.opensea.io/og-images/Metadata-Image.png",
-          linkUrl: "https://opensea.io/fr",
+          traits,
+          adContent,
         }),
       }),
       { headers }
