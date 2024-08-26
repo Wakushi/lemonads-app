@@ -66,7 +66,6 @@ const getBalance = async (provider: IProvider): Promise<string> => {
     const address = await walletClient.getAddresses()
 
     const balance = await publicClient.getBalance({ address: address[0] })
-    console.log(balance)
     return formatEther(balance)
   } catch (error) {
     return error as string

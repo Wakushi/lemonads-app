@@ -11,11 +11,19 @@ import clsx from "clsx"
 import { User } from "@/lib/types/user.type"
 import { useUser } from "@/service/user.service"
 import { shortenAddress } from "@/lib/utils"
+import RPC from "@/lib/web3/viemRPC"
+import { web3AuthInstance } from "@/lib/web3/Web3AuthConnectorInstance"
 
 export default function Header() {
   const { user, loading } = useUser()
   const { disconnect } = useDisconnect()
   const router = useRouter()
+
+  async function getUserBalance() {
+    if (!web3AuthInstance.provider) return
+    const balance = await RPC.getBalance(web3AuthInstance.provider)
+    console.log("Balance: ", balance)
+  }
 
   return (
     <header className="fixed top-0 left-0 w-full flex items-center justify-between px-8 py-4 bg-white bg-opacity-[0.02] shadow-sm backdrop-blur-sm z-[10]">
@@ -30,7 +38,10 @@ export default function Header() {
           {user && (
             <>
               <div
-                onClick={() => console.log("User: ", user)}
+                onClick={() => {
+                  console.log("User: ", user)
+                  getUserBalance()
+                }}
                 className="text-white bg-brand px-4 py-2 rounded-md shadow hover:text-brand hover:bg-white cursor-pointer"
               >
                 {shortenAddress(user.address)}

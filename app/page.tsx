@@ -46,6 +46,10 @@ export default function Home() {
   }
 
   async function createAdParcel() {
+    if (!user) {
+      throw new Error("User not found !")
+    }
+
     if (!website.ipfsHash) {
       throw new Error("Website hash not found !")
     }
@@ -57,11 +61,11 @@ export default function Home() {
     }
 
     const adParcelId = uuidv4()
-
     const traitsHash = await pinAdParcelTraits(traits, adParcelId)
 
     try {
       const transactionHash = await writeAdParcel({
+        account: user.address,
         id: uuidToUint256(uuidv4()),
         minBid: 1,
         traitsHash,
