@@ -188,7 +188,7 @@ export const columns: ColumnDef<Website>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const websiteId = row.original.id; // Récupérer l'ID du site web
+      const websiteId = row.original.id;
       return (
         <div className="flex gap-2">
           <Link href={`/website/${websiteId}`}>

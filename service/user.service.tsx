@@ -60,7 +60,6 @@ export default function UserContextProvider(props: UserContextProviderProps) {
           )
         }
       } catch (err) {
-        console.error("Failed to fetch user data:", err)
         setError("Failed to fetch user data")
       } finally {
         setLoading(false)

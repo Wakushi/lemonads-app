@@ -65,10 +65,15 @@ export const getWebsitesByUser = async (
       .collection(WEBSITE_COLLECTION)
       .get()
 
-    const websites: Website[] = websitesSnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as Website[]
+    websitesSnapshot.docs.forEach((doc) => console.log(doc.id))
+
+    const websites: Website[] = websitesSnapshot.docs.map(
+      (doc) =>
+        ({
+          ...doc.data(),
+          id: doc.id,
+        } as Website)
+    )
 
     return websites
   } catch (error) {
@@ -103,23 +108,25 @@ export async function registerAdClick(
     timestamp: admin.firestore.FieldValue.serverTimestamp(),
   })
 }
-export const getWebsiteById = async (userFirebaseId: string, websiteId: string): Promise<Website | null> => {
+export const getWebsiteById = async (
+  userFirebaseId: string,
+  websiteId: string
+): Promise<Website | null> => {
   try {
     const doc = await adminDb
       .collection(USER_COLLECTION)
       .doc(userFirebaseId)
       .collection(WEBSITE_COLLECTION)
       .doc(websiteId)
-      .get();
+      .get()
 
     if (!doc.exists) {
-      return null;
+      return null
     }
 
-    return { id: doc.id, ...doc.data() } as Website;
+    return { id: doc.id, ...doc.data() } as Website
   } catch (error) {
-    console.error("Error fetching website by ID:", error);
-    throw new Error("Failed to fetch website");
+    console.error("Error fetching website by ID:", error)
+    throw new Error("Failed to fetch website")
   }
-};
-
+}
