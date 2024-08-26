@@ -10,6 +10,7 @@ import {
   getTraitsByHash,
 } from "@/lib/actions/client/pinata-actions"
 import { zeroAddress } from "viem"
+import { registerAdClick } from "@/lib/actions/server/firebase-actions"
 
 /**
  * @notice Receives an adParcelId query param, find the associated ad parcel by id and returns the template
@@ -114,6 +115,14 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   }
 }
 
+export interface ClickDetails {
+  ip: string
+  country: string
+  userAgent: string
+  referer: string
+  acceptLanguage: string
+}
+
 /**
  * @notice Request received on ad parcel click
  */
@@ -127,8 +136,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const acceptLanguage = req.headers.get("accept-language") || "Unknown"
     const country = ip !== "Unknown" ? await getCountryByIP(ip) : "Unknown"
 
-    console.log({
-      adParcelId,
+    registerAdClick(adParcelId, {
       ip,
       country,
       userAgent,

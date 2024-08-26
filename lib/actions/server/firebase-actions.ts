@@ -1,11 +1,13 @@
-import { adminDb } from "@/firebase-admin"
+import { ClickDetails } from "@/app/api/ad/route"
+import { admin, adminDb } from "@/firebase-admin"
 import { AdContent } from "@/lib/types/ad-content.type"
 import { User } from "@/lib/types/user.type"
 import { Website } from "@/lib/types/website.type"
 
 const USER_COLLECTION = "users"
 const WEBSITE_COLLECTION = "websites"
-const AD_CONTENT_COLLECTION = "adContent"
+const AD_CONTENT_COLLECTION = "adContents"
+const AD_CLICK = "adClicks"
 
 export const createUser = async (user: User): Promise<User | null> => {
   try {
@@ -89,4 +91,15 @@ export const addAdContentToUser = async (
     console.error("Error adding ad content:", error)
     throw new Error("Failed to ad content")
   }
+}
+
+export async function registerAdClick(
+  adParcelId: number,
+  clickDetails: ClickDetails
+) {
+  await adminDb.collection(AD_CLICK).add({
+    adParcelId,
+    ...clickDetails,
+    timestamp: admin.firestore.FieldValue.serverTimestamp(),
+  })
 }

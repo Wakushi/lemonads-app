@@ -30,6 +30,7 @@ import { ToastAction } from "@/components/ui/toast"
 import { SEPOLIA_ETHERSCAN_TX_URL } from "@/lib/constants"
 import { AdContent } from "@/lib/types/ad-content.type"
 import { adContentMock } from "@/lib/data/ad-content-mock"
+import { Label } from "@/components/ui/label"
 
 export default function Home() {
   const { user } = useUser()
@@ -273,7 +274,9 @@ export default function Home() {
           <Button onClick={() => console.log(file)}>Check file</Button>
         </div>
         <div className="flex flex-col gap-4">
+          <Label htmlFor="adParcel">Ad parcel id</Label>
           <Input
+            id="adParcel"
             value={searchedAdParcelId}
             type="text"
             onChange={(e) => setSearchedAdParcelId(e.target.value)}
