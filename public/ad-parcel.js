@@ -9,25 +9,18 @@
     const adParcelId = container.getAttribute("data-ad-parcel-id")
     const adContentUrl = `${domainURL}/ad?adParcelId=${adParcelId}`
 
-    function forceRedraw(element) {
-      console.log("Redrawing ", element)
+    function redraw(element) {
       if (element) {
-        // Temporarily disconnect the observer
         if (observer) observer.disconnect()
-
-        // Perform the redraw operations
         const clone = element.cloneNode(true)
         element.replaceWith(clone)
         element.style.display = "none"
-        element.offsetHeight // Trigger a reflow
+        element.offsetHeight
         element.style.visibility = "hidden"
         element.style.visibility = "visible"
-        element.style.transform = "scale(1)" // Ensure it's in the view
-        window.scrollBy(0, 1) // Force a redraw by scrolling
+        element.style.transform = "scale(1)"
+        window.scrollBy(0, 1)
         window.scrollBy(0, -1)
-
-        // Reconnect the observer
-        observeMutations(clone)
       }
     }
 
@@ -35,14 +28,11 @@
       const config = { attributes: true, childList: true, subtree: true }
 
       const callback = function (mutationsList, observer) {
-        console.log("DOM mutation observed:", mutationsList)
-        forceRedraw(targetNode)
+        redraw(targetNode)
       }
 
       const observer = new MutationObserver(callback)
       observer.observe(targetNode, config)
-
-      // Reassigning the observer variable so that we can disconnect it in forceRedraw
       window.observer = observer
     }
 
@@ -65,17 +55,15 @@
       }
 
       const data = await response.json()
-      console.log("Fetched data: ", data)
 
       setTimeout(() => {
         container.innerHTML = data.htmlContent
+        container.style.width = "fit-content"
         observeMutations(container)
-        forceRedraw(container)
+        container.addEventListener("click", function () {
+          sendClickData(adParcelId)
+        })
       }, 100)
-
-      container.addEventListener("click", function () {
-        sendClickData(adParcelId)
-      })
     } catch (error) {
       console.error("Error fetching ad content:", error)
     }
