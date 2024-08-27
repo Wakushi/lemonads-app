@@ -51,7 +51,7 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
 
   if (loading || userLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center pt-20">
         <LoaderSmall />
       </div>
     );
@@ -59,7 +59,7 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-3xl">
+      <div className="min-h-screen flex items-center justify-center text-3xl pt-20">
         {error}
       </div>
     );
@@ -67,14 +67,14 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
 
   if (!website) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-3xl">
+      <div className="min-h-screen flex items-center justify-center text-3xl pt-20">
         Website not found
       </div>
     );
   }
 
   return (
-    <div className="px-10 flex justify-around w-full h-[90vh]">
+    <div className="px-10 flex justify-around w-full h-[90vh] pt-20">
       <div className="w-1/2">
         <h1 className="text-3xl font-bold mb-4">{website.name}</h1>
         <p className="mb-2">

@@ -1,10 +1,10 @@
 export const PINATA_GATEWAY_BASE_URL =
   "https://peach-genuine-lamprey-766.mypinata.cloud/ipfs"
 
-export const SEPOLIA_ETHERSCAN_TX_URL = "https://sepolia.etherscan.io/tx"
+export const AMOY_ETHERSCAN_TX_URL = "https://www.oklink.com/amoy/tx"
 
 export const LEMONADS_CONTRACT_ADDRESS =
-  "0x300D1A260C7419893035A666c4AAC1eE10C08aE3"
+  "0x0B347Da14EA84fCDc0e32e6B4C1f4D6Bc6C01a77"
 
 export const LEMONADS_CONTRACT_ABI = [
   {

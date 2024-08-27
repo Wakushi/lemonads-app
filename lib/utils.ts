@@ -36,5 +36,5 @@ export function shortenAddress(address: Address): string {
 export function uuidToUint256(uuid: string) {
   const hexString = uuid.replace(/-/g, "")
   const bigIntValue = BigInt("0x" + hexString)
-  return Math.ceil(Number(bigIntValue) / 10e20)
+  return Math.ceil(Number(bigIntValue) / 10e28)
 }

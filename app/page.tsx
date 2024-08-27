@@ -27,7 +27,7 @@ import { createAdContent } from "@/lib/actions/client/firebase-actions"
 import { uuidToUint256 } from "@/lib/utils"
 import { useToast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
-import { SEPOLIA_ETHERSCAN_TX_URL } from "@/lib/constants"
+import { AMOY_ETHERSCAN_TX_URL } from "@/lib/constants"
 import { AdContent } from "@/lib/types/ad-content.type"
 import { adContentMock } from "@/lib/data/ad-content-mock"
 import { Label } from "@/components/ui/label"
@@ -56,17 +56,19 @@ export default function Home() {
   }
 
   async function createAdParcel() {
+    setLoading(true)
     if (!user) {
+      setLoading(false)
       throw new Error("User not found !")
     }
 
     if (!website.ipfsHash) {
+      setLoading(false)
       throw new Error("Website hash not found !")
     }
 
     const traits = {
       width: "400px",
-      font: "Roboto, sans-serif",
     }
 
     const adParcelId = uuidv4()
@@ -89,7 +91,7 @@ export default function Home() {
             altText="See details"
             onClick={() =>
               window.open(
-                `${SEPOLIA_ETHERSCAN_TX_URL}/${transactionHash}`,
+                `${AMOY_ETHERSCAN_TX_URL}/${transactionHash}`,
                 "_blank"
               )
             }
@@ -103,6 +105,8 @@ export default function Home() {
         title: "Error during parcel creation",
         description: "Please try again. Error: " + error,
       })
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -117,9 +121,9 @@ export default function Home() {
   async function submitAdContent() {
     if (!user) return
 
-    const title = "Opensea"
-    const description = "Biggest NFT marketplace !"
-    const linkUrl = "https://opensea.io/fr"
+    const title = "Dofus"
+    const description = "Best game on earth!"
+    const linkUrl = "https://www.dofus.com/en/prehome"
 
     if (!file) {
       console.error("No file selected")
@@ -215,7 +219,7 @@ export default function Home() {
             altText="See details"
             onClick={() =>
               window.open(
-                `${SEPOLIA_ETHERSCAN_TX_URL}/${transactionHash}`,
+                `${AMOY_ETHERSCAN_TX_URL}/${transactionHash}`,
                 "_blank"
               )
             }
@@ -236,14 +240,14 @@ export default function Home() {
 
   if (loading) {
     return (
-      <main className="min-h-[100vh] flex items-center justify-center pt-20">
+      <main className="min-h-[100vh] flex items-center justify-center">
         <LoaderSmall />
       </main>
     )
   }
 
   return (
-    <main className="min-h-[100vh] flex items-center justify-center pt-20">
+    <main className="min-h-[100vh] flex items-center justify-center">
       <div className="flex gap-4">
         <div className="flex flex-col gap-4">
           <Button onClick={() => storeWebsiteMetadata()}>
@@ -257,8 +261,6 @@ export default function Home() {
             onClick={() =>
               onUpdateParcelTraits(+searchedAdParcelId, {
                 width: "500px",
-                font: "Roboto, sans-serif",
-                primaryColor: "#790FFF",
               })
             }
           >
