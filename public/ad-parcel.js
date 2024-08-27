@@ -15,6 +15,7 @@
       element.style.display = "none"
       var trick = element.offsetHeight
       element.style.display = disp
+      window.resizeBy(0, 0)
     }
 
     function sendClickData(adParcelId) {
