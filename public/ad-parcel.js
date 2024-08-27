@@ -12,6 +12,10 @@
     function forceRedraw(element) {
       console.log("Redrawing ", element)
       if (element) {
+        // Temporarily disconnect the observer
+        if (observer) observer.disconnect()
+
+        // Perform the redraw operations
         const clone = element.cloneNode(true)
         element.replaceWith(clone)
         element.style.display = "none"
@@ -21,6 +25,9 @@
         element.style.transform = "scale(1)" // Ensure it's in the view
         window.scrollBy(0, 1) // Force a redraw by scrolling
         window.scrollBy(0, -1)
+
+        // Reconnect the observer
+        observeMutations(clone)
       }
     }
 
@@ -34,6 +41,9 @@
 
       const observer = new MutationObserver(callback)
       observer.observe(targetNode, config)
+
+      // Reassigning the observer variable so that we can disconnect it in forceRedraw
+      window.observer = observer
     }
 
     function sendClickData(adParcelId) {
