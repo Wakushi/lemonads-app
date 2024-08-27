@@ -28,8 +28,8 @@
         return response.json()
       })
       .then((data) => {
-        container.innerHTML = data.htmlContent
-
+        container.insertAdjacentHTML("afterbegin", "<span></span>")
+        container.insertAdjacentHTML("afterbegin", data.htmlContent)
         container.addEventListener("click", function () {
           sendClickData(adParcelId)
         })
