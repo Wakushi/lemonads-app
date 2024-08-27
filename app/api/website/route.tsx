@@ -1,4 +1,5 @@
 import { getWebsitesByUser, getWebsiteById, addWebsiteToUser } from "@/lib/actions/server/firebase-actions";
+import { pinJSONToIPFS } from "@/lib/actions/server/pinata-actions";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
@@ -6,14 +7,22 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const { uid, ...websiteData } = await req.json();
 
     if (!uid) {
-      return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+      return NextResponse.json({ error: "L'ID utilisateur est requis" }, { status: 400 });
     }
 
-    const result = await addWebsiteToUser(uid, websiteData);
+    const ipfsHash = await pinJSONToIPFS(websiteData, websiteData.name);
+
+    const websiteDataWithIpfs = {
+      ...websiteData,
+      ipfsHash, 
+    };
+
+    const result = await addWebsiteToUser(uid, websiteDataWithIpfs);
+
     return NextResponse.json({ result });
   } catch (error) {
-    console.error("API error:", error);
-    return NextResponse.json({ error: "Failed to add website" }, { status: 500 });
+    console.error("Erreur API :", error);
+    return NextResponse.json({ error: "Échec de l'ajout du site web" }, { status: 500 });
   }
 }
 

@@ -100,18 +100,18 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
         </p>
       </div>
 
-      <div className="w-1/2 h-full">
-        <div className="grid grid-cols-3 gap-4 p-4 border border-gray-300 rounded-lg h-3/4">
+      <div className="w-1/2 h-full py-10">
+        <div className="grid grid-cols-3 gap-4 p-4 border border-gray-300 rounded-lg h-full">
           {/* Mappez ici les blocs de publicité existants */}
-          <div className="h-1/3 border border-gray-300 bg-gray-100 shadow-inner flex items-center justify-center">
+          <div className="h-1/3 border border-gray-300 bg-gray-100 bg-opacity-40 shadow-inner flex items-center justify-center">
             Bloc 1
           </div>
-          <div className="h-1/3 border border-gray-300 bg-gray-100 shadow-inner flex items-center justify-center">
+          <div className="h-1/3 border border-gray-300 bg-gray-100 bg-opacity-40 shadow-inner flex items-center justify-center">
             Bloc 2
           </div>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <div className="h-1/3 border border-gray-300 bg-gray-100 shadow-inner flex items-center justify-center cursor-pointer">
+              <div className="h-1/3 border border-gray-300 bg-gray-100 bg-opacity-40 shadow-inner flex items-center justify-center cursor-pointer">
                 <span className="text-3xl text-gray-500">+</span>
               </div>
             </AlertDialogTrigger>

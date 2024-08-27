@@ -29,7 +29,7 @@ export function AdBlockCustomization() {
             height: `${adBlockSettings.height}px`,
             borderRadius: `${adBlockSettings.borderRadius}px`,
             backgroundColor: adBlockSettings.backgroundColor,
-            transition: "all 0.3s ease", // Smooth transition for resizing
+            transition: "all 0.3s ease", 
           }}
         >
           <div className="flex justify-center items-center h-full">
