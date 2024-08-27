@@ -16,7 +16,6 @@
         element.replaceWith(clone)
         element.style.display = "none"
         element.offsetHeight // Trigger a reflow
-        element.style.display = disp
         element.style.visibility = "hidden"
         element.style.visibility = "visible"
         element.style.transform = "scale(1)" // Ensure it's in the view
