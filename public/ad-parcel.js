@@ -1,5 +1,5 @@
 ;(function () {
-  window.onload = () => {
+  window.onload = async () => {
     const DEV_MODE = false
     const domainURL = DEV_MODE
       ? "http://localhost:3000/api"
@@ -10,20 +10,11 @@
     const adContentUrl = `${domainURL}/ad?adParcelId=${adParcelId}`
 
     function forceRedraw(element) {
-      if (!element) {
-        return
-      }
-
-      const n = document.createTextNode(" ")
-      const disp = element.style.display
-
-      element.appendChild(n)
+      console.log("Redrawing ", element)
+      var disp = element.style.display
       element.style.display = "none"
-
-      setTimeout(() => {
-        element.style.display = disp
-        n.parentNode.removeChild(n)
-      }, 20)
+      var trick = element.offsetHeight
+      element.style.display = disp
     }
 
     function sendClickData(adParcelId) {
@@ -37,20 +28,24 @@
       })
     }
 
-    fetch(adContentUrl)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-        return response.json()
+    try {
+      const response = await fetch(adContentUrl)
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      console.log("Fetched data: ", data)
+      container.innerHTML = data.htmlContent
+
+      forceRedraw(container)
+
+      container.addEventListener("click", function () {
+        sendClickData(adParcelId)
       })
-      .then((data) => {
-        container.innerHTML = data.htmlContent
-        forceRedraw(container)
-        container.addEventListener("click", function () {
-          sendClickData(adParcelId)
-        })
-      })
-      .catch((error) => console.error("Error fetching ad content:", error))
+    } catch (error) {
+      console.error("Error fetching ad content:", error)
+    }
   }
 })()
