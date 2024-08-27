@@ -38,7 +38,7 @@
 
       const data = await response.json()
       console.log("Fetched data: ", data)
-      container.innerHTML = data.htmlContent
+      container.innerHTML = `<div style="background-color: red; color: white; z-index: 9999; position: relative;">${data.htmlContent}</div>`
 
       forceRedraw(container)
 
