@@ -9,6 +9,23 @@
     const adParcelId = container.getAttribute("data-ad-parcel-id")
     const adContentUrl = `${domainURL}/ad?adParcelId=${adParcelId}`
 
+    function forceRedraw(element) {
+      if (!element) {
+        return
+      }
+
+      const n = document.createTextNode(" ")
+      const disp = element.style.display
+
+      element.appendChild(n)
+      element.style.display = "none"
+
+      setTimeout(() => {
+        element.style.display = disp
+        n.parentNode.removeChild(n)
+      }, 20)
+    }
+
     function sendClickData(adParcelId) {
       fetch(`${domainURL}/ad`, {
         mode: "no-cors",
@@ -28,8 +45,8 @@
         return response.json()
       })
       .then((data) => {
-        container.insertAdjacentHTML("afterbegin", "<span></span>")
-        container.insertAdjacentHTML("afterbegin", data.htmlContent)
+        container.innerHTML = data.htmlContent
+        forceRedraw(container)
         container.addEventListener("click", function () {
           sendClickData(adParcelId)
         })
