@@ -7,9 +7,8 @@ interface AdTemplateProps {
 }
 
 export function getAdTemplate({ traits, adContent }: AdTemplateProps): string {
-  const { width, font, primaryColor } = traits
+  const { width } = traits
   const { title, imageUrl, linkUrl, description } = adContent
-  const color = primaryColor ? primaryColor : "#007bff"
 
   return `
     <div class="ad-content">
@@ -34,7 +33,6 @@ export function getAdTemplate({ traits, adContent }: AdTemplateProps): string {
             background-color: #fff;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             text-align: center;
-            ${font ? "font-family:" + font : ""};
         }
 
         .ad-image {
@@ -63,7 +61,7 @@ export function getAdTemplate({ traits, adContent }: AdTemplateProps): string {
         .ad-link {
             display: inline-block;
             padding: 10px 15px;
-            background-color: ${color};
+            background-color: #000;
             color: #fff;
             text-decoration: none;
             border-radius: 5px;
