@@ -1,4 +1,4 @@
-import { ClickDetails } from "@/app/api/ad/route"
+import { InteractionDetails } from "@/app/api/ad/route"
 import { admin, adminDb } from "@/firebase-admin"
 import { AdContent } from "@/lib/types/ad-content.type"
 import { User } from "@/lib/types/user.type"
@@ -7,7 +7,8 @@ import { Website } from "@/lib/types/website.type"
 const USER_COLLECTION = "users"
 const WEBSITE_COLLECTION = "websites"
 const AD_CONTENT_COLLECTION = "adContents"
-const AD_CLICK = "adClicks"
+const AD_CLICK = "ad-clicks"
+const AD_IMPRESSION = "ad-impressions"
 
 export const createUser = async (user: User): Promise<User | null> => {
   try {
@@ -100,7 +101,7 @@ export const addAdContentToUser = async (
 
 export async function registerAdClick(
   adParcelId: number,
-  clickDetails: ClickDetails
+  clickDetails: InteractionDetails
 ) {
   await adminDb.collection(AD_CLICK).add({
     adParcelId,
@@ -108,6 +109,7 @@ export async function registerAdClick(
     timestamp: admin.firestore.FieldValue.serverTimestamp(),
   })
 }
+
 export const getWebsiteById = async (
   userFirebaseId: string,
   websiteId: string
@@ -129,4 +131,15 @@ export const getWebsiteById = async (
     console.error("Error fetching website by ID:", error)
     throw new Error("Failed to fetch website")
   }
+}
+
+export async function registerAdImpression(
+  adParcelId: number,
+  interactionDetails: InteractionDetails
+) {
+  await adminDb.collection(AD_IMPRESSION).add({
+    adParcelId,
+    ...interactionDetails,
+    timestamp: admin.firestore.FieldValue.serverTimestamp(),
+  })
 }

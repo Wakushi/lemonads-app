@@ -121,9 +121,10 @@ export default function Home() {
   async function submitAdContent() {
     if (!user) return
 
-    const title = "Dofus"
-    const description = "Best game on earth!"
-    const linkUrl = "https://www.dofus.com/en/prehome"
+    const title = "Chainlink"
+    const description =
+      "Chainlink connects existing systems to any public or private blockchain and enables secure cross-chain communication. World-class developer experience."
+    const linkUrl = "https://chain.link/"
 
     if (!file) {
       console.error("No file selected")
@@ -273,7 +274,9 @@ export default function Home() {
         <div className="flex flex-col gap-4">
           <Button onClick={() => submitAdContent()}>Create ad content</Button>
           <Input type="file" onChange={(e) => onSelectMedia(e)}></Input>
-          <Button onClick={() => console.log(file)}>Check file</Button>
+          <Button onClick={() => console.log(adContent)}>
+            Check ad content
+          </Button>
         </div>
         <div className="flex flex-col gap-4">
           <Label htmlFor="adParcel">Ad parcel id</Label>

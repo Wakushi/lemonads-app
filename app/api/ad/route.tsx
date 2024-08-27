@@ -10,7 +10,10 @@ import {
   getTraitsByHash,
 } from "@/lib/actions/client/pinata-actions"
 import { zeroAddress } from "viem"
-import { registerAdClick } from "@/lib/actions/server/firebase-actions"
+import {
+  registerAdClick,
+  registerAdImpression,
+} from "@/lib/actions/server/firebase-actions"
 
 /**
  * @notice Receives an adParcelId query param, find the associated ad parcel by id and returns the template
@@ -95,6 +98,9 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       )
     }
 
+    const interactionDetails = await getInteractionDetails(req)
+    registerAdImpression(+adParcelId, interactionDetails)
+
     return new NextResponse(
       JSON.stringify({
         htmlContent: getAdTemplate({
@@ -115,7 +121,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   }
 }
 
-export interface ClickDetails {
+export interface InteractionDetails {
   ip: string
   country: string
   userAgent: string
@@ -129,20 +135,8 @@ export interface ClickDetails {
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const { adParcelId } = await req.json()
-
-    const userAgent = req.headers.get("user-agent") || "Unknown"
-    const ip = req.headers.get("x-forwarded-for") || req.ip || "Unknown"
-    const referer = req.headers.get("referer") || "Unknown"
-    const acceptLanguage = req.headers.get("accept-language") || "Unknown"
-    const country = ip !== "Unknown" ? await getCountryByIP(ip) : "Unknown"
-
-    registerAdClick(adParcelId, {
-      ip,
-      country,
-      userAgent,
-      referer,
-      acceptLanguage,
-    })
+    const interactionDetails = await getInteractionDetails(req)
+    registerAdClick(adParcelId, interactionDetails)
 
     return new NextResponse(JSON.stringify({ message: "Ok" }), {
       status: 200,
@@ -163,9 +157,27 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 }
 
+async function getInteractionDetails(
+  req: NextRequest
+): Promise<InteractionDetails> {
+  const userAgent = req.headers.get("user-agent") || "Unknown"
+  const ip = req.headers.get("x-forwarded-for") || req.ip || "Unknown"
+  const referer = req.headers.get("referer") || "Unknown"
+  const acceptLanguage = req.headers.get("accept-language") || "Unknown"
+  const country = ip !== "Unknown" ? await getCountryByIP(ip) : "Unknown"
+
+  return {
+    ip,
+    country,
+    userAgent,
+    referer,
+    acceptLanguage,
+  }
+}
+
 async function getCountryByIP(ip: string) {
   try {
-    const response = await fetch(`https://ipapi.co/${ip}/json/`)
+    const response = await fetch(`https://ipapi.co/${ip}/json`)
     const data = await response.json()
     return data.country_name || "Unknown"
   } catch (error) {
