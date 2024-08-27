@@ -11,11 +11,30 @@
 
     function forceRedraw(element) {
       console.log("Redrawing ", element)
-      var disp = element.style.display
-      element.style.display = "none"
-      var trick = element.offsetHeight
-      element.style.display = disp
-      window.resizeBy(0, 0)
+      if (element) {
+        const clone = element.cloneNode(true)
+        element.replaceWith(clone)
+        element.style.display = "none"
+        element.offsetHeight // Trigger a reflow
+        element.style.display = disp
+        element.style.visibility = "hidden"
+        element.style.visibility = "visible"
+        element.style.transform = "scale(1)" // Ensure it's in the view
+        window.scrollBy(0, 1) // Force a redraw by scrolling
+        window.scrollBy(0, -1)
+      }
+    }
+
+    function observeMutations(targetNode) {
+      const config = { attributes: true, childList: true, subtree: true }
+
+      const callback = function (mutationsList, observer) {
+        console.log("DOM mutation observed:", mutationsList)
+        forceRedraw(targetNode)
+      }
+
+      const observer = new MutationObserver(callback)
+      observer.observe(targetNode, config)
     }
 
     function sendClickData(adParcelId) {
@@ -38,9 +57,12 @@
 
       const data = await response.json()
       console.log("Fetched data: ", data)
-      container.innerHTML = `<div style="background-color: red; color: white; z-index: 9999; position: relative;">${data.htmlContent}</div>`
 
-      forceRedraw(container)
+      setTimeout(() => {
+        container.innerHTML = data.htmlContent
+        observeMutations(container)
+        forceRedraw(container)
+      }, 100)
 
       container.addEventListener("click", function () {
         sendClickData(adParcelId)
