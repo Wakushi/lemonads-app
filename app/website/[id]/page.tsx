@@ -1,5 +1,4 @@
-"use client";
-
+'use client'
 import { useEffect, useState } from "react";
 import { Website } from "@/lib/types/website.type";
 import { useUser } from "@/service/user.service";
@@ -15,25 +14,32 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+import { AMOY_ETHERSCAN_TX_URL } from "@/lib/constants"
+
+
 import { AdBlockCustomization } from "@/components/add-block-customization";
+import { v4 as uuidv4 } from "uuid";
+import { uuidToUint256 } from "@/lib/utils";
+import { pinAdParcelTraits } from "@/lib/actions/client/pinata-actions";
+import { writeAdParcel } from "@/lib/actions/onchain/contract-actions";
+import { ToastAction } from "@/components/ui/toast";
+import { toast } from "@/components/ui/use-toast";
 
 const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
   const { id } = params;
   const { user, loading: userLoading } = useUser();
 
   const [website, setWebsite] = useState<Website | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false); 
   const [error, setError] = useState<string | null>(null);
+  const [adBlockSettings, setAdBlockSettings] = useState({});
 
   useEffect(() => {
     const fetchWebsite = async () => {
       if (!user || userLoading) return;
 
       try {
-        const response = await fetch(
-          `/api/website?id=${id}&uid=${user.firebaseId}`
-        );
+        const response = await fetch(`/api/website?id=${id}&uid=${user.firebaseId}`);
         if (!response.ok) {
           throw new Error("Failed to fetch website details");
         }
@@ -48,6 +54,56 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
 
     fetchWebsite();
   }, [id, user, userLoading]);
+
+  async function createAdParcel() {
+    setLoading(true);
+    if (!user) {
+      setLoading(false);
+      throw new Error("User not found !");
+    }
+
+    if (!website?.ipfsHash) {
+      setLoading(false);
+      throw new Error("Website hash not found !");
+    }
+
+    const traits = {
+      ...adBlockSettings,
+    };
+
+    const adParcelId = uuidv4();
+    const traitsHash = await pinAdParcelTraits(traits, adParcelId);
+
+    try {
+      const transactionHash = await writeAdParcel({
+        account: user.address,
+        id: uuidToUint256(adParcelId),
+        minBid: 1,
+        traitsHash,
+        websiteInfoHash: website.ipfsHash,
+      });
+
+      toast({
+        title: "Ad parcel created !",
+        description: "See on block explorer",
+        action: (
+          <ToastAction
+            altText="See details"
+            onClick={() => window.open(`${AMOY_ETHERSCAN_TX_URL}/${transactionHash}`, "_blank")}
+          >
+            See details
+          </ToastAction>
+        ),
+      });
+    } catch (error) {
+      toast({
+        title: "Error during parcel creation",
+        description: `Please try again. Error: ${error}`,
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
 
   if (loading || userLoading) {
     return (
@@ -122,10 +178,10 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
                   Customize and create your new ad block here.
                 </AlertDialogDescription>
               </AlertDialogHeader>
-              <AdBlockCustomization />
+              <AdBlockCustomization setAdBlockSettings={setAdBlockSettings} />
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction>Create</AlertDialogAction>
+                <AlertDialogAction onClick={createAdParcel}>Create</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
@@ -136,3 +192,4 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
 };
 
 export default WebsiteDetailPage;
+
