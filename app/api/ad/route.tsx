@@ -14,6 +14,7 @@ import {
   registerAdClick,
   registerAdImpression,
 } from "@/lib/actions/server/firebase-actions"
+import { AdEvent } from "@/lib/types/interaction.type"
 
 /**
  * @notice Receives an adParcelId query param, find the associated ad parcel by id and returns the template
@@ -121,14 +122,6 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   }
 }
 
-export interface InteractionDetails {
-  ip: string
-  country: string
-  userAgent: string
-  referer: string
-  acceptLanguage: string
-}
-
 /**
  * @notice Request received on ad parcel click
  */
@@ -157,9 +150,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 }
 
-async function getInteractionDetails(
-  req: NextRequest
-): Promise<InteractionDetails> {
+async function getInteractionDetails(req: NextRequest): Promise<AdEvent> {
   const userAgent = req.headers.get("user-agent") || "Unknown"
   const ip = req.headers.get("x-forwarded-for") || req.ip || "Unknown"
   const referer = req.headers.get("referer") || "Unknown"

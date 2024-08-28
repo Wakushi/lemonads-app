@@ -11,7 +11,7 @@ import {
   unpinFile,
 } from "@/lib/actions/client/pinata-actions"
 import { Website } from "@/lib/types/website.type"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { AdParcelTraits } from "@/lib/types/ad-parcel.type"
 import {
   getAdParcelById,
@@ -23,14 +23,21 @@ import {
 import { mockWebsites } from "@/lib/data/website-list-mock"
 import { Input } from "@/components/ui/input"
 import { useUser } from "@/service/user.service"
-import { createAdContent } from "@/lib/actions/client/firebase-actions"
-import { uuidToUint256 } from "@/lib/utils"
+import {
+  createAdContent,
+  getAllClicks,
+  getAllImpressions,
+} from "@/lib/actions/client/firebase-actions"
+import { generateRandomAdEvents, uuidToUint256 } from "@/lib/utils"
 import { useToast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
 import { AMOY_ETHERSCAN_TX_URL } from "@/lib/constants"
 import { AdContent } from "@/lib/types/ad-content.type"
 import { adContentMock } from "@/lib/data/ad-content-mock"
 import { Label } from "@/components/ui/label"
+import { ImpressionChart } from "@/components/impressions-chart"
+import { AdEvent } from "@/lib/types/interaction.type"
+import { AdEventsBarChart } from "@/components/ad-events-bar-chart"
 
 export default function Home() {
   const { user } = useUser()
@@ -38,8 +45,25 @@ export default function Home() {
   const [website, setWebsite] = useState<Website>(mockWebsites[0])
   const [adContent, setAdContent] = useState<AdContent>(adContentMock)
   const [searchedAdParcelId, setSearchedAdParcelId] = useState<string>("")
+  const [impressions, setImpressions] = useState<AdEvent[]>([])
+  const [clicks, setClicks] = useState<AdEvent[]>([])
   const [loading, setLoading] = useState<boolean>(false)
+  const [loadingEvents, setLoadingEvents] = useState<boolean>(false)
   const [file, setFile] = useState<File>()
+
+  useEffect(() => {
+    async function fetchEvents() {
+      setLoadingEvents(true)
+      const allClicks = await getAllClicks()
+      const allImpressions = await getAllImpressions()
+      // const data = generateRandomAdEvents(140)
+      setImpressions(allImpressions)
+      setClicks(allClicks)
+      setLoadingEvents(false)
+    }
+
+    fetchEvents()
+  }, [])
 
   function onSelectMedia(event: any) {
     const file = event.target.files[0]
@@ -248,7 +272,15 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-[100vh] flex items-center justify-center">
+    <main className="min-h-[100vh] flex flex-col items-center justify-center gap-8">
+      {loadingEvents ? (
+        <LoaderSmall />
+      ) : (
+        <div className="flex gap-8">
+          <ImpressionChart clicks={clicks} impressions={impressions} />
+          <AdEventsBarChart clicks={clicks} impressions={impressions} />
+        </div>
+      )}
       <div className="flex gap-4">
         <div className="flex flex-col gap-4">
           <Button onClick={() => storeWebsiteMetadata()}>

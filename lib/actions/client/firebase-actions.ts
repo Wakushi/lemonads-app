@@ -3,6 +3,7 @@ import { fileToBuffer } from "@/lib/utils"
 import { pinFile } from "./pinata-actions"
 import { PINATA_GATEWAY_BASE_URL } from "@/lib/constants"
 import { AdContent } from "@/lib/types/ad-content.type"
+import { AdEvent } from "@/lib/types/interaction.type"
 
 interface CreateAdContentArgs {
   user: User
@@ -10,6 +11,18 @@ interface CreateAdContentArgs {
   title: string
   description: string
   linkUrl: string
+}
+
+export async function getAllImpressions(): Promise<AdEvent[]> {
+  const reponse = await fetch("/api/ad/impressions")
+  const { impressions } = await reponse.json()
+  return impressions || []
+}
+
+export async function getAllClicks(): Promise<AdEvent[]> {
+  const reponse = await fetch("/api/ad/clicks")
+  const { clicks } = await reponse.json()
+  return clicks || []
 }
 
 export async function createAdContent({

@@ -1,6 +1,6 @@
-import { InteractionDetails } from "@/app/api/ad/route"
 import { admin, adminDb } from "@/firebase-admin"
 import { AdContent } from "@/lib/types/ad-content.type"
+import { AdEvent } from "@/lib/types/interaction.type"
 import { User } from "@/lib/types/user.type"
 import { Website } from "@/lib/types/website.type"
 
@@ -101,7 +101,7 @@ export const addAdContentToUser = async (
 
 export async function registerAdClick(
   adParcelId: number,
-  clickDetails: InteractionDetails
+  clickDetails: AdEvent
 ) {
   await adminDb.collection(AD_CLICK).add({
     adParcelId,
@@ -135,11 +135,61 @@ export const getWebsiteById = async (
 
 export async function registerAdImpression(
   adParcelId: number,
-  interactionDetails: InteractionDetails
+  interactionDetails: AdEvent
 ) {
   await adminDb.collection(AD_IMPRESSION).add({
     adParcelId,
     ...interactionDetails,
     timestamp: admin.firestore.FieldValue.serverTimestamp(),
   })
+}
+
+export async function getAllImpressions(): Promise<AdEvent[]> {
+  try {
+    const collectionRef = adminDb.collection(AD_IMPRESSION)
+    const snapshot = await collectionRef.get()
+
+    if (snapshot.empty) {
+      console.log("No matching documents.")
+      return []
+    }
+
+    const documents = snapshot.docs.map(
+      (doc) =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        } as AdEvent)
+    )
+
+    return documents
+  } catch (error) {
+    console.error("Error retrieving documents:", error)
+    throw new Error("Failed to retrieve documents")
+  }
+}
+
+export async function getAllClicks(): Promise<AdEvent[]> {
+  try {
+    const collectionRef = adminDb.collection(AD_CLICK)
+    const snapshot = await collectionRef.get()
+
+    if (snapshot.empty) {
+      console.log("No matching documents.")
+      return []
+    }
+
+    const documents = snapshot.docs.map(
+      (doc) =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        } as AdEvent)
+    )
+
+    return documents
+  } catch (error) {
+    console.error("Error retrieving documents:", error)
+    throw new Error("Failed to retrieve documents")
+  }
 }
