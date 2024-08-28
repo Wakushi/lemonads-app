@@ -1,3 +1,3 @@
 export default function AnnouncerDashboard() {
-  return <div>AnnouncerDashboard</div>
+  return <div className="pt-20">AnnouncerDashboard</div>
 }

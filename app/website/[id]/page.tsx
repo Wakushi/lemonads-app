@@ -13,27 +13,28 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { AMOY_ETHERSCAN_TX_URL } from "@/lib/constants"
-
-import { AdBlockCustomization } from "@/components/add-block-customization"
-import { v4 as uuidv4 } from "uuid"
-import { uuidToUint256 } from "@/lib/utils"
-import { pinAdParcelTraits } from "@/lib/actions/client/pinata-actions"
-import { writeAdParcel } from "@/lib/actions/onchain/contract-actions"
-import { ToastAction } from "@/components/ui/toast"
-import { toast } from "@/components/ui/use-toast"
-import { FaBackspace } from "react-icons/fa"
+} from "@/components/ui/alert-dialog";
+import { AMOY_ETHERSCAN_TX_URL } from "@/lib/constants";
+import { AdBlockCustomization } from "@/components/add-block-customization";
+import { v4 as uuidv4 } from "uuid";
+import { uuidToUint256 } from "@/lib/utils";
+import { pinAdParcelTraits } from "@/lib/actions/client/pinata-actions";
+import { writeAdParcel } from "@/lib/actions/onchain/contract-actions";
+import { ToastAction } from "@/components/ui/toast";
+import { toast } from "@/components/ui/use-toast";
+import { getAllPublisherAdParcels } from "@/lib/actions/onchain/contract-actions"
 import Link from "next/link"
+import { FaBackspace } from "react-icons/fa"
 
 const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
   const { id } = params
   const { user, loading: userLoading, websites } = useUser()
 
-  const [website, setWebsite] = useState<Website | null>(null)
-  const [loading, setLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
-  const [adBlockSettings, setAdBlockSettings] = useState({})
+  const [website, setWebsite] = useState<Website | null>(null);
+  const [loading, setLoading] = useState<boolean>(false); 
+  const [error, setError] = useState<string | null>(null);
+  const [adBlockSettings, setAdBlockSettings] = useState({});
+  const [adParcels, setAdParcels] = useState<any[]>([]); 
 
   useEffect(() => {
     const fetchWebsite = async () => {
@@ -63,6 +64,24 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
 
     fetchWebsite()
   }, [id, user, userLoading])
+
+  useEffect(() => {
+    const fetchAdParcels = async () => {
+      if (!user?.address) return;
+      setLoading(true);
+      try {
+        const adParcels = await getAllPublisherAdParcels(user.address);
+        setAdParcels(adParcels);
+        console.log(adParcels);
+      } catch (error) {
+        console.error("Failed to fetch ad parcels:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAdParcels();
+  }, [user]);
 
   async function createAdParcel() {
     setLoading(true)
@@ -179,13 +198,11 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
 
       <div className="w-1/2 h-full py-10">
         <div className="grid grid-cols-3 gap-4 p-4 border border-gray-300 rounded-lg h-full">
-          {/* Mappez ici les blocs de publicité existants */}
-          <div className="h-1/3 border border-gray-300 bg-gray-100 bg-opacity-40 shadow-inner flex items-center justify-center">
-            Bloc 1
-          </div>
-          <div className="h-1/3 border border-gray-300 bg-gray-100 bg-opacity-40 shadow-inner flex items-center justify-center">
-            Bloc 2
-          </div>
+          {adParcels.map((parcel, index) => (
+            <div key={index} className="h-1/3 border border-gray-300 bg-gray-100 bg-opacity-40 shadow-inner flex items-center justify-center">
+              Bloc {index + 1}
+            </div>
+          ))}
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <div className="h-1/3 border border-gray-300 bg-gray-100 bg-opacity-40 shadow-inner flex items-center justify-center cursor-pointer">
