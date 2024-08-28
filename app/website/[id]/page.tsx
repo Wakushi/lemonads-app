@@ -1,8 +1,8 @@
-'use client'
-import { useEffect, useState } from "react";
-import { Website } from "@/lib/types/website.type";
-import { useUser } from "@/service/user.service";
-import LoaderSmall from "@/components/ui/loader-small/loader-small";
+"use client"
+import { useEffect, useState } from "react"
+import { Website } from "@/lib/types/website.type"
+import { useUser } from "@/service/user.service"
+import LoaderSmall from "@/components/ui/loader-small/loader-small"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,66 +13,69 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+} from "@/components/ui/alert-dialog"
 import { AMOY_ETHERSCAN_TX_URL } from "@/lib/constants"
 
-
-import { AdBlockCustomization } from "@/components/add-block-customization";
-import { v4 as uuidv4 } from "uuid";
-import { uuidToUint256 } from "@/lib/utils";
-import { pinAdParcelTraits } from "@/lib/actions/client/pinata-actions";
-import { writeAdParcel } from "@/lib/actions/onchain/contract-actions";
-import { ToastAction } from "@/components/ui/toast";
-import { toast } from "@/components/ui/use-toast";
+import { AdBlockCustomization } from "@/components/add-block-customization"
+import { v4 as uuidv4 } from "uuid"
+import { uuidToUint256 } from "@/lib/utils"
+import { pinAdParcelTraits } from "@/lib/actions/client/pinata-actions"
+import { writeAdParcel } from "@/lib/actions/onchain/contract-actions"
+import { ToastAction } from "@/components/ui/toast"
+import { toast } from "@/components/ui/use-toast"
+import { FaBackspace } from "react-icons/fa"
+import Link from "next/link"
 
 const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
-  const { id } = params;
-  const { user, loading: userLoading } = useUser();
+  const { id } = params
+  const { user, loading: userLoading } = useUser()
 
-  const [website, setWebsite] = useState<Website | null>(null);
-  const [loading, setLoading] = useState<boolean>(false); 
-  const [error, setError] = useState<string | null>(null);
-  const [adBlockSettings, setAdBlockSettings] = useState({});
+  const [website, setWebsite] = useState<Website | null>(null)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string | null>(null)
+  const [adBlockSettings, setAdBlockSettings] = useState({})
 
   useEffect(() => {
     const fetchWebsite = async () => {
-      if (!user || userLoading) return;
+      if (!user || userLoading) return
 
       try {
-        const response = await fetch(`/api/website?id=${id}&uid=${user.firebaseId}`);
+        const response = await fetch(
+          `/api/website?id=${id}&uid=${user.firebaseId}`
+        )
         if (!response.ok) {
-          throw new Error("Failed to fetch website details");
+          throw new Error("Failed to fetch website details")
         }
-        const data = await response.json();
-        setWebsite(data);
+        const data = await response.json()
+        setWebsite(data)
       } catch (error) {
-        setError("An error occurred while fetching the website details.");
+        setError("An error occurred while fetching the website details.")
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchWebsite();
-  }, [id, user, userLoading]);
+    fetchWebsite()
+  }, [id, user, userLoading])
 
   async function createAdParcel() {
-    setLoading(true);
+    setLoading(true)
     if (!user) {
-      setLoading(false);
-      throw new Error("User not found !");
+      setLoading(false)
+      throw new Error("User not found !")
     }
 
     if (!website?.ipfsHash) {
-      setLoading(false);
-      throw new Error("Website hash not found !");
+      setLoading(false)
+      throw new Error("Website hash not found !")
     }
 
     const traits = {
       ...adBlockSettings,
-    };
+    }
 
-    const adParcelId = uuidv4();
-    const traitsHash = await pinAdParcelTraits(traits, adParcelId);
+    const adParcelId = uuidv4()
+    const traitsHash = await pinAdParcelTraits(traits, adParcelId)
 
     try {
       const transactionHash = await writeAdParcel({
@@ -81,7 +84,7 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
         minBid: 1,
         traitsHash,
         websiteInfoHash: website.ipfsHash,
-      });
+      })
 
       toast({
         title: "Ad parcel created !",
@@ -89,19 +92,24 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
         action: (
           <ToastAction
             altText="See details"
-            onClick={() => window.open(`${AMOY_ETHERSCAN_TX_URL}/${transactionHash}`, "_blank")}
+            onClick={() =>
+              window.open(
+                `${AMOY_ETHERSCAN_TX_URL}/${transactionHash}`,
+                "_blank"
+              )
+            }
           >
             See details
           </ToastAction>
         ),
-      });
+      })
     } catch (error) {
       toast({
         title: "Error during parcel creation",
         description: `Please try again. Error: ${error}`,
-      });
+      })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
@@ -110,7 +118,7 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
       <div className="min-h-screen flex items-center justify-center pt-20">
         <LoaderSmall />
       </div>
-    );
+    )
   }
 
   if (error) {
@@ -118,7 +126,7 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
       <div className="min-h-screen flex items-center justify-center text-3xl pt-20">
         {error}
       </div>
-    );
+    )
   }
 
   if (!website) {
@@ -126,11 +134,18 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
       <div className="min-h-screen flex items-center justify-center text-3xl pt-20">
         Website not found
       </div>
-    );
+    )
   }
 
   return (
-    <div className="px-10 flex justify-around w-full h-[90vh] pt-20">
+    <div className="px-10 flex justify-around w-full h-[90vh] pt-[10rem]">
+      <Link
+        className="text-brand text-xl absolute top-[6rem] left-10 flex items-center gap-2 opacity-80 hover:opacity-100 hover:gap-1 hover:translate-x-[-2px] transition-all duration-500"
+        href="/publisher"
+      >
+        <FaBackspace className="text-2xl" />
+        <span>Back</span>
+      </Link>
       <div className="w-1/2">
         <h1 className="text-3xl font-bold mb-4">{website.name}</h1>
         <p className="mb-2">
@@ -181,15 +196,16 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
               <AdBlockCustomization setAdBlockSettings={setAdBlockSettings} />
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={createAdParcel}>Create</AlertDialogAction>
+                <AlertDialogAction onClick={createAdParcel}>
+                  Create
+                </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default WebsiteDetailPage;
-
+export default WebsiteDetailPage
