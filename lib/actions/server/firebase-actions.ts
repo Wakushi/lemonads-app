@@ -169,10 +169,17 @@ export async function getAllImpressions(): Promise<AdEvent[]> {
   }
 }
 
-export async function getAllClicks(): Promise<AdEvent[]> {
+/**
+ * @param timestamp Epoch time in seconds (e.g: 1724829303)
+ * @returns List of click events emitted since that time
+ */
+export async function getAllClicks(timestamp: number): Promise<AdEvent[]> {
   try {
+    const startTimeRange = new Date(timestamp * 1000)
     const collectionRef = adminDb.collection(AD_CLICK)
-    const snapshot = await collectionRef.get()
+    const snapshot = await collectionRef
+      .where("timestamp", ">=", startTimeRange)
+      .get()
 
     if (snapshot.empty) {
       console.log("No matching documents.")

@@ -9,33 +9,6 @@
     const adParcelId = container.getAttribute("data-ad-parcel-id")
     const adContentUrl = `${domainURL}/ad?adParcelId=${adParcelId}`
 
-    function redraw(element) {
-      if (element) {
-        if (observer) observer.disconnect()
-        const clone = element.cloneNode(true)
-        element.replaceWith(clone)
-        element.style.display = "none"
-        element.offsetHeight
-        element.style.visibility = "hidden"
-        element.style.visibility = "visible"
-        element.style.transform = "scale(1)"
-        window.scrollBy(0, 1)
-        window.scrollBy(0, -1)
-      }
-    }
-
-    function observeMutations(targetNode) {
-      const config = { attributes: true, childList: true, subtree: true }
-
-      const callback = function (mutationsList, observer) {
-        redraw(targetNode)
-      }
-
-      const observer = new MutationObserver(callback)
-      observer.observe(targetNode, config)
-      window.observer = observer
-    }
-
     function sendClickData(adParcelId) {
       fetch(`${domainURL}/ad`, {
         mode: "no-cors",
@@ -56,14 +29,12 @@
 
       const data = await response.json()
 
-      setTimeout(() => {
-        container.innerHTML = data.htmlContent
-        container.style.width = "fit-content"
-        observeMutations(container)
-        container.addEventListener("click", function () {
-          sendClickData(adParcelId)
-        })
-      }, 100)
+      container.innerHTML = data.htmlContent
+      container.style.width = "fit-content"
+
+      container.addEventListener("click", function () {
+        sendClickData(adParcelId)
+      })
     } catch (error) {
       console.error("Error fetching ad content:", error)
     }

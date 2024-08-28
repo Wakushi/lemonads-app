@@ -2,8 +2,11 @@ import { getAllClicks } from "@/lib/actions/server/firebase-actions"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
+  const { searchParams } = new URL(req.url)
+  const timestamp = searchParams.get("timestamp")
+
   try {
-    const clicks = await getAllClicks()
+    const clicks = await getAllClicks(Number(timestamp))
     const response = NextResponse.json({ clicks })
 
     return response
