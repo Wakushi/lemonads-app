@@ -28,7 +28,7 @@ import Link from "next/link"
 
 const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
   const { id } = params
-  const { user, loading: userLoading } = useUser()
+  const { user, loading: userLoading, websites } = useUser()
 
   const [website, setWebsite] = useState<Website | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
@@ -37,6 +37,12 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
 
   useEffect(() => {
     const fetchWebsite = async () => {
+      const foundWebsite = websites.find((w) => w.id === id)
+      
+      if (foundWebsite) {
+        setWebsite(foundWebsite)
+      }
+
       if (!user || userLoading) return
 
       try {

@@ -5,6 +5,7 @@ import { useAccount, useDisconnect } from "wagmi"
 import { User } from "@/lib/types/user.type"
 import { web3AuthInstance } from "@/lib/web3/Web3AuthConnectorInstance"
 import RPC from "@/lib/web3/viemRPC"
+import { Website } from "@/lib/types/website.type"
 
 interface UserContextProviderProps {
   children: ReactNode
@@ -13,6 +14,10 @@ interface UserContextProviderProps {
 interface UserContextProps {
   user: User | null
   setUser: (user: User | ((prevUser: User | null) => User | null)) => void
+  websites: Website[]
+  setWebsites: (
+    websites: Website[] | ((prevWebsites: Website[]) => Website[])
+  ) => void
   loading: boolean
   disconnectWallet: () => void
 }
@@ -20,6 +25,8 @@ interface UserContextProps {
 const UserContext = createContext<UserContextProps>({
   user: null,
   setUser: () => {},
+  websites: [],
+  setWebsites: () => {},
   loading: false,
   disconnectWallet: () => {},
 })
@@ -29,6 +36,7 @@ export default function UserContextProvider(props: UserContextProviderProps) {
   const { disconnect } = useDisconnect()
 
   const [user, setUser] = useState<User | null>(null)
+  const [websites, setWebsites] = useState<Website[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -91,14 +99,16 @@ export default function UserContextProvider(props: UserContextProviderProps) {
   }
 
   async function getRegisteredUser(address: string): Promise<User | null> {
-    const response = await fetch(`/api/user?address=${address}`);
-    const { registeredUser } = await response.json();
-    return registeredUser; 
+    const response = await fetch(`/api/user?address=${address}`)
+    const { registeredUser } = await response.json()
+    return registeredUser
   }
 
   const context: UserContextProps = {
     user,
     setUser,
+    websites,
+    setWebsites,
     loading,
     disconnectWallet,
   }

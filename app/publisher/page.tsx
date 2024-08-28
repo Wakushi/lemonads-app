@@ -7,7 +7,7 @@ import LoaderSmall from "@/components/ui/loader-small/loader-small"
 import { useQuery } from "@tanstack/react-query"
 
 export default function PublisherDashboard() {
-  const { user } = useUser()
+  const { user, setWebsites } = useUser()
 
   async function fetchWebsites(): Promise<Website[]> {
     if (!user || !user.firebaseId) return []
@@ -16,6 +16,7 @@ export default function PublisherDashboard() {
       const response = await fetch(`/api/website?uid=${user.firebaseId}`)
       if (!response.ok) throw new Error("Failed to fetch websites")
       const userWebsites: Website[] = await response.json()
+      setWebsites(userWebsites)
       return userWebsites
     } catch (error) {
       console.error("Failed to load websites:", error)
