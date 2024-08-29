@@ -66,8 +66,6 @@ export const getWebsitesByUser = async (
       .collection(WEBSITE_COLLECTION)
       .get()
 
-    websitesSnapshot.docs.forEach((doc) => console.log(doc.id))
-
     const websites: Website[] = websitesSnapshot.docs.map(
       (doc) =>
         ({

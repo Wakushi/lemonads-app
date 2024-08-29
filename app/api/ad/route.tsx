@@ -48,7 +48,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     })
 
     const provider = new ethers.JsonRpcProvider(
-      process.env.NEXT_PUBLIC_ALCHEMY_AMOY_RPC
+      process.env.NEXT_PUBLIC_ALCHEMY_BASE_SEPOLIA_RPC_URL
     )
 
     const contract = new ethers.Contract(

@@ -31,7 +31,7 @@ import {
 import { generateRandomAdEvents, uuidToUint256 } from "@/lib/utils"
 import { useToast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
-import { AMOY_ETHERSCAN_TX_URL } from "@/lib/constants"
+import { BASE_ETHERSCAN_TX_URL } from "@/lib/constants"
 import { AdContent } from "@/lib/types/ad-content.type"
 import { adContentMock } from "@/lib/data/ad-content-mock"
 import { Label } from "@/components/ui/label"
@@ -115,7 +115,7 @@ export default function Home() {
             altText="See details"
             onClick={() =>
               window.open(
-                `${AMOY_ETHERSCAN_TX_URL}/${transactionHash}`,
+                `${BASE_ETHERSCAN_TX_URL}/${transactionHash}`,
                 "_blank"
               )
             }
@@ -254,7 +254,7 @@ export default function Home() {
             altText="See details"
             onClick={() =>
               window.open(
-                `${AMOY_ETHERSCAN_TX_URL}/${transactionHash}`,
+                `${BASE_ETHERSCAN_TX_URL}/${transactionHash}`,
                 "_blank"
               )
             }

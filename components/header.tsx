@@ -21,7 +21,10 @@ export default function Header() {
 
   async function getUserBalance() {
     if (!web3AuthInstance.provider) return
-    const balance = await RPC.getBalance(web3AuthInstance.provider)
+    const balance = await RPC.getBalance(
+      web3AuthInstance.provider,
+      user?.address
+    )
     console.log("Balance: ", balance)
   }
 

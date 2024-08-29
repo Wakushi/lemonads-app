@@ -4,8 +4,9 @@ import {
   custom,
   formatEther,
   parseEther,
+  Address,
 } from "viem"
-import { mainnet, polygonAmoy, sepolia } from "viem/chains"
+import { mainnet, baseSepolia, sepolia } from "viem/chains"
 import type { IProvider } from "@web3auth/base"
 
 const getViewChain = (provider: IProvider) => {
@@ -13,7 +14,7 @@ const getViewChain = (provider: IProvider) => {
     case "1":
       return mainnet
     case "0x13882":
-      return polygonAmoy
+      return baseSepolia
     case "0xaa36a7":
       return sepolia
     default:
@@ -28,7 +29,6 @@ const getChainId = async (provider: IProvider): Promise<any> => {
     })
 
     const address = await walletClient.getAddresses()
-    console.log(address)
 
     const chainId = await walletClient.getChainId()
     return chainId.toString()
@@ -51,7 +51,10 @@ const getAccounts = async (provider: IProvider): Promise<any> => {
   }
 }
 
-const getBalance = async (provider: IProvider): Promise<string> => {
+const getBalance = async (
+  provider: IProvider,
+  userAddress?: Address
+): Promise<string> => {
   try {
     const publicClient = createPublicClient({
       chain: getViewChain(provider),
@@ -63,9 +66,11 @@ const getBalance = async (provider: IProvider): Promise<string> => {
       transport: custom(provider),
     })
 
-    const address = await walletClient.getAddresses()
+    const accounts = userAddress
+      ? [userAddress]
+      : await walletClient.getAddresses()
 
-    const balance = await publicClient.getBalance({ address: address[0] })
+    const balance = await publicClient.getBalance({ address: accounts[0] })
     return formatEther(balance)
   } catch (error) {
     return error as string
