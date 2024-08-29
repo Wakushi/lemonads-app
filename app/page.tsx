@@ -175,7 +175,17 @@ export default function Home() {
       throw new Error("User not found !")
     }
 
-    const contentHash = await pinAdContent(adContent, adParcelId)
+    const mockAdContent = {
+      description: "Come see this beautiful island",
+      id: "JF1IQN7nhII4zQ6SO9wH",
+      imageUrl:
+        "https://peach-genuine-lamprey-766.mypinata.cloud/ipfs/QmTnWorouFdXwh31czt1EFM9UFb9HZEngXmkfZT9RxKqwm",
+      linkUrl:
+        "https://www.ellequebec.com/style-de-vie/voyages/martinique-les-10-meilleures-choses-a-voir-et-a-faire",
+      title: "Visit Martinique !",
+    }
+
+    const contentHash = await pinAdContent(mockAdContent, adParcelId)
 
     writeRentAdParcel({
       account: user?.address,
