@@ -19,15 +19,36 @@ import { toast } from "@/components/ui/use-toast"
 import { AdContent } from "@/lib/types/ad-content.type"
 import Image from "next/image"
 import Link from "next/link"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+
+const adContentSchema = z.object({
+  file: z.instanceof(File, { message: "File is required" }),
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  linkUrl: z.string().url("Link must be a valid URL"),
+})
+
+type AdContentFormValues = z.infer<typeof adContentSchema>
 
 export default function AdContentPage() {
   const { user } = useUser()
-  const [file, setFile] = useState<File | null>(null)
-  const [title, setTitle] = useState<string>("")
-  const [description, setDescription] = useState<string>("")
-  const [linkUrl, setLinkUrl] = useState<string>("")
   const [loading, setLoading] = useState(false)
   const [adContents, setAdContents] = useState<AdContent[]>([])
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    setValue,
+  } = useForm<AdContentFormValues>({
+    resolver: zodResolver(adContentSchema),
+  })
 
   useEffect(() => {
     async function fetchAdContents() {
@@ -41,27 +62,25 @@ export default function AdContentPage() {
     fetchAdContents()
   }, [user])
 
-  async function submitAdContent() {
-    if (!user) return
-
-    if (!file || !title || !description || !linkUrl) {
-      toast({
-        title: "Error",
-        description: "All fields are required",
-        variant: "destructive",
-      })
-      return
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null
+    if (file) {
+      setValue("file", file)
     }
+  }
+
+  const onSubmit = async (data: AdContentFormValues) => {
+    if (!user || !data.file) return
 
     setLoading(true)
 
     try {
       const createdAdContent = await createAdContent({
         user,
-        file,
-        title,
-        description,
-        linkUrl,
+        file: data.file,
+        title: data.title,
+        description: data.description,
+        linkUrl: data.linkUrl,
       })
 
       if (createdAdContent) {
@@ -70,6 +89,7 @@ export default function AdContentPage() {
           description: "Ad content created successfully!",
         })
         setAdContents((prevContents) => [...prevContents, createdAdContent])
+        reset()
       }
     } catch (error) {
       toast({
@@ -91,7 +111,7 @@ export default function AdContentPage() {
         {adContents.map((content, i) => (
           <div
             key={content.linkUrl + i}
-            className="p-4 bg-white border border-gray-300 rounded-lg shadow-md min-w-52"
+            className="p-4 bg-white border border-gray-300 rounded-lg shadow-md min-h-52"
           >
             <Image
               src={content.imageUrl}
@@ -102,16 +122,16 @@ export default function AdContentPage() {
             />
             <div className="p-2">
               <h2 className="font-bold text-lg">{content.title}</h2>
-              <button className="mt-2 px-4 py-2 bg-brand text-white rounded-lg">
+              <Button asChild className="mt-2 bg-brand">
                 <Link href={content.linkUrl}>Learn more</Link>
-              </button>
+              </Button>
             </div>
           </div>
         ))}
 
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <div className="flex justify-center items-center border border-gray-300 bg-gray-100 bg-opacity-40 shadow-inner rounded-lg cursor-pointer">
+            <div className="flex justify-center items-center border border-gray-300 bg-gray-100 bg-opacity-40 shadow-inner rounded-lg cursor-pointer min-h-52">
               <span className="text-3xl text-gray-500">+</span>
             </div>
           </AlertDialogTrigger>
@@ -122,41 +142,55 @@ export default function AdContentPage() {
                 Fill in the details below to create a new ad content.
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <div className="flex flex-col gap-4">
-              <input
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="flex flex-col gap-4"
+            >
+              <Input
                 type="file"
-                onChange={(e) =>
-                  setFile(e.target.files ? e.target.files[0] : null)
-                }
                 className="border p-2 rounded"
+                onChange={handleFileChange}
               />
-              <input
+              {errors.file && (
+                <p className="text-red-500">{errors.file.message}</p>
+              )}
+
+              <Input
                 type="text"
                 placeholder="Title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                {...register("title")}
                 className="border p-2 rounded"
               />
-              <textarea
+              {errors.title && (
+                <p className="text-red-500">{errors.title.message}</p>
+              )}
+
+              <Textarea
                 placeholder="Description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                {...register("description")}
                 className="border p-2 rounded"
               />
-              <input
+              {errors.description && (
+                <p className="text-red-500">{errors.description.message}</p>
+              )}
+
+              <Input
                 type="text"
                 placeholder="Link URL"
-                value={linkUrl}
-                onChange={(e) => setLinkUrl(e.target.value)}
+                {...register("linkUrl")}
                 className="border p-2 rounded"
               />
-            </div>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={submitAdContent}>
-                {loading ? "Creating..." : "Create"}
-              </AlertDialogAction>
-            </AlertDialogFooter>
+              {errors.linkUrl && (
+                <p className="text-red-500">{errors.linkUrl.message}</p>
+              )}
+
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction type="submit" disabled={loading}>
+                  {loading ? "Creating..." : "Create"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </form>
           </AlertDialogContent>
         </AlertDialog>
       </div>
