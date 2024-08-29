@@ -200,3 +200,34 @@ export async function getAllClicks(timestamp: number): Promise<AdEvent[]> {
     throw new Error("Failed to retrieve documents")
   }
 }
+
+
+export const getAdContentsByUser = async (userFirebaseId: string): Promise<AdContent[]> => {
+  try {
+    const adContentsSnapshot = await adminDb
+      .collection(USER_COLLECTION)
+      .doc(userFirebaseId)
+      .collection(AD_CONTENT_COLLECTION)
+      .get();
+
+    if (adContentsSnapshot.empty) {
+      return [];
+    }
+
+    const adContents: AdContent[] = adContentsSnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        title: data.title,
+        description: data.description,
+        imageUrl: data.imageUrl,
+        linkUrl: data.linkUrl,
+      } as AdContent;
+    });
+
+    return adContents;
+  } catch (error) {
+    console.error("Error fetching ad contents:", error);
+    throw new Error("Failed to fetch ad contents");
+  }
+};

@@ -1,4 +1,4 @@
-import { addAdContentToUser } from "@/lib/actions/server/firebase-actions"
+import { addAdContentToUser, getAdContentsByUser } from "@/lib/actions/server/firebase-actions"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
@@ -9,5 +9,22 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   } catch (error) {
     console.error("API error:", error)
     return NextResponse.json({ error: "Failed to add client" }, { status: 500 })
+  }
+}
+
+export async function GET(req: NextRequest): Promise<NextResponse> {
+  try {
+    const { searchParams } = new URL(req.url);
+    const uid = searchParams.get("uid");
+
+    if (!uid) {
+      return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+    }
+
+    const adContents = await getAdContentsByUser(uid);
+    return NextResponse.json(adContents);
+  } catch (error) {
+    console.error("API error:", error);
+    return NextResponse.json({ error: "Failed to fetch ad contents" }, { status: 500 });
   }
 }

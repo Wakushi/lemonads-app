@@ -74,3 +74,18 @@ export async function createAdContent({
   const { adContent } = await response.json()
   return adContent
 }
+
+
+export async function getAdContents(userFirebaseId: string): Promise<AdContent[]> {
+  const response = await fetch(`/api/ad/content?uid=${userFirebaseId}`, {
+    method: "GET",
+  });
+
+  if (!response.ok) {
+    console.error("Failed to fetch ad contents");
+    return [];
+  }
+
+  const adContents = await response.json();
+  return adContents;
+}
