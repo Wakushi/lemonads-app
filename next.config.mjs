@@ -1,4 +1,8 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+  images: {
+    domains: ["peach-genuine-lamprey-766.mypinata.cloud"],
+  },
+}
 
-export default nextConfig;
+export default nextConfig

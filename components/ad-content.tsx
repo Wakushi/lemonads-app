@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,48 +9,51 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { useUser } from "@/service/user.service";
-import { createAdContent, getAdContents } from "@/lib/actions/client/firebase-actions";
-import { toast } from "@/components/ui/use-toast";
-import { AdContent } from "@/lib/types/ad-content.type";
-import Image from "next/image";
-import Link from "next/link";
+} from "@/components/ui/alert-dialog"
+import { useUser } from "@/service/user.service"
+import {
+  createAdContent,
+  getAdContents,
+} from "@/lib/actions/client/firebase-actions"
+import { toast } from "@/components/ui/use-toast"
+import { AdContent } from "@/lib/types/ad-content.type"
+import Image from "next/image"
+import Link from "next/link"
 
 export default function AdContentPage() {
-  const { user } = useUser();
-  const [file, setFile] = useState<File | null>(null);
-  const [title, setTitle] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
-  const [linkUrl, setLinkUrl] = useState<string>("");
-  const [loading, setLoading] = useState(false);
-  const [adContents, setAdContents] = useState<AdContent[]>([]);
+  const { user } = useUser()
+  const [file, setFile] = useState<File | null>(null)
+  const [title, setTitle] = useState<string>("")
+  const [description, setDescription] = useState<string>("")
+  const [linkUrl, setLinkUrl] = useState<string>("")
+  const [loading, setLoading] = useState(false)
+  const [adContents, setAdContents] = useState<AdContent[]>([])
 
   useEffect(() => {
     async function fetchAdContents() {
       if (user?.firebaseId) {
-        const contents = await getAdContents(user.firebaseId);
-        console.log(contents); 
-        setAdContents(contents); 
+        const contents = await getAdContents(user.firebaseId)
+        console.log(contents)
+        setAdContents(contents)
       }
     }
 
-    fetchAdContents();
-  }, [user]);
+    fetchAdContents()
+  }, [user])
 
   async function submitAdContent() {
-    if (!user) return;
+    if (!user) return
 
     if (!file || !title || !description || !linkUrl) {
       toast({
         title: "Error",
         description: "All fields are required",
         variant: "destructive",
-      });
-      return;
+      })
+      return
     }
 
-    setLoading(true);
+    setLoading(true)
 
     try {
       const createdAdContent = await createAdContent({
@@ -59,48 +62,51 @@ export default function AdContentPage() {
         title,
         description,
         linkUrl,
-      });
+      })
 
       if (createdAdContent) {
         toast({
           title: "Success",
           description: "Ad content created successfully!",
-        });
-        setAdContents((prevContents) => [...prevContents, createdAdContent]);
+        })
+        setAdContents((prevContents) => [...prevContents, createdAdContent])
       }
     } catch (error) {
       toast({
         title: "Error",
         description: "Error creating ad content. Please try again.",
         variant: "destructive",
-      });
-      console.error("Error creating ad content:", error);
+      })
+      console.error("Error creating ad content:", error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
   return (
-    <div className="px-10 py-20">
+    <div>
       <h1 className="text-3xl font-bold mb-6">Your Ad Contents</h1>
 
       <div className="grid grid-cols-3 gap-4">
-        {adContents.map((content) => (
-           <div className="p-4 bg-white border border-gray-300 rounded-lg shadow-md min-w-52">
-		   <Image
-			 src={"/pubtest.webp"}
-			 alt="Ad Image"
-			 className="w-full h-32 object-cover rounded-t-lg"
-			 width={1280}
-			 height={1280}
-		   />
-		   <div className="p-2">
-			 <h2 className="font-bold text-lg">{content.title}</h2>
-			 <button className="mt-2 px-4 py-2 bg-brand text-white rounded-lg">
-				<Link href={content.linkUrl}>Learn more</Link>
-			 </button>
-		   </div>
-		 </div>
+        {adContents.map((content, i) => (
+          <div
+            key={content.linkUrl + i}
+            className="p-4 bg-white border border-gray-300 rounded-lg shadow-md min-w-52"
+          >
+            <Image
+              src={content.imageUrl}
+              alt="Ad Image"
+              className="w-full h-32 object-cover rounded-t-lg"
+              width={1280}
+              height={1280}
+            />
+            <div className="p-2">
+              <h2 className="font-bold text-lg">{content.title}</h2>
+              <button className="mt-2 px-4 py-2 bg-brand text-white rounded-lg">
+                <Link href={content.linkUrl}>Learn more</Link>
+              </button>
+            </div>
+          </div>
         ))}
 
         <AlertDialog>
@@ -119,7 +125,9 @@ export default function AdContentPage() {
             <div className="flex flex-col gap-4">
               <input
                 type="file"
-                onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
+                onChange={(e) =>
+                  setFile(e.target.files ? e.target.files[0] : null)
+                }
                 className="border p-2 rounded"
               />
               <input
@@ -153,5 +161,5 @@ export default function AdContentPage() {
         </AlertDialog>
       </div>
     </div>
-  );
+  )
 }
