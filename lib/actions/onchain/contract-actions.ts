@@ -95,6 +95,16 @@ export async function getAdParcelById(
   } as AdParcel
 }
 
+export async function getLastCronTimestamp(): Promise<number> {
+  const timestamp: any = await readContract(config, {
+    address: LEMONADS_CONTRACT_ADDRESS,
+    abi: LEMONADS_CONTRACT_ABI,
+    functionName: "getLastCronTimestamp",
+  })
+
+  return Number(timestamp)
+}
+
 interface WriteRentAdParcelArgs {
   account: Address
   adParcelId: number
@@ -221,8 +231,43 @@ export async function runAggregateClicks(account: Address) {
     const result = await writeContract(config, runAggregateClicksRequest)
 
     return result
-  } catch (error) {
-    console.error("Error running aggregate clicks:", error)
-    throw new Error("Failed to run aggregate clicks")
+  } catch (error: any) {
+    throw new Error(error.metaMessages[0])
   }
+}
+
+export async function runPayParcelOwners(account: Address) {
+  if (!web3AuthInstance.provider) {
+    throw new Error("Missing provider")
+  }
+
+  if (!account) {
+    throw new Error("Missing account")
+  }
+
+  try {
+    const walletClient = createWalletClient({
+      account,
+      chain: RPC.getViewChain(web3AuthInstance.provider),
+      transport: custom(web3AuthInstance.provider),
+    })
+
+    const { request: payParcelOwnersRequest } = await simulateContract(config, {
+      account: walletClient.account,
+      address: LEMONADS_CONTRACT_ADDRESS,
+      abi: LEMONADS_CONTRACT_ABI,
+      functionName: "payParcelOwners",
+    })
+
+    const result = await writeContract(config, payParcelOwnersRequest)
+
+    return result
+  } catch (error: any) {
+    throw new Error(error.metaMessages[0])
+  }
+}
+
+export enum ErrorType {
+  Lemonads__NoPayableParcel = "Lemonads__NoPayableParcel",
+  Lemonads__NotEnoughTimePassed = "Lemonads__NotEnoughTimePassed",
 }

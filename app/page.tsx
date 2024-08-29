@@ -14,9 +14,12 @@ import { Website } from "@/lib/types/website.type"
 import { useEffect, useState } from "react"
 import { AdParcelTraits } from "@/lib/types/ad-parcel.type"
 import {
+  ErrorType,
   getAdParcelById,
   getAllPublisherAdParcels,
+  getLastCronTimestamp,
   runAggregateClicks,
+  runPayParcelOwners,
   writeAdParcel,
   writeEditAdParcelTraits,
   writeRentAdParcel,
@@ -39,6 +42,7 @@ import { Label } from "@/components/ui/label"
 import { ImpressionChart } from "@/components/impressions-chart"
 import { AdEvent } from "@/lib/types/interaction.type"
 import { AdEventsBarChart } from "@/components/ad-events-bar-chart"
+import { FaEthereum } from "react-icons/fa"
 
 export default function Home() {
   const { user } = useUser()
@@ -239,8 +243,62 @@ export default function Home() {
 
   async function onRunAggregateClicks(): Promise<void> {
     if (!user?.address) return
+    try {
+      await runAggregateClicks(user?.address)
+    } catch (error: any) {
+      handleContractErrors(error.message)
+    }
+  }
 
-    runAggregateClicks(user?.address)
+  async function onRunPayParcelOwners(): Promise<void> {
+    if (!user?.address) return
+
+    try {
+      await runPayParcelOwners(user?.address)
+    } catch (error: any) {
+      handleContractErrors(error.message)
+    }
+  }
+
+  async function handleContractErrors(error: string) {
+    const errorType = error.slice(7, error.length - 2) as ErrorType
+
+    switch (errorType) {
+      case ErrorType.Lemonads__NoPayableParcel:
+        toast({
+          title: "Error",
+          description: "No ad parcel is awaiting payment.",
+          variant: "destructive",
+          action: (
+            <ToastAction altText="Try again" onClick={onRunPayParcelOwners}>
+              Try again
+            </ToastAction>
+          ),
+        })
+        break
+      case ErrorType.Lemonads__NotEnoughTimePassed:
+        const lastCRONTimestamp = await getLastCronTimestamp()
+        const cronDate = new Date(lastCRONTimestamp * 1000)
+        const dayOfWeek = cronDate.toDateString().split(" ")[0]
+        const month = cronDate.toDateString().split(" ")[1]
+        const day = cronDate.toDateString().split(" ")[2]
+        const year = cronDate.toDateString().split(" ")[3]
+        const hours = String(cronDate.getHours()).padStart(2, "0")
+        const minutes = String(cronDate.getMinutes()).padStart(2, "0")
+        const formattedDate = `${dayOfWeek} ${month} ${day} ${year} ${hours}:${minutes}`
+
+        toast({
+          title: "Error",
+          description: `Not enough time passed since last CRON. (Last: ${formattedDate})`,
+          variant: "destructive",
+          action: (
+            <ToastAction altText="Try again" onClick={onRunAggregateClicks}>
+              Try again
+            </ToastAction>
+          ),
+        })
+        break
+    }
   }
 
   if (loading) {
@@ -269,7 +327,9 @@ export default function Home() {
           <Button onClick={() => console.log(website)}>Check website</Button>
         </div>
         <div className="flex flex-col gap-4">
-          <Button onClick={() => createAdParcel()}>Create ad parcel</Button>
+          <Button onClick={() => createAdParcel()}>
+            Create ad parcel <FaEthereum className="ml-2" />
+          </Button>
           <Button onClick={() => getPublisherAdParcels()}>
             Get publisher parcels
           </Button>
@@ -283,10 +343,13 @@ export default function Home() {
             onChange={(e) => setSearchedAdParcelId(e.target.value)}
           ></Input>
           <Button onClick={() => onRentParcel(+searchedAdParcelId)}>
-            Rent parcel
+            Rent parcel <FaEthereum className="ml-2" />
           </Button>
           <Button onClick={() => onRunAggregateClicks()}>
-            Run aggregateClicks()
+            Run aggregateClicks() <FaEthereum className="ml-2" />
+          </Button>
+          <Button onClick={() => onRunPayParcelOwners()}>
+            Run payParcelOwners() <FaEthereum className="ml-2" />
           </Button>
         </div>
       </div>
