@@ -191,3 +191,38 @@ export async function writeEditAdParcelTraits({
     throw new Error("Failed to update ad parcel")
   }
 }
+
+export async function runAggregateClicks(account: Address) {
+  if (!web3AuthInstance.provider) {
+    throw new Error("Missing provider")
+  }
+
+  if (!account) {
+    throw new Error("Missing account")
+  }
+
+  try {
+    const walletClient = createWalletClient({
+      account,
+      chain: RPC.getViewChain(web3AuthInstance.provider),
+      transport: custom(web3AuthInstance.provider),
+    })
+
+    const { request: runAggregateClicksRequest } = await simulateContract(
+      config,
+      {
+        account: walletClient.account,
+        address: LEMONADS_CONTRACT_ADDRESS,
+        abi: LEMONADS_CONTRACT_ABI,
+        functionName: "aggregateClicks",
+      }
+    )
+
+    const result = await writeContract(config, runAggregateClicksRequest)
+
+    return result
+  } catch (error) {
+    console.error("Error running aggregate clicks:", error)
+    throw new Error("Failed to run aggregate clicks")
+  }
+}

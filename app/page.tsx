@@ -16,6 +16,7 @@ import { AdParcelTraits } from "@/lib/types/ad-parcel.type"
 import {
   getAdParcelById,
   getAllPublisherAdParcels,
+  runAggregateClicks,
   writeAdParcel,
   writeEditAdParcelTraits,
   writeRentAdParcel,
@@ -43,13 +44,11 @@ export default function Home() {
   const { user } = useUser()
   const { toast } = useToast()
   const [website, setWebsite] = useState<Website>(mockWebsites[0])
-  const [adContent, setAdContent] = useState<AdContent>(adContentMock)
   const [searchedAdParcelId, setSearchedAdParcelId] = useState<string>("")
   const [impressions, setImpressions] = useState<AdEvent[]>([])
   const [clicks, setClicks] = useState<AdEvent[]>([])
   const [loading, setLoading] = useState<boolean>(false)
   const [loadingEvents, setLoadingEvents] = useState<boolean>(false)
-  const [file, setFile] = useState<File>()
 
   useEffect(() => {
     async function fetchEvents() {
@@ -64,13 +63,6 @@ export default function Home() {
 
     fetchEvents()
   }, [])
-
-  function onSelectMedia(event: any) {
-    const file = event.target.files[0]
-    if (file) {
-      setFile(file)
-    }
-  }
 
   async function storeWebsiteMetadata() {
     setLoading(true)
@@ -140,34 +132,6 @@ export default function Home() {
     const adParcels = await getAllPublisherAdParcels(user?.address)
     setLoading(false)
     console.log("Ad parcels: ", adParcels)
-  }
-
-  async function submitAdContent() {
-    if (!user) return
-
-    const title = "Chainlink"
-    const description =
-      "Chainlink connects existing systems to any public or private blockchain and enables secure cross-chain communication. World-class developer experience."
-    const linkUrl = "https://chain.link/"
-
-    if (!file) {
-      console.error("No file selected")
-      return
-    }
-
-    setLoading(true)
-
-    const createdAdContent = await createAdContent({
-      user,
-      file,
-      title,
-      description,
-      linkUrl,
-    })
-
-    if (!createdAdContent) return
-    setAdContent(createdAdContent)
-    setLoading(false)
   }
 
   async function onRentParcel(adParcelId: number) {
@@ -273,6 +237,12 @@ export default function Home() {
     }
   }
 
+  async function onRunAggregateClicks(): Promise<void> {
+    if (!user?.address) return
+
+    runAggregateClicks(user?.address)
+  }
+
   if (loading) {
     return (
       <main className="min-h-[100vh] flex items-center justify-center">
@@ -300,24 +270,8 @@ export default function Home() {
         </div>
         <div className="flex flex-col gap-4">
           <Button onClick={() => createAdParcel()}>Create ad parcel</Button>
-          <Button
-            onClick={() =>
-              onUpdateParcelTraits(+searchedAdParcelId, {
-                width: "500px",
-              })
-            }
-          >
-            Update ad parcel traits
-          </Button>
           <Button onClick={() => getPublisherAdParcels()}>
             Get publisher parcels
-          </Button>
-        </div>
-        <div className="flex flex-col gap-4">
-          <Button onClick={() => submitAdContent()}>Create ad content</Button>
-          <Input type="file" onChange={(e) => onSelectMedia(e)}></Input>
-          <Button onClick={() => console.log(adContent)}>
-            Check ad content
           </Button>
         </div>
         <div className="flex flex-col gap-4">
@@ -330,6 +284,9 @@ export default function Home() {
           ></Input>
           <Button onClick={() => onRentParcel(+searchedAdParcelId)}>
             Rent parcel
+          </Button>
+          <Button onClick={() => onRunAggregateClicks()}>
+            Run aggregateClicks()
           </Button>
         </div>
       </div>
