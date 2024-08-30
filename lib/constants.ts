@@ -3,6 +3,8 @@ export const PINATA_GATEWAY_BASE_URL =
 
 export const BASE_ETHERSCAN_TX_URL = "https://sepolia.basescan.org/tx"
 
+export const CONTACT_EMAIL = "zoukushimetazord@gmail.com"
+
 export const LEMONADS_CONTRACT_ADDRESS =
   "0x7c2EB91FE31bBb1EA6D6d46c20D15830B60C49B0"
 

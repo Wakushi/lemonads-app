@@ -32,6 +32,7 @@
     "firebase-admin": "^12.4.0",
     "lucide-react": "^0.435.0",
     "next": "14.2.6",
+    "nodemailer": "^6.9.14",
     "rate-limiter-flexible": "^5.0.3",
     "react": "^18",
     "react-dom": "^18",
@@ -48,6 +49,7 @@
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/nodemailer": "^6.4.15",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/uuid": "^10.0.0",
