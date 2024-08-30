@@ -184,7 +184,7 @@ export async function getAllClicks(timestamp: number): Promise<AdEvent[]> {
       return []
     }
 
-    const documents = snapshot.docs.map(
+    const clicks = snapshot.docs.map(
       (doc) =>
         ({
           id: doc.id,
@@ -192,40 +192,77 @@ export async function getAllClicks(timestamp: number): Promise<AdEvent[]> {
         } as AdEvent)
     )
 
-    return documents
+    return clicks
   } catch (error) {
     console.error("Error retrieving documents:", error)
     throw new Error("Failed to retrieve documents")
   }
 }
 
-
-export const getAdContentsByUser = async (userFirebaseId: string): Promise<AdContent[]> => {
+export const getAdContentsByUser = async (
+  userFirebaseId: string
+): Promise<AdContent[]> => {
   try {
     const adContentsSnapshot = await adminDb
       .collection(USER_COLLECTION)
       .doc(userFirebaseId)
       .collection(AD_CONTENT_COLLECTION)
-      .get();
+      .get()
 
     if (adContentsSnapshot.empty) {
-      return [];
+      return []
     }
 
     const adContents: AdContent[] = adContentsSnapshot.docs.map((doc) => {
-      const data = doc.data();
+      const data = doc.data()
       return {
         id: doc.id,
         title: data.title,
         description: data.description,
         imageUrl: data.imageUrl,
         linkUrl: data.linkUrl,
-      } as AdContent;
-    });
+      } as AdContent
+    })
 
-    return adContents;
+    return adContents
   } catch (error) {
-    console.error("Error fetching ad contents:", error);
-    throw new Error("Failed to fetch ad contents");
+    console.error("Error fetching ad contents:", error)
+    throw new Error("Failed to fetch ad contents")
   }
-};
+}
+
+export async function getLastAdClickByIp(
+  ip: string,
+  adParcelId: string
+): Promise<AdEvent | null> {
+  try {
+    const collectionRef = adminDb.collection(AD_CLICK)
+    const snapshot = await collectionRef
+      .where("ip", "==", ip)
+      .where("adParcelId", "==", adParcelId)
+      .get()
+
+    if (snapshot.empty) {
+      console.log("No matching documents.")
+      return null
+    }
+
+    const clicks = snapshot.docs.map(
+      (doc) =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        } as AdEvent)
+    )
+
+    return clicks.sort((a, b) => {
+      if (a.timestamp?._seconds && b.timestamp?._seconds) {
+        return b.timestamp?._seconds - a.timestamp?._seconds
+      }
+      return 1
+    })[0]
+  } catch (error: any) {
+    console.error("Error retrieving documents:", error)
+    throw new Error("Failed to retrieve click by ip")
+  }
+}

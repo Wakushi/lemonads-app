@@ -11,6 +11,7 @@ import {
 } from "@/lib/actions/client/pinata-actions"
 import { zeroAddress } from "viem"
 import {
+  getLastAdClickByIp,
   registerAdClick,
   registerAdImpression,
 } from "@/lib/actions/server/firebase-actions"
@@ -129,6 +130,35 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const { adParcelId } = await req.json()
     const interactionDetails = await getInteractionDetails(req)
+
+    const lastAdClick = await getLastAdClickByIp(
+      interactionDetails.ip,
+      adParcelId
+    )
+
+    if (
+      process.env.NODE_ENV === "production" &&
+      lastAdClick &&
+      lastAdClick.timestamp?._seconds
+    ) {
+      const ONE_DAY = 86400
+      const lastClickedAt = lastAdClick.timestamp?._seconds * 1000
+
+      if (Date.now() < lastClickedAt + ONE_DAY) {
+        console.log(
+          `Too many request by ${interactionDetails.ip} on ad parcel ID:${adParcelId}`
+        )
+        return new NextResponse(null, {
+          status: 200,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type",
+          },
+        })
+      }
+    }
+
     registerAdClick(adParcelId, interactionDetails)
 
     return new NextResponse(JSON.stringify({ message: "Ok" }), {
