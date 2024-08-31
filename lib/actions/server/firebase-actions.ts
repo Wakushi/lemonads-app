@@ -9,6 +9,7 @@ const WEBSITE_COLLECTION = "websites"
 const AD_CONTENT_COLLECTION = "adContents"
 const AD_CLICK = "ad-clicks"
 const AD_IMPRESSION = "ad-impressions"
+const UUIDS = "uuids"
 
 export const createUser = async (user: User): Promise<User | null> => {
   try {
@@ -264,5 +265,34 @@ export async function getLastAdClickByIp(
   } catch (error: any) {
     console.error("Error retrieving documents:", error)
     throw new Error("Failed to retrieve click by ip")
+  }
+}
+
+export async function processUuid(
+  uuid: string,
+  callback: () => Promise<void>
+): Promise<boolean> {
+  const docRef = adminDb.collection(UUIDS).doc(uuid)
+
+  try {
+    await adminDb.runTransaction(async (transaction) => {
+      const doc = await transaction.get(docRef)
+
+      if (doc.exists) {
+        throw new Error("UUID has already been processed")
+      }
+
+      transaction.set(docRef, {
+        processed: true,
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      })
+
+      await callback()
+    })
+
+    return true
+  } catch (error) {
+    console.error("Transaction failed: ", error)
+    return false
   }
 }

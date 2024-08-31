@@ -3,8 +3,10 @@ export const PINATA_GATEWAY_BASE_URL =
 
 export const BASE_ETHERSCAN_TX_URL = "https://sepolia.basescan.org/tx"
 
+export const CONTACT_EMAIL = "zoukushimetazord@gmail.com"
+
 export const LEMONADS_CONTRACT_ADDRESS =
-  "0x7c2EB91FE31bBb1EA6D6d46c20D15830B60C49B0"
+  "0x1a4711c9cf5F54aDef189C87A2BD8A55Ee5469B4"
 
 export const LEMONADS_CONTRACT_ABI = [
   {
@@ -23,6 +25,11 @@ export const LEMONADS_CONTRACT_ABI = [
       },
       {
         name: "_clickAggregatorSource",
+        type: "string",
+        internalType: "string",
+      },
+      {
+        name: "_notificationSource",
         type: "string",
         internalType: "string",
       },
@@ -403,6 +410,31 @@ export const LEMONADS_CONTRACT_ABI = [
   },
   {
     type: "event",
+    name: "LowFunds",
+    inputs: [
+      {
+        name: "adParcelId",
+        type: "uint256",
+        indexed: true,
+        internalType: "uint256",
+      },
+      {
+        name: "renter",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+      {
+        name: "renterFunds",
+        type: "uint256",
+        indexed: true,
+        internalType: "uint256",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
     name: "MinBidUpdated",
     inputs: [
       {
@@ -429,6 +461,19 @@ export const LEMONADS_CONTRACT_ABI = [
         type: "uint256",
         indexed: false,
         internalType: "uint256",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "RenterNotified",
+    inputs: [
+      {
+        name: "requestId",
+        type: "bytes32",
+        indexed: false,
+        internalType: "bytes32",
       },
     ],
     anonymous: false,
@@ -470,6 +515,12 @@ export const LEMONADS_CONTRACT_ABI = [
         internalType: "bytes32",
       },
     ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "SentRequestForNotifications",
+    inputs: [],
     anonymous: false,
   },
   {
@@ -519,6 +570,11 @@ export const LEMONADS_CONTRACT_ABI = [
   { type: "error", name: "Lemonads__NotZero", inputs: [] },
   {
     type: "error",
+    name: "Lemonads__NotificationListEmpty",
+    inputs: [],
+  },
+  {
+    type: "error",
     name: "Lemonads__ParcelAlreadyCreatedAtId",
     inputs: [{ name: "parcelId", type: "uint256", internalType: "uint256" }],
   },
@@ -531,4 +587,12 @@ export const LEMONADS_CONTRACT_ABI = [
   },
   { type: "error", name: "NoInlineSecrets", inputs: [] },
   { type: "error", name: "OnlyRouterCanFulfill", inputs: [] },
+  {
+    type: "error",
+    name: "StringsInsufficientHexLength",
+    inputs: [
+      { name: "value", type: "uint256", internalType: "uint256" },
+      { name: "length", type: "uint256", internalType: "uint256" },
+    ],
+  },
 ]
