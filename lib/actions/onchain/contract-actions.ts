@@ -311,7 +311,11 @@ export async function getAllParcels(
       }
     }
 
-    adParcels.push(adParcel)
+    adParcels.push({
+      ...adParcel,
+      owner: adParcel.owner.toLowerCase() as Address,
+      renter: adParcel.renter.toLowerCase() as Address,
+    })
   }
 
   return adParcels
