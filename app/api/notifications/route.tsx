@@ -10,25 +10,7 @@ import {
   LEMONADS_CONTRACT_ABI,
   LEMONADS_CONTRACT_ADDRESS,
 } from "@/lib/constants"
-import { formatEther } from "viem"
-
-const locks = new Map<string, boolean>()
-
-function acquireLock(uuid: string): boolean {
-  if (locks.get(uuid)) {
-    console.log("uuid locked: " + uuid)
-    return false
-  }
-
-  console.log("locking uuid: " + uuid)
-  locks.set(uuid, true)
-  return true
-}
-
-function releaseLock(uuid: string): void {
-  console.log("Releasing lock on " + uuid)
-  locks.delete(uuid)
-}
+import { Address, formatEther } from "viem"
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const body = await req.json()
@@ -53,25 +35,16 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ message: "Missing uuid" }, { status: 400 })
   }
 
-  if (!acquireLock(uuid)) {
-    return NextResponse.json(
-      { message: "Request is already being processed." },
-      { status: 409 }
-    )
-  }
-
   try {
     const success = await processUuid(uuid, async () => {
-      // Purify the potential duplicates in the notificationList array
+      const uniqueNotificationList = [...new Set(notificationList)] as Address[]
 
-      for (let renterAddress of notificationList) {
-        if (!renterAddress) return
+      for (let renterAddress of uniqueNotificationList) {
+        if (!renterAddress) continue
 
         const renter = await getUserByAddress(renterAddress.toLowerCase())
 
-        if (!renter || !renter.email) {
-          return
-        }
+        if (!renter || !renter.email) continue
 
         const provider = new ethers.JsonRpcProvider(
           process.env.NEXT_PUBLIC_ALCHEMY_BASE_SEPOLIA_RPC_URL
@@ -104,9 +77,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       { message: "Notifications sent successfully" },
       { status: 200 }
     )
-  } catch (error) {
-    return NextResponse.json({ message: error }, { status: 500 })
-  } finally {
-    releaseLock(uuid)
+  } catch (error: any) {
+    return NextResponse.json({ message: error.message }, { status: 500 })
   }
 }

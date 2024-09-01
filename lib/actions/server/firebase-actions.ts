@@ -283,8 +283,6 @@ export async function processUuid(
     await adminDb.runTransaction(async (transaction) => {
       const doc = await transaction.get(docRef)
 
-      console.log("Found doc for " + uuid)
-
       if (doc.exists) {
         throw new Error("UUID has already been processed")
       }
@@ -294,14 +292,12 @@ export async function processUuid(
         timestamp: admin.firestore.FieldValue.serverTimestamp(),
       })
 
-      console.log("running callback")
-
       await callback()
     })
 
     return true
-  } catch (error) {
-    console.error("Transaction failed: ", error)
+  } catch (error: any) {
+    console.error("Transaction failed: ", error.message)
     return false
   }
 }
