@@ -6,7 +6,7 @@ export const BASE_ETHERSCAN_TX_URL = "https://sepolia.basescan.org/tx"
 export const CONTACT_EMAIL = "zoukushimetazord@gmail.com"
 
 export const LEMONADS_CONTRACT_ADDRESS =
-  "0x4E32785b39E6E2e97696d609BF546435e82086fc"
+  "0x49878912A6A6A376C161CCd029705A40D81992a9"
 
 export const LEMONADS_CONTRACT_ABI = [
   {
@@ -33,6 +33,7 @@ export const LEMONADS_CONTRACT_ABI = [
         type: "string",
         internalType: "string",
       },
+      { name: "_secretReference", type: "bytes", internalType: "bytes" },
     ],
     stateMutability: "nonpayable",
   },
@@ -212,7 +213,21 @@ export const LEMONADS_CONTRACT_ABI = [
   },
   {
     type: "function",
+    name: "owner",
+    inputs: [],
+    outputs: [{ name: "", type: "address", internalType: "address" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     name: "payParcelOwners",
+    inputs: [],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "renounceOwnership",
     inputs: [],
     outputs: [],
     stateMutability: "nonpayable",
@@ -230,10 +245,26 @@ export const LEMONADS_CONTRACT_ABI = [
   },
   {
     type: "function",
+    name: "transferOwnership",
+    inputs: [{ name: "newOwner", type: "address", internalType: "address" }],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     name: "updateMinBid",
     inputs: [
       { name: "_parcelId", type: "uint256", internalType: "uint256" },
       { name: "_minBid", type: "uint256", internalType: "uint256" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "updateSecretReference",
+    inputs: [
+      { name: "_secretReference", type: "bytes", internalType: "bytes" },
     ],
     outputs: [],
     stateMutability: "nonpayable",
@@ -454,6 +485,25 @@ export const LEMONADS_CONTRACT_ABI = [
   },
   {
     type: "event",
+    name: "OwnershipTransferred",
+    inputs: [
+      {
+        name: "previousOwner",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+      {
+        name: "newOwner",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
     name: "ParcelPaymentFailed",
     inputs: [
       {
@@ -587,6 +637,16 @@ export const LEMONADS_CONTRACT_ABI = [
   },
   { type: "error", name: "NoInlineSecrets", inputs: [] },
   { type: "error", name: "OnlyRouterCanFulfill", inputs: [] },
+  {
+    type: "error",
+    name: "OwnableInvalidOwner",
+    inputs: [{ name: "owner", type: "address", internalType: "address" }],
+  },
+  {
+    type: "error",
+    name: "OwnableUnauthorizedAccount",
+    inputs: [{ name: "account", type: "address", internalType: "address" }],
+  },
   {
     type: "error",
     name: "StringsInsufficientHexLength",
