@@ -70,6 +70,7 @@ function RegisteredUserNavOptions({ user }: { user: User }) {
   return (
     <>
       <Navlink href={`/${user.type!.toLowerCase()}`} label="Dashboard" />
+      <Navlink href="/marketplace" label="Marketplace" />
     </>
   )
 }

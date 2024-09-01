@@ -14,6 +14,7 @@ import {
 } from "@/lib/constants"
 import { simulateContract, writeContract, readContract } from "@wagmi/core"
 import { config } from "@/providers"
+import { getWebsiteByHash } from "../client/pinata-actions"
 
 interface WriteAdParcelArgs {
   account: Address
@@ -284,6 +285,36 @@ export async function getRenterFundsAmount(
   })
 
   return formatEther(fundAmount)
+}
+
+export async function getAllParcels(
+  attachWebsite = false
+): Promise<AdParcel[]> {
+  const adParcelIds: any = await readContract(config, {
+    address: LEMONADS_CONTRACT_ADDRESS,
+    abi: LEMONADS_CONTRACT_ABI,
+    functionName: "getAllParcels",
+  })
+
+  const adParcels: AdParcel[] = []
+
+  for (let parcelId of adParcelIds) {
+    const adParcel = await getAdParcelById(Number(parcelId))
+
+    if (!adParcel) continue
+
+    if (attachWebsite && adParcel.websiteInfoHash) {
+      const websiteInfo = await getWebsiteByHash(adParcel.websiteInfoHash)
+
+      if (websiteInfo) {
+        adParcel.website = websiteInfo
+      }
+    }
+
+    adParcels.push(adParcel)
+  }
+
+  return adParcels
 }
 
 export enum ErrorType {

@@ -1,4 +1,5 @@
 import { Address } from "viem"
+import { Website } from "./website.type"
 
 export type AdParcelTraits = {
   width?: string
@@ -13,6 +14,7 @@ export type AdParcel = {
   traitsHash: string
   contentHash?: string
   websiteInfoHash?: string
+  website?: Website
   active: boolean
 }
 
