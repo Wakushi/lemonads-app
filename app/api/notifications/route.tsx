@@ -16,14 +16,17 @@ const locks = new Map<string, boolean>()
 
 function acquireLock(uuid: string): boolean {
   if (locks.get(uuid)) {
+    console.log("uuid locked: " + uuid)
     return false
   }
 
+  console.log("locking uuid: " + uuid)
   locks.set(uuid, true)
   return true
 }
 
 function releaseLock(uuid: string): void {
+  console.log("Releasing lock on " + uuid)
   locks.delete(uuid)
 }
 
@@ -57,9 +60,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     )
   }
 
-  console.log("UUID: ", uuid)
-  console.log("Notification list: ", notificationList)
-
   try {
     const success = await processUuid(uuid, async () => {
       // Purify the potential duplicates in the notificationList array
@@ -67,11 +67,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       for (let renterAddress of notificationList) {
         if (!renterAddress) return
 
-        console.log("Processing renter: ", renterAddress)
-
-        const renter = await getUserByAddress(renterAddress)
-
-        console.log("Renter found: ", renter)
+        const renter = await getUserByAddress(renterAddress.toLowerCase())
 
         if (!renter || !renter.email) {
           return
@@ -88,8 +84,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         )
 
         const balance = await contract.getRenterFundsAmount(renter.address)
-
-        console.log('Renter balance: ', balance)
 
         await sendMail({
           to: renter.email!,
