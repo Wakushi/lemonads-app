@@ -3,6 +3,7 @@ import { AdContent } from "@/lib/types/ad-content.type"
 import { AdEvent } from "@/lib/types/interaction.type"
 import { User } from "@/lib/types/user.type"
 import { Website } from "@/lib/types/website.type"
+import { Address } from "viem"
 
 const USER_COLLECTION = "users"
 const WEBSITE_COLLECTION = "websites"
@@ -13,7 +14,11 @@ const UUIDS = "uuids"
 
 export const createUser = async (user: User): Promise<User | null> => {
   try {
-    const newUser = { ...user, registered: true }
+    const newUser = {
+      ...user,
+      registered: true,
+      address: user.address.toLowerCase() as Address,
+    }
     const docRef = await adminDb.collection(USER_COLLECTION).add(newUser)
     const createdUser = { ...newUser, firebaseId: docRef.id }
 
@@ -278,6 +283,8 @@ export async function processUuid(
     await adminDb.runTransaction(async (transaction) => {
       const doc = await transaction.get(docRef)
 
+      console.log("Found doc for " + uuid)
+
       if (doc.exists) {
         throw new Error("UUID has already been processed")
       }
@@ -286,6 +293,8 @@ export async function processUuid(
         processed: true,
         timestamp: admin.firestore.FieldValue.serverTimestamp(),
       })
+
+      console.log("running callback")
 
       await callback()
     })
