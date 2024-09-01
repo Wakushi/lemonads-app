@@ -39,6 +39,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ message: "Invalid token." }, { status: 401 })
   }
 
+  console.log("UUID: ", uuid)
+  console.log("Notification list: ", notificationList)
+
   if (!notificationList) {
     return NextResponse.json(
       { message: "Missing renter address" },
@@ -59,7 +62,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   try {
     const success = await processUuid(uuid, async () => {
+      // Purify the potential duplicates in the notificationList array
+
       for (let renterAddress of notificationList) {
+        if (!renterAddress) return
+
         const renter = await getUserByAddress(renterAddress)
 
         if (!renter || !renter.email) {
