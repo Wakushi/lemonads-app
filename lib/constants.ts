@@ -6,7 +6,7 @@ export const BASE_ETHERSCAN_TX_URL = "https://sepolia.basescan.org/tx"
 export const CONTACT_EMAIL = "zoukushimetazord@gmail.com"
 
 export const LEMONADS_CONTRACT_ADDRESS =
-  "0x1a4711c9cf5F54aDef189C87A2BD8A55Ee5469B4"
+  "0x4E32785b39E6E2e97696d609BF546435e82086fc"
 
 export const LEMONADS_CONTRACT_ABI = [
   {

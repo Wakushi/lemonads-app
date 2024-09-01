@@ -1,5 +1,11 @@
 import { AdParcel } from "@/lib/types/ad-parcel.type"
-import { createWalletClient, custom, Address, parseEther } from "viem"
+import {
+  createWalletClient,
+  custom,
+  Address,
+  parseEther,
+  formatEther,
+} from "viem"
 import RPC from "@/lib/web3/viemRPC"
 import { web3AuthInstance } from "@/lib/web3/Web3AuthConnectorInstance"
 import {
@@ -265,6 +271,19 @@ export async function runPayParcelOwners(account: Address) {
   } catch (error: any) {
     throw new Error(error.metaMessages[0])
   }
+}
+
+export async function getRenterFundsAmount(
+  renterAddress: Address
+): Promise<string> {
+  const fundAmount: any = await readContract(config, {
+    address: LEMONADS_CONTRACT_ADDRESS,
+    abi: LEMONADS_CONTRACT_ABI,
+    functionName: "getRenterFundsAmount",
+    args: [renterAddress],
+  })
+
+  return formatEther(fundAmount)
 }
 
 export enum ErrorType {

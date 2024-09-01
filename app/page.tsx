@@ -18,6 +18,7 @@ import {
   getAdParcelById,
   getAllPublisherAdParcels,
   getLastCronTimestamp,
+  getRenterFundsAmount,
   runAggregateClicks,
   runPayParcelOwners,
   writeAdParcel,
@@ -298,7 +299,26 @@ export default function Home() {
           ),
         })
         break
+      default:
+        toast({
+          title: "Error",
+          description: "An unexpected error occured, please try again.",
+          variant: "destructive",
+          action: (
+            <ToastAction altText="Try again" onClick={onRunPayParcelOwners}>
+              Try again
+            </ToastAction>
+          ),
+        })
+        break
     }
+  }
+
+  async function logRenterUserFunds() {
+    if (!user?.address) return
+
+    const funds = await getRenterFundsAmount(user?.address)
+    console.log("Funds: ", funds)
   }
 
   if (loading) {
@@ -351,6 +371,12 @@ export default function Home() {
           <Button onClick={() => onRunPayParcelOwners()}>
             Run payParcelOwners() <FaEthereum className="ml-2" />
           </Button>
+          <Button onClick={() => logRenterUserFunds()}>
+            Log renter funds()
+          </Button>
+        </div>
+        <div className="flex flex-col gap-4">
+          <Button>Add funds</Button>
         </div>
       </div>
     </main>
