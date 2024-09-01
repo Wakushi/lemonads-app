@@ -5,6 +5,7 @@ import Header from "@/components/header"
 import { roboto } from "@/lib/fonts"
 import Providers from "@/providers"
 import { Toaster } from "@/components/ui/toaster"
+import DebugDrawer from "@/components/debug-drawer"
 
 export const metadata: Metadata = {
   title: "Lemonads",
@@ -22,6 +23,7 @@ export default function RootLayout({
         <Providers>
           <Header />
           {children}
+          <DebugDrawer />
         </Providers>
         <Toaster />
       </body>
