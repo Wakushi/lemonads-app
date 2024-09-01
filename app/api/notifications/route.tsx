@@ -39,9 +39,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ message: "Invalid token." }, { status: 401 })
   }
 
-  console.log("UUID: ", uuid)
-  console.log("Notification list: ", notificationList)
-
   if (!notificationList) {
     return NextResponse.json(
       { message: "Missing renter address" },
@@ -60,6 +57,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     )
   }
 
+  console.log("UUID: ", uuid)
+  console.log("Notification list: ", notificationList)
+
   try {
     const success = await processUuid(uuid, async () => {
       // Purify the potential duplicates in the notificationList array
@@ -67,7 +67,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       for (let renterAddress of notificationList) {
         if (!renterAddress) return
 
+        console.log("Processing renter: ", renterAddress)
+
         const renter = await getUserByAddress(renterAddress)
+
+        console.log("Renter found: ", renter)
 
         if (!renter || !renter.email) {
           return
@@ -84,6 +88,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         )
 
         const balance = await contract.getRenterFundsAmount(renter.address)
+
+        console.log('Renter balance: ', balance)
 
         await sendMail({
           to: renter.email!,
