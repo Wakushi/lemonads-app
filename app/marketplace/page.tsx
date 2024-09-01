@@ -34,6 +34,8 @@ export default function MarketplacePage() {
 
   useEffect(() => {
     async function fetchParcels() {
+      if (adParcels.length) return
+
       setLoading(true)
       const allAdParcels = await getAllParcels(true)
 
@@ -63,7 +65,7 @@ export default function MarketplacePage() {
 
     fetchParcels()
     fetchAdContent()
-  }, [])
+  }, [user?.firebaseId])
 
   const filteredParcels = adParcels
     .filter((parcel) => {

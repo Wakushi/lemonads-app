@@ -309,7 +309,8 @@ export default function DebugDrawer() {
         </Button>
       </DrawerTrigger>
       <DrawerContent className="flex flex-col gap-2 items-center justify-center p-8">
-        <DrawerTitle className="text-3xl uppercase font-extrabold p-4">
+        <DrawerTitle className="text-3xl uppercase p-4 self-start flex items-center gap-1">
+          <GrTest className="text-2xl" />
           Debug
         </DrawerTitle>
         {loading ? (

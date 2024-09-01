@@ -49,14 +49,14 @@ export default function AdParcelCard({
 }: AdParcelCardProps) {
   const [newBid, setNewBid] = useState<string>("")
   const [loading, setLoading] = useState<boolean>(false)
-  const [selectedCampaignId, setSelectedCampaignId] = useState<string>("")
+  const [selectedCampaignTitle, setSelectedCampaignTitle] = useState<string>("")
   const isRented = parcel.renter && parcel.renter !== zeroAddress
 
   async function handleRentParcel() {
-    if (!selectedCampaignId) return
+    if (!selectedCampaignTitle) return
 
     const adContent = adCampaigns.find(
-      (campaign) => campaign.firebaseId === selectedCampaignId
+      (campaign) => campaign.title === selectedCampaignTitle
     )
 
     if (!adContent) return
@@ -146,61 +146,60 @@ export default function AdParcelCard({
       </CardContent>
 
       <CardFooter className="flex justify-between items-center">
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="w-full bg-brand hover:bg-white hover:text-brand transition-colors duration-200">
-              {isRented ? "Place a Higher Bid" : "Rent Parcel"}
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>
+        {parcel.owner !== user.address && (
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="w-full bg-brand hover:bg-white hover:text-brand transition-colors duration-200">
                 {isRented ? "Place a Higher Bid" : "Rent Parcel"}
-              </DialogTitle>
-              <DialogDescription>
-                Enter a new bid amount and select a campaign.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="flex flex-col gap-4 py-4">
-              {!!adCampaigns.length ? (
-                <Select onValueChange={setSelectedCampaignId}>
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select a campaign" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {adCampaigns.map((campaign) => (
-                      <SelectItem
-                        key={campaign.firebaseId}
-                        value={campaign.firebaseId as string}
-                      >
-                        {campaign.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ) : (
-                <Button className="w-full">Create my first campaign</Button>
-              )}
-
-              <Input
-                id="bid"
-                type="number"
-                placeholder={formatEther(BigInt(parcel.bid))}
-                value={newBid}
-                onChange={(e) => setNewBid(e.target.value)}
-                className="col-span-3"
-              />
-            </div>
-            <DialogFooter>
-              <Button
-                onClick={handleRentParcel}
-                disabled={!selectedCampaignId || loading}
-              >
-                {loading ? "Processing..." : "Confirm Bid"}
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>
+                  {isRented ? "Place a Higher Bid" : "Rent Parcel"}
+                </DialogTitle>
+                <DialogDescription>
+                  Enter a new bid amount and select a campaign.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex flex-col gap-4 py-4">
+                {!!adCampaigns.length ? (
+                  <Select onValueChange={setSelectedCampaignTitle}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a campaign" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {adCampaigns.map((campaign) => (
+                        <SelectItem key={campaign.title} value={campaign.title}>
+                          {campaign.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Button className="w-full">Create my first campaign</Button>
+                )}
+
+                <Input
+                  id="bid"
+                  type="number"
+                  placeholder={formatEther(BigInt(parcel.bid))}
+                  value={newBid}
+                  onChange={(e) => setNewBid(e.target.value)}
+                  className="col-span-3"
+                />
+              </div>
+              <DialogFooter>
+                <Button
+                  onClick={handleRentParcel}
+                  disabled={!selectedCampaignTitle || loading}
+                >
+                  {loading ? "Processing..." : "Confirm Bid"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
       </CardFooter>
     </Card>
   )

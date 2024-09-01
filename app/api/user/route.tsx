@@ -28,7 +28,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       )
     }
 
-    const user = await getUserByAddress(address)
+    const user = await getUserByAddress(address.toLowerCase())
 
     if (!user) {
       return NextResponse.json({ registeredUser: null }, { status: 404 })
