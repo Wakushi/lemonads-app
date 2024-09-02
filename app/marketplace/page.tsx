@@ -27,6 +27,7 @@ export default function MarketplacePage() {
   const [language, setLanguage] = useState("all")
   const [geoReach, setGeoReach] = useState("all")
   const [sortOption, setSortOption] = useState("bid")
+  const [hideRented, setHideRented] = useState<boolean>(false) // New state for checkbox
 
   const [availableCategories, setAvailableCategories] = useState<string[]>([])
   const [availableLanguages, setAvailableLanguages] = useState<string[]>([])
@@ -77,7 +78,8 @@ export default function MarketplacePage() {
           website?.url.toLowerCase().includes(search.toLowerCase())) &&
         (category === "all" || website?.category === category) &&
         (language === "all" || website?.language === language) &&
-        (geoReach === "all" || website?.geoReach.includes(geoReach))
+        (geoReach === "all" || website?.geoReach.includes(geoReach)) &&
+        (!hideRented || parcel.renter !== user?.address)
       )
     })
     .sort((a, b) => {
@@ -168,6 +170,19 @@ export default function MarketplacePage() {
           </SelectContent>
         </Select>
 
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            id="hideRented"
+            checked={hideRented}
+            onChange={() => setHideRented(!hideRented)}
+            className="mr-2"
+          />
+          <label htmlFor="hideRented" className="text-sm">
+            Hide ad parcels rented by me
+          </label>
+        </div>
+
         <Button
           variant="outline"
           onClick={() => {
@@ -176,6 +191,7 @@ export default function MarketplacePage() {
             setLanguage("all")
             setGeoReach("all")
             setSortOption("bid")
+            setHideRented(false)
           }}
           className="w-full"
         >
