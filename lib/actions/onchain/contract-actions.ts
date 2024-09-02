@@ -65,7 +65,7 @@ export async function writeAdParcel({
 
 export async function getAllPublisherAdParcels(
   address: Address,
-  websiteUrl: string
+  websiteUrl?: string
 ): Promise<AdParcel[]> {
   const adParcelIds: any = await readContract(config, {
     address: LEMONADS_CONTRACT_ADDRESS,
@@ -82,7 +82,7 @@ export async function getAllPublisherAdParcels(
     if (
       !adParcel ||
       !adParcel.website ||
-      (adParcel.website && adParcel.website.url !== websiteUrl)
+      (websiteUrl && adParcel.website && adParcel.website.url !== websiteUrl)
     ) {
       continue
     }

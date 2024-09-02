@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react"
 import AdContentPage from "@/components/ad-content"
 import AdStats from "@/components/ad-stats"
-import { useSearchParams } from "next/navigation"
 import LoaderSmall from "@/components/ui/loader-small/loader-small"
 import AdParcelView from "@/components/ad-parcel-view"
 import { useUser } from "@/service/user.service"
@@ -15,8 +14,11 @@ import {
   getAllImpressions,
 } from "@/lib/actions/client/firebase-actions"
 
-export default function AnnouncerDashboard() {
-  const searchParams = useSearchParams()
+export default function AnnouncerDashboard({
+  searchParams,
+}: {
+  searchParams?: { [key: string]: string | string[] | undefined }
+}) {
   const { user } = useUser()
 
   const [activeComponent, setActiveComponent] = useState("dashboard")
@@ -39,7 +41,7 @@ export default function AnnouncerDashboard() {
   }, [])
 
   useEffect(() => {
-    const view = searchParams.get("view")
+    const view = searchParams?.view
     if (view === "adContent") {
       setActiveComponent("adContent")
     } else if (view === "stats") {
