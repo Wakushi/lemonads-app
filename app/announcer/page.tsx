@@ -1,24 +1,24 @@
-'use client';
-import { useState } from "react";
-import AdContent from "@/components/ad-content"; 
+"use client"
+import { useState } from "react"
+import AdContent from "@/components/ad-content"
 import AdStats from "@/components/ad-stats"
 
 export default function AnnouncerDashboard() {
-  const [activeComponent, setActiveComponent] = useState("dashboard");
+  const [activeComponent, setActiveComponent] = useState("dashboard")
 
   const renderComponent = () => {
     switch (activeComponent) {
       case "adContent":
-        return <AdContent />;
+        return <AdContent />
       case "stats":
-        return <AdStats />;
+        return <AdStats />
       default:
-        return <div>Welcome to the Announcer Dashboard!</div>;
+        return <div>Welcome to the Announcer Dashboard!</div>
     }
-  };
+  }
 
   return (
-    <div className="flex pt-20">
+    <div className="flex pt-20 min-h-[100vh]">
       <nav className="w-1/5 h-screen fixed top-0 left-0 text-brand border-r flex flex-col pt-24">
         <ul className="flex flex-col gap-4">
           <li>
@@ -48,9 +48,7 @@ export default function AnnouncerDashboard() {
         </ul>
       </nav>
 
-      <div className="ml-[20%] w-[80%] p-8">
-        {renderComponent()}
-      </div>
+      <div className="ml-[20%] w-[80%] p-8">{renderComponent()}</div>
     </div>
-  );
+  )
 }

@@ -104,83 +104,86 @@ export default function MarketplacePage() {
   }
 
   return (
-    <div className="pt-[6rem] min-h-[100vh]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-wrap justify-center mb-8 gap-4">
-          <Input
-            type="text"
-            placeholder="Search by website name or URL"
-            className="max-w-xs"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+    <div className="pt-[6rem] min-h-[100vh] flex bg-white">
+      <div className="w-1/4 fixed top-[6rem] left-0 h-[calc(100vh-6rem)] flex flex-col gap-4 bg-white shadow-lg p-4 overflow-y-auto">
+        <h2 className="text-xl font-bold mb-4">Filters</h2>
+        <Input
+          type="text"
+          placeholder="Search by website name or URL"
+          className="mb-4"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
 
-          <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              {availableCategories.map((category) => (
-                <SelectItem key={category} value={category}>
-                  {category}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <Select value={category} onValueChange={setCategory}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Category" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Categories</SelectItem>
+            {availableCategories.map((category) => (
+              <SelectItem key={category} value={category}>
+                {category}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-          <Select value={language} onValueChange={setLanguage}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Language" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Languages</SelectItem>
-              {availableLanguages.map((language) => (
-                <SelectItem key={language} value={language}>
-                  {language}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <Select value={language} onValueChange={setLanguage}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Language" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Languages</SelectItem>
+            {availableLanguages.map((language) => (
+              <SelectItem key={language} value={language}>
+                {language}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-          <Select value={geoReach} onValueChange={setGeoReach}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Geo Reach" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Geo Reaches</SelectItem>
-              {availableGeoReaches.map((reach) => (
-                <SelectItem key={reach} value={reach}>
-                  {reach}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <Select value={geoReach} onValueChange={setGeoReach}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Geo Reach" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Geo Reaches</SelectItem>
+            {availableGeoReaches.map((reach) => (
+              <SelectItem key={reach} value={reach}>
+                {reach}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-          <Select value={sortOption} onValueChange={setSortOption}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Sort by Bid" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="bid">Sort by Bid</SelectItem>
-              <SelectItem value="minBid">Sort by Min Bid</SelectItem>
-            </SelectContent>
-          </Select>
+        <Select value={sortOption} onValueChange={setSortOption}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="bid">Sort by Bid</SelectItem>
+            <SelectItem value="minBid">Sort by Min Bid</SelectItem>
+          </SelectContent>
+        </Select>
 
-          <Button
-            variant="outline"
-            onClick={() => {
-              setSearch("")
-              setCategory("all")
-              setLanguage("all")
-              setGeoReach("all")
-              setSortOption("bid")
-            }}
-          >
-            Reset Filters
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          onClick={() => {
+            setSearch("")
+            setCategory("all")
+            setLanguage("all")
+            setGeoReach("all")
+            setSortOption("bid")
+          }}
+          className="w-full"
+        >
+          Reset Filters
+        </Button>
+      </div>
 
+      {/* Ad Parcels Display */}
+      <div className="ml-[25%] w-[75%] p-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredParcels.map((parcel) => (
             <AdParcelCard

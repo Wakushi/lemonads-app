@@ -94,8 +94,8 @@ export default function SignupForm() {
   }
 
   return (
-    <div className="max-w-[400px]">
-      <h2 className="text-3xl mb-4 font-bold">
+    <div className="max-w-[400px] ">
+      <h2 className="text-3xl mb-4 font-bold text-white">
         We'll need a few information about you !
       </h2>
       <Form {...signupForm}>
@@ -109,7 +109,7 @@ export default function SignupForm() {
             name="fullName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Full Name</FormLabel>
+                <FormLabel className="text-white">Full Name</FormLabel>
                 <FormControl>
                   <Input placeholder="Enter your full name" {...field} />
                 </FormControl>
@@ -124,7 +124,7 @@ export default function SignupForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel className="text-white">Email</FormLabel>
                 <FormControl>
                   <Input placeholder="Enter your email address" {...field} />
                 </FormControl>
@@ -139,7 +139,7 @@ export default function SignupForm() {
             name="userType"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>User Type</FormLabel>
+                <FormLabel className="text-white">User Type</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
@@ -169,7 +169,9 @@ export default function SignupForm() {
             name="companyName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Company Name (Optional)</FormLabel>
+                <FormLabel className="text-white">
+                  Company Name (Optional)
+                </FormLabel>
                 <FormControl>
                   <Input placeholder="Enter your company name" {...field} />
                 </FormControl>
@@ -194,7 +196,9 @@ export default function SignupForm() {
                     ref={field.ref}
                   />
                 </FormControl>
-                <FormLabel>I agree to the terms and conditions</FormLabel>
+                <FormLabel className="text-white">
+                  I agree to the terms and conditions
+                </FormLabel>
                 <FormMessage />
               </FormItem>
             )}

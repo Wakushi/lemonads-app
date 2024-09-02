@@ -51,7 +51,7 @@ export default function Header() {
               </div>
               <TooltipWrapper message="Disconnect wallet">
                 <IoMdLogOut
-                  className="text-2xl text-white cursor-pointer hover:opacity-80"
+                  className="text-2xl text-brand cursor-pointer hover:opacity-80"
                   onClick={() => {
                     disconnect()
                     router.push("/")
@@ -79,7 +79,7 @@ function Logo() {
   return (
     <Link
       href="/"
-      className={`${comfortaa.className} flex text-2xl font-semibold text-white items-center`}
+      className={`${comfortaa.className} flex text-2xl font-semibold text-brand items-center`}
     >
       <span>Lem</span>
       <LiaLemon />
@@ -92,7 +92,7 @@ function Navlink({ href, label }: { href: string; label: string }) {
   const pathname = usePathname()
   return (
     <Link
-      className={clsx("text-white text-lg underline-offset-2	 hover:underline", {
+      className={clsx("text-brand text-lg underline-offset-2	 hover:underline", {
         underline: pathname === href,
       })}
       href={href}

@@ -185,7 +185,7 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
     <div className="px-10 flex justify-around w-full h-[90vh] pt-[10rem]">
       <Link
         className="text-brand text-xl absolute top-[6rem] left-10 flex items-center gap-2 opacity-80 hover:opacity-100 hover:gap-1 hover:translate-x-[-2px] transition-all duration-500"
-        href="/publisher"
+        href="/publisher?view=adContent"
       >
         <FaBackspace className="text-2xl" />
         <span>Back</span>
