@@ -23,6 +23,7 @@ import {
   getAdParcelById,
   getAllPublisherAdParcels,
   getLastCronTimestamp,
+  getPayableAdParcels,
   getRenterFundsAmount,
   runAggregateClicks,
   runPayParcelOwners,
@@ -234,10 +235,32 @@ export default function DebugDrawer() {
   async function onRunPayParcelOwners(): Promise<void> {
     if (!user?.address) return
 
+    setLoading(true)
+
     try {
-      await runPayParcelOwners(user?.address)
+      const transactionHash = await runPayParcelOwners(user?.address)
+
+      toast({
+        title: "Parcel owners paid !",
+        description: "See on block explorer",
+        action: (
+          <ToastAction
+            altText="See details"
+            onClick={() =>
+              window.open(
+                `${BASE_ETHERSCAN_TX_URL}/${transactionHash}`,
+                "_blank"
+              )
+            }
+          >
+            See details
+          </ToastAction>
+        ),
+      })
     } catch (error: any) {
       handleContractErrors(error.message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -301,6 +324,11 @@ export default function DebugDrawer() {
     console.log("Funds: ", funds)
   }
 
+  async function checkPayableAdParcels() {
+    const payableAdParcels = await getPayableAdParcels()
+    console.log("payableAdParcels: ", payableAdParcels)
+  }
+
   return (
     <Drawer>
       <DrawerTrigger asChild>
@@ -342,6 +370,9 @@ export default function DebugDrawer() {
               </Button>
               <Button onClick={() => onRunPayParcelOwners()}>
                 Run payParcelOwners() <FaEthereum className="ml-2" />
+              </Button>
+              <Button onClick={() => checkPayableAdParcels()}>
+                Check payable parcels
               </Button>
             </div>
             <div className="flex flex-col gap-4">

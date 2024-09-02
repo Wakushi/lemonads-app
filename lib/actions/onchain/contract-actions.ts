@@ -287,6 +287,39 @@ export async function getRenterFundsAmount(
   return formatEther(fundAmount)
 }
 
+export async function getClickPerAdParcel(adParcelId: number): Promise<number> {
+  const clicks: any = await readContract(config, {
+    address: LEMONADS_CONTRACT_ADDRESS,
+    abi: LEMONADS_CONTRACT_ABI,
+    functionName: "getClickPerAdParcel",
+    args: [adParcelId],
+  })
+
+  return Number(clicks)
+}
+
+export async function getPayableAdParcels(): Promise<
+  { adParcelId: number; clicks: number }[]
+> {
+  const payableAdParcelsIds: any = await readContract(config, {
+    address: LEMONADS_CONTRACT_ADDRESS,
+    abi: LEMONADS_CONTRACT_ABI,
+    functionName: "getPayableAdParcels",
+  })
+
+  const payableAdParcels: { adParcelId: number; clicks: number }[] = []
+
+  for (let adParcelId of payableAdParcelsIds) {
+    const clicks = await getClickPerAdParcel(Number(adParcelId))
+    payableAdParcels.push({
+      adParcelId: Number(adParcelId),
+      clicks,
+    })
+  }
+
+  return payableAdParcels
+}
+
 export async function getAllParcels(
   attachWebsite = false
 ): Promise<AdParcel[]> {
