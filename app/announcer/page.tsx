@@ -1,10 +1,19 @@
 "use client"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import AdContent from "@/components/ad-content"
 import AdStats from "@/components/ad-stats"
+import { useSearchParams } from "next/navigation"
 
 export default function AnnouncerDashboard() {
+  const searchParams = useSearchParams()
   const [activeComponent, setActiveComponent] = useState("dashboard")
+
+  useEffect(() => {
+    const view = searchParams.get("view")
+    if (view === "adContent") {
+      setActiveComponent("adContent")
+    }
+  }, [])
 
   const renderComponent = () => {
     switch (activeComponent) {
