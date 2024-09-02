@@ -35,6 +35,7 @@ import { User } from "@/lib/types/user.type"
 import { AdContent } from "@/lib/types/ad-content.type"
 import { pinAdContent } from "@/lib/actions/client/pinata-actions"
 import TooltipWrapper from "./ui/custom-tooltip"
+import { Label } from "./ui/label"
 
 interface AdParcelCardProps {
   parcel: AdParcel
@@ -49,6 +50,7 @@ export default function AdParcelCard({
 }: AdParcelCardProps) {
   const [newBid, setNewBid] = useState<string>("")
   const [loading, setLoading] = useState<boolean>(false)
+  const [success, setSuccess] = useState<boolean>(false)
   const [selectedCampaignTitle, setSelectedCampaignTitle] = useState<string>("")
   const isRented = parcel.renter && parcel.renter !== zeroAddress
 
@@ -72,6 +74,8 @@ export default function AdParcelCard({
         newBid: +newBid,
         contentHash: contentHash,
       })
+
+      setSuccess(true)
     } catch (error) {
       console.error("Failed to rent parcel: ", error)
     } finally {
@@ -81,6 +85,7 @@ export default function AdParcelCard({
 
   return (
     <Card className="hover:shadow-xl transition-shadow duration-300 rounded-lg overflow-hidden bg-white">
+      {/* Header Section */}
       <CardHeader>
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
@@ -111,6 +116,7 @@ export default function AdParcelCard({
         </div>
       </CardHeader>
 
+      {/* Content Section */}
       <CardContent className="flex flex-col gap-3">
         <div className="flex justify-between gap-2">
           <div className="flex flex-col items-center rounded bg-gray-50 p-4 shadow flex-1">
@@ -145,8 +151,9 @@ export default function AdParcelCard({
         </div>
       </CardContent>
 
+      {/* Footer Section */}
       <CardFooter className="flex justify-between items-center">
-        {parcel.owner !== user.address && (
+        {parcel.owner !== user.address && parcel.renter !== user.address && (
           <Dialog>
             <DialogTrigger asChild>
               <Button className="w-full bg-brand hover:bg-white hover:text-brand transition-colors duration-200">
@@ -154,54 +161,67 @@ export default function AdParcelCard({
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>
-                  {isRented ? "Place a Higher Bid" : "Rent Parcel"}
-                </DialogTitle>
-                <DialogDescription>
-                  Enter a new bid amount and select a campaign.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="flex flex-col gap-4 py-4">
-                {!!adCampaigns.length ? (
-                  <Select onValueChange={setSelectedCampaignTitle}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a campaign" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {adCampaigns.map((campaign) => (
-                        <SelectItem key={campaign.title} value={campaign.title}>
-                          {campaign.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <Link
-                    href="/announcer?view=adContent"
-                    className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-                  >
-                    Create my first campaign
-                  </Link>
-                )}
+              {success ? (
+                <div>Ad parcel rented!</div>
+              ) : (
+                <>
+                  <DialogHeader>
+                    <DialogTitle>
+                      {isRented ? "Place a Higher Bid" : "Rent Parcel"}
+                    </DialogTitle>
+                    <DialogDescription>
+                      Enter a new bid amount and select a campaign.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="flex flex-col gap-4 py-4">
+                    {!!adCampaigns.length ? (
+                      <>
+                        <Label>Advertising campaign</Label>
+                        <Select onValueChange={setSelectedCampaignTitle}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a campaign" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {adCampaigns.map((campaign) => (
+                              <SelectItem
+                                key={campaign.title}
+                                value={campaign.title}
+                              >
+                                {campaign.title}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </>
+                    ) : (
+                      <Link
+                        href="/announcer?view=adContent"
+                        className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                      >
+                        Create my first campaign
+                      </Link>
+                    )}
 
-                <Input
-                  id="bid"
-                  type="number"
-                  placeholder={formatEther(BigInt(parcel.bid))}
-                  value={newBid}
-                  onChange={(e) => setNewBid(e.target.value)}
-                  className="col-span-3"
-                />
-              </div>
-              <DialogFooter>
-                <Button
-                  onClick={handleRentParcel}
-                  disabled={!selectedCampaignTitle || loading}
-                >
-                  {loading ? "Processing..." : "Confirm Bid"}
-                </Button>
-              </DialogFooter>
+                    <Label>Amount paid per click</Label>
+                    <Input
+                      id="bid"
+                      type="number"
+                      placeholder={formatEther(BigInt(parcel.bid))}
+                      value={newBid}
+                      onChange={(e) => setNewBid(e.target.value)}
+                      className="col-span-3"
+                    />
+                  </div>
+                  <DialogFooter>
+                    <Button
+                      onClick={handleRentParcel}
+                      disabled={!selectedCampaignTitle || loading}
+                    >
+                      {loading ? "Processing..." : "Confirm Bid"}
+                    </Button>
+                  </DialogFooter>
+                </>
+              )}
             </DialogContent>
           </Dialog>
         )}

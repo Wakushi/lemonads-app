@@ -1,12 +1,15 @@
 "use client"
 import { useEffect, useState } from "react"
-import AdContent from "@/components/ad-content"
+import AdContentPage from "@/components/ad-content"
 import AdStats from "@/components/ad-stats"
 import { useSearchParams } from "next/navigation"
+import LoaderSmall from "@/components/ui/loader-small/loader-small"
 
 export default function AnnouncerDashboard() {
   const searchParams = useSearchParams()
+
   const [activeComponent, setActiveComponent] = useState("dashboard")
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const view = searchParams.get("view")
@@ -18,7 +21,7 @@ export default function AnnouncerDashboard() {
   const renderComponent = () => {
     switch (activeComponent) {
       case "adContent":
-        return <AdContent />
+        return <AdContentPage loading={loading} setLoading={setLoading} />
       case "stats":
         return <AdStats />
       default:
@@ -57,7 +60,9 @@ export default function AnnouncerDashboard() {
         </ul>
       </nav>
 
-      <div className="ml-[20%] w-[80%] p-8">{renderComponent()}</div>
+      <div className="ml-[20%] w-[80%] p-8">
+        {loading ? <LoaderSmall /> : renderComponent()}
+      </div>
     </div>
   )
 }

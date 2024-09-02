@@ -35,19 +35,27 @@ const adContentSchema = z.object({
 
 type AdContentFormValues = z.infer<typeof adContentSchema>
 
-export default function AdContentPage() {
+interface AdContentPageProps {
+  loading: boolean
+  setLoading: (bool: boolean) => void
+}
+
+export default function AdContentPage({
+  loading,
+  setLoading,
+}: AdContentPageProps) {
   const { user } = useUser()
-  const [loading, setLoading] = useState(false)
   const [adContents, setAdContents] = useState<AdContent[]>([])
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
     reset,
     setValue,
   } = useForm<AdContentFormValues>({
     resolver: zodResolver(adContentSchema),
+    mode: "onChange",
   })
 
   useEffect(() => {
@@ -105,7 +113,7 @@ export default function AdContentPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">Your Ad Contents</h1>
+      <h1 className="text-3xl font-bold mb-6">Your Ad Campaigns</h1>
 
       <div className="grid grid-cols-3 gap-4">
         {adContents.map((content, i) => (
@@ -120,11 +128,12 @@ export default function AdContentPage() {
               width={1280}
               height={1280}
             />
-            <div className="p-2">
+            <div className="p-2 relative">
               <h2 className="font-bold text-lg">{content.title}</h2>
-              <Button asChild className="mt-2 bg-brand">
-                <Link href={content.linkUrl}>Learn more</Link>
-              </Button>
+              <p className="line-clamp-2 relative z-10">
+                {content.description}
+              </p>
+              <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent z-0"></div>
             </div>
           </div>
         ))}
@@ -185,8 +194,8 @@ export default function AdContentPage() {
               )}
 
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction type="submit" disabled={loading}>
+                <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+                <AlertDialogAction type="submit" disabled={!isValid || loading}>
                   {loading ? "Creating..." : "Create"}
                 </AlertDialogAction>
               </AlertDialogFooter>
