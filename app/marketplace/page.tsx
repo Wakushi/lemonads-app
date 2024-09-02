@@ -37,6 +37,7 @@ export default function MarketplacePage() {
       if (adParcels.length) return
 
       setLoading(true)
+
       const allAdParcels = await getAllParcels(true)
 
       const categories = new Set<string>()
