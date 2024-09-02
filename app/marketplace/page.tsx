@@ -104,9 +104,8 @@ export default function MarketplacePage() {
   }
 
   return (
-    <div className="pt-[6rem] min-h-[100vh] bg-gray-50">
+    <div className="pt-[6rem] min-h-[100vh]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Filter Bar */}
         <div className="flex flex-wrap justify-center mb-8 gap-4">
           <Input
             type="text"

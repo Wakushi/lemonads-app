@@ -72,7 +72,7 @@ export default function PublisherDashboard() {
   }
 
   return (
-    <div className="pt-20">
+    <div className="pt-20 min-h-[100vh] flex flex-col">
       <div className="flex p-8 items-center justify-center">
         {loadingEvents ? (
           <LoaderSmall />

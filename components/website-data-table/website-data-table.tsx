@@ -195,8 +195,8 @@ export function WebsiteDataTable<TData, TValue>({
   }
 
   return (
-    <>
-      <div className="px-4">
+    <div className="bg-white shadow-lg flex-1">
+      <div className="p-4 ">
         <div className="flex items-center justify-between gap-2">
           {/* TABLE FILTERS */}
           <div className="flex flex-wrap items-center w-full gap-2 mb-2">
@@ -254,7 +254,7 @@ export function WebsiteDataTable<TData, TValue>({
           </div>
         </div>
       </div>
-      <div className="rounded-md">
+      <div className="rounded-md ">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -310,7 +310,7 @@ export function WebsiteDataTable<TData, TValue>({
       <div className="border-t border-slate-800 flex items-center justify-end space-x-2 p-2">
         <DataTablePagination table={table} />
       </div>
-    </>
+    </div>
   )
 }
 

@@ -22,7 +22,9 @@ export default function RootLayout({
       <body suppressHydrationWarning={true} className={roboto.className}>
         <Providers>
           <Header />
-          {children}
+          <main className="bg-gradient-to-r from-blue-500 to-indigo-600">
+            {children}
+          </main>
           <DebugDrawer />
         </Providers>
         <Toaster />

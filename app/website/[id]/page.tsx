@@ -25,26 +25,26 @@ import { toast } from "@/components/ui/use-toast"
 import { getAllPublisherAdParcels } from "@/lib/actions/onchain/contract-actions"
 import Link from "next/link"
 import { FaBackspace } from "react-icons/fa"
+import { zeroAddress } from "viem"
 
 const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
   const { id } = params
   const { user, loading: userLoading, websites } = useUser()
 
   const [website, setWebsite] = useState<Website | null>(null)
-  const [loading, setLoading] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
   const [adBlockSettings, setAdBlockSettings] = useState({})
   const [adParcels, setAdParcels] = useState<any[]>([])
 
   useEffect(() => {
     const fetchWebsite = async () => {
+      if (!user || userLoading) return
       const foundWebsite = websites.find((w) => w.id === id)
 
       if (foundWebsite) {
         setWebsite(foundWebsite)
       }
-
-      if (!user || userLoading) return
 
       try {
         const response = await fetch(
@@ -67,12 +67,17 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
 
   useEffect(() => {
     const fetchAdParcels = async () => {
-      if (!user?.address) return
+      if (!user?.address || !website?.url) return
+
       setLoading(true)
+
       try {
-        const adParcels = await getAllPublisherAdParcels(user.address)
+        const adParcels = await getAllPublisherAdParcels(
+          user.address,
+          website.url
+        )
+
         setAdParcels(adParcels)
-        console.log(adParcels)
       } catch (error) {
         console.error("Failed to fetch ad parcels:", error)
       } finally {
@@ -81,7 +86,7 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
     }
 
     fetchAdParcels()
-  }, [user])
+  }, [user, website?.url])
 
   async function createAdParcel() {
     setLoading(true)
@@ -99,13 +104,13 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
       ...adBlockSettings,
     }
 
-    const adParcelId = uuidv4()
-    const traitsHash = await pinAdParcelTraits(traits, adParcelId)
+    const adParcelId = uuidToUint256(uuidv4())
+    const traitsHash = await pinAdParcelTraits(traits, adParcelId.toString())
 
     try {
       const transactionHash = await writeAdParcel({
         account: user.address,
-        id: uuidToUint256(adParcelId),
+        id: adParcelId,
         minBid: 1,
         traitsHash,
         websiteInfoHash: website.ipfsHash,
@@ -128,6 +133,20 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
           </ToastAction>
         ),
       })
+
+      setAdParcels((prevAdParcels) => [
+        ...prevAdParcels,
+        {
+          id: adParcelId.toString(),
+          bid: 0,
+          minBid: 1,
+          owner: user.address,
+          renter: zeroAddress,
+          traitsHash,
+          websiteInfoHash: website.ipfsHash,
+          active: true,
+        },
+      ])
     } catch (error) {
       toast({
         title: "Error during parcel creation",

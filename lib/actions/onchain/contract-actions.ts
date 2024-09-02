@@ -64,7 +64,8 @@ export async function writeAdParcel({
 }
 
 export async function getAllPublisherAdParcels(
-  address: Address
+  address: Address,
+  websiteUrl: string
 ): Promise<AdParcel[]> {
   const adParcelIds: any = await readContract(config, {
     address: LEMONADS_CONTRACT_ADDRESS,
@@ -77,7 +78,15 @@ export async function getAllPublisherAdParcels(
 
   for (let i = 0; i < adParcelIds.length; i++) {
     const adParcel = await getAdParcelById(Number(adParcelIds[i]))
-    if (!adParcel) continue
+
+    if (
+      !adParcel ||
+      !adParcel.website ||
+      (adParcel.website && adParcel.website.url !== websiteUrl)
+    ) {
+      continue
+    }
+
     adParcels.push(adParcel)
   }
 
@@ -94,11 +103,14 @@ export async function getAdParcelById(
     args: [adParcelId],
   })
 
+  const website = await getWebsiteByHash(adParcel.websiteInfoHash)
+
   return {
     ...adParcel,
     id: adParcelId,
     bid: Number(adParcel.bid),
     minBid: Number(adParcel.minBid),
+    website,
   } as AdParcel
 }
 
