@@ -32,10 +32,12 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
   const { user, loading: userLoading, websites } = useUser()
 
   const [website, setWebsite] = useState<Website | null>(null)
-  const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
   const [adBlockSettings, setAdBlockSettings] = useState({})
   const [adParcels, setAdParcels] = useState<any[]>([])
+
+  const [loading, setLoading] = useState<boolean>(true)
+  const [loadingParcels, setLoadingParcels] = useState<boolean>(true)
 
   useEffect(() => {
     const fetchWebsite = async () => {
@@ -69,8 +71,6 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
     const fetchAdParcels = async () => {
       if (!user?.address || !website?.url) return
 
-      setLoading(true)
-
       try {
         const adParcels = await getAllPublisherAdParcels(
           user.address,
@@ -81,7 +81,7 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
       } catch (error) {
         console.error("Failed to fetch ad parcels:", error)
       } finally {
-        setLoading(false)
+        setLoadingParcels(false)
       }
     }
 
@@ -216,38 +216,42 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
       </div>
 
       <div className="w-1/2 h-full py-10">
-        <div className="grid grid-cols-3 gap-4 p-4 border border-gray-300 rounded-lg h-full">
-          {adParcels.map((parcel, index) => (
-            <div
-              key={index}
-              className="h-1/3 border border-gray-300 bg-gray-100 bg-opacity-40 shadow-inner flex items-center justify-center"
-            >
-              Bloc {index + 1}
-            </div>
-          ))}
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <div className="h-1/3 border border-gray-300 bg-gray-100 bg-opacity-40 shadow-inner flex items-center justify-center cursor-pointer">
-                <span className="text-3xl text-gray-500">+</span>
+        {loadingParcels ? (
+          <LoaderSmall />
+        ) : (
+          <div className="grid grid-cols-3 gap-4 p-4 border border-gray-300 rounded-lg h-full">
+            {adParcels.map((parcel, index) => (
+              <div
+                key={index}
+                className="h-1/3 border border-gray-300 bg-gray-100 bg-opacity-40 shadow-inner flex items-center justify-center"
+              >
+                Bloc {index + 1}
               </div>
-            </AlertDialogTrigger>
-            <AlertDialogContent className="max-w-7xl w-full h-[90vh] mx-auto overflow-y-auto p-10">
-              <AlertDialogHeader>
-                <AlertDialogTitle>Create New Ad Block</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Customize and create your new ad block here.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AdBlockCustomization setAdBlockSettings={setAdBlockSettings} />
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={createAdParcel}>
-                  Create
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
+            ))}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <div className="h-1/3 border border-gray-300 bg-gray-100 bg-opacity-40 shadow-inner flex items-center justify-center cursor-pointer">
+                  <span className="text-3xl text-gray-500">+</span>
+                </div>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="max-w-7xl w-full h-[90vh] mx-auto overflow-y-auto p-10">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Create New Ad Block</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Customize and create your new ad block here.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AdBlockCustomization setAdBlockSettings={setAdBlockSettings} />
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={createAdParcel}>
+                    Create
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        )}
       </div>
     </div>
   )

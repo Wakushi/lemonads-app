@@ -4,7 +4,6 @@ import { IoMdLogOut } from "react-icons/io"
 import { comfortaa } from "@/lib/fonts"
 import { LiaLemon } from "react-icons/lia"
 import Link from "next/link"
-import { useDisconnect } from "wagmi"
 import TooltipWrapper from "./ui/custom-tooltip"
 import { usePathname, useRouter } from "next/navigation"
 import clsx from "clsx"
@@ -15,9 +14,7 @@ import RPC from "@/lib/web3/viemRPC"
 import { web3AuthInstance } from "@/lib/web3/Web3AuthConnectorInstance"
 
 export default function Header() {
-  const { user, loading } = useUser()
-  const { disconnect } = useDisconnect()
-  const router = useRouter()
+  const { user, loading, disconnectWallet } = useUser()
 
   async function getUserBalance() {
     if (!web3AuthInstance.provider) return
@@ -52,10 +49,7 @@ export default function Header() {
               <TooltipWrapper message="Disconnect wallet">
                 <IoMdLogOut
                   className="text-2xl text-brand cursor-pointer hover:opacity-80"
-                  onClick={() => {
-                    disconnect()
-                    router.push("/")
-                  }}
+                  onClick={() => disconnectWallet()}
                 />
               </TooltipWrapper>
             </>

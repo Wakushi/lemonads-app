@@ -6,6 +6,7 @@ import { User } from "@/lib/types/user.type"
 import { web3AuthInstance } from "@/lib/web3/Web3AuthConnectorInstance"
 import RPC from "@/lib/web3/viemRPC"
 import { Website } from "@/lib/types/website.type"
+import { useRouter } from "next/navigation"
 
 interface UserContextProviderProps {
   children: ReactNode
@@ -34,6 +35,7 @@ const UserContext = createContext<UserContextProps>({
 export default function UserContextProvider(props: UserContextProviderProps) {
   const { address, connector, isConnected } = useAccount()
   const { disconnect } = useDisconnect()
+  const router = useRouter()
 
   const [user, setUser] = useState<User | null>(null)
   const [websites, setWebsites] = useState<Website[]>([])
@@ -86,6 +88,7 @@ export default function UserContextProvider(props: UserContextProviderProps) {
   function disconnectWallet() {
     disconnect()
     setUser(null)
+    router.push("/")
   }
 
   async function getUserAddress(): Promise<`0x${string}` | null> {
@@ -103,6 +106,7 @@ export default function UserContextProvider(props: UserContextProviderProps) {
     const { registeredUser } = await response.json()
     return registeredUser
   }
+
 
   const context: UserContextProps = {
     user,
