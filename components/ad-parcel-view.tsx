@@ -15,7 +15,7 @@ export default function AdParcelView({ user }: AdParcelViewProps) {
 
   useEffect(() => {
     async function fetchRentedParcels() {
-      const allAdParcels = await getAllParcels()
+      const allAdParcels = await getAllParcels(true)
       const rentedParcels = allAdParcels.filter(
         (parcel) => parcel.renter === user.address
       )

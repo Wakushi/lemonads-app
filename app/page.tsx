@@ -8,7 +8,7 @@ export default function Home() {
   return (
     <main className="min-h-[100vh] flex flex-col items-center justify-cente">
       {/* Hero Section */}
-      <section className="w-full flex flex-col items-center justify-center text-center h-[100vh] text-brand px-6">
+      <section className="w-full flex flex-col items-center justify-center text-center h-[100vh] px-6">
         <h1 className="text-7xl font-extrabold mb-6">
           Decentralize Your Ad Campaigns
         </h1>

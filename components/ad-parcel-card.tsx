@@ -46,6 +46,7 @@ import { FcGoogle } from "react-icons/fc"
 import { FiUsers, FiClock, FiBarChart, FiActivity } from "react-icons/fi"
 import { FaEye } from "react-icons/fa"
 import clsx from "clsx"
+import { useRouter } from "next/navigation"
 
 interface AdParcelCardProps {
   parcel: AdParcel
@@ -58,6 +59,7 @@ export default function AdParcelCard({
   user,
   adCampaigns,
 }: AdParcelCardProps) {
+  const router = useRouter()
   const [newBid, setNewBid] = useState<string>("")
   const [loading, setLoading] = useState<boolean>(false)
   const [success, setSuccess] = useState<boolean>(false)
@@ -159,7 +161,11 @@ export default function AdParcelCard({
             <PopoverContent>
               {" "}
               {parcel.website?.metrics ? (
-                <div>
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center gap-2">
+                    <FcGoogle className="text-lg" />
+                    <span className="text-sm">Google Analytics (monthly)</span>
+                  </div>
                   <div className="grid grid-cols-2 gap-2">
                     <MetricDisplay
                       icon={<FiUsers />}
@@ -236,7 +242,13 @@ export default function AdParcelCard({
       {/* Footer Section */}
       <CardFooter className="flex justify-between items-center">
         {user.type === UserType.ANNOUNCER && parcel.renter !== user.address && (
-          <Dialog>
+          <Dialog
+            onOpenChange={(open) => {
+              if (!open && success) {
+                router.push("/announcer?view=adParcels")
+              }
+            }}
+          >
             <DialogTrigger asChild>
               <Button className="w-full bg-brand hover:bg-white hover:text-brand transition-colors duration-200">
                 {isRented ? "Place a Higher Bid" : "Rent Parcel"}
@@ -244,7 +256,9 @@ export default function AdParcelCard({
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               {success ? (
-                <div>Ad parcel rented!</div>
+                <div className="w-full h-[300px] flex items-center justify-center text-2xl">
+                  Ad parcel rented!
+                </div>
               ) : (
                 <>
                   <DialogHeader>
