@@ -301,3 +301,23 @@ export async function processUuid(
     return false
   }
 }
+
+export const updateWebsite = async (
+  userFirebaseId: string,
+  websiteId: string,
+  updatedWebsiteData: Partial<Website>
+): Promise<void> => {
+  try {
+    const websiteRef = adminDb
+      .collection(USER_COLLECTION)
+      .doc(userFirebaseId)
+      .collection(WEBSITE_COLLECTION)
+      .doc(websiteId)
+
+    await websiteRef.update(updatedWebsiteData)
+    console.log(`Website with ID ${websiteId} has been updated.`)
+  } catch (error) {
+    console.error("Error updating website:", error)
+    throw new Error("Failed to update website")
+  }
+}
