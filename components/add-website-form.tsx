@@ -242,7 +242,7 @@ export default function AddWebsiteForm({
                 {keywords.map((keyword, index) => (
                   <span
                     key={index}
-                    className="bg-blue-500 text-white rounded-full px-3 py-1 flex items-center gap-2"
+                    className="bg-black text-white text-sm rounded-full px-3 py-1 flex items-center gap-2"
                   >
                     {keyword}
                     <button
@@ -255,6 +255,7 @@ export default function AddWebsiteForm({
                   </span>
                 ))}
               </div>
+              <FormMessage />
             </FormItem>
 
             <FormField
@@ -367,7 +368,7 @@ export default function AddWebsiteForm({
                   <FormLabel>Google Analytics Property ID (Optional)</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="UA-XXXXXXXXX-X or GA4 Property ID"
+                      placeholder="GA4 Property ID (9 digits)"
                       {...field}
                     />
                   </FormControl>

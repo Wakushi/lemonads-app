@@ -24,7 +24,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { CiCircleCheck } from "react-icons/ci"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,16 +36,13 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Website } from "@/lib/types/website.type"
 import { Input } from "../ui/input"
 import LoaderSmall from "../ui/loader-small/loader-small"
 import { DataTablePagination } from "../data-table-pagination"
-import AddWebsiteForm from "../add-website-form"
-import { IoMdClose } from "react-icons/io"
-import { useQueryClient } from "@tanstack/react-query"
-import { useUser } from "@/service/user.service"
+import AddWebsiteDialog from "../add-website-modal"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -57,7 +53,6 @@ export function WebsiteDataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const router = useRouter()
   const [loading, setLoading] = useState<boolean>(false)
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -80,179 +75,15 @@ export function WebsiteDataTable<TData, TValue>({
     },
   })
 
-  async function deleteSelected(): Promise<void> {
-    const selectedWebsites = table
-      .getFilteredSelectedRowModel()
-      .rows.map((r) => r.original as Website)
-
-    selectedWebsites.forEach(async (website) => {
-      try {
-        await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_API_URL}/website?id=${website.id}`, // TO IMPLEMENT
-          {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        )
-        router.refresh()
-      } catch (error) {
-        console.error(error)
-      }
-    })
-  }
-
-  function getSelecteRowsAmount(): number {
-    return table.getFilteredSelectedRowModel().rows.length
-  }
-
-  function DeleteAlertDialog() {
-    if (!getSelecteRowsAmount()) return null
-
-    if (loading) return <LoaderSmall />
-
-    return (
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button variant="outline" className="flex-1 w-full">
-            Delete
-          </Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action is irreversible and will delete the website.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={deleteSelected}>
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    )
-  }
-
-  function AddWebsiteDialog() {
-    const { user } = useUser()
-    const queryClient = useQueryClient()
-    const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
-    const [isSuccess, setIsSuccess] = useState<boolean>(false)
-
-    useEffect(() => {
-      if (!isSuccess) return
-      queryClient.invalidateQueries({ queryKey: ["websites", user?.address] })
-    }, [isSuccess])
-
-    const getDialogContent = () => {
-      if (isSubmitting) {
-        return (
-          <div className="h-full flex justify-center items-center">
-            <LoaderSmall />
-          </div>
-        )
-      }
-
-      if (isSuccess) {
-        return (
-          <div className="h-full flex flex-col gap-4 justify-center items-center">
-            <CiCircleCheck className="text-green-600 text-[8rem]" />
-            <p className="text-3xl pb-20">Website added !</p>
-          </div>
-        )
-      }
-
-      return (
-        <AddWebsiteForm
-          setIsSubmitting={setIsSubmitting}
-          setIsSuccess={setIsSuccess}
-        />
-      )
-    }
-
-    return (
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button className="bg-brand">Add new website</Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent className="max-w-lg mx-auto my-8 bg-white rounded-lg shadow-lg">
-          <AlertDialogHeader className="flex flex-row items-center w-full justify-between justify-self-end">
-            {!isSuccess && !isSubmitting && (
-              <AlertDialogTitle>Add New Website</AlertDialogTitle>
-            )}
-            <AlertDialogCancel>
-              <IoMdClose />
-            </AlertDialogCancel>
-          </AlertDialogHeader>
-          <div className="min-h-[400px] overflow-y-auto">
-            {getDialogContent()}
-          </div>
-        </AlertDialogContent>
-      </AlertDialog>
-    )
-  }
-
   return (
     <div className="bg-white shadow-lg flex-1">
       <div className="p-4 ">
         <div className="flex items-center justify-between gap-2">
-          {/* TABLE FILTERS */}
-          <div className="flex flex-wrap items-center w-full gap-2 mb-2">
-            <Input
-              placeholder="Website Name"
-              value={
-                (table.getColumn("name")?.getFilterValue() as string) ?? ""
-              }
-              onChange={(event) =>
-                table.getColumn("name")?.setFilterValue(event.target.value)
-              }
-              className="max-w-[200px]"
-            />
-            <Input
-              placeholder="Category"
-              value={
-                (table.getColumn("category")?.getFilterValue() as string) ?? ""
-              }
-              onChange={(event) =>
-                table.getColumn("category")?.setFilterValue(event.target.value)
-              }
-              className="max-w-[200px]"
-            />
-          </div>
+          <TableFilters table={table} />
           <div className="flex items-center gap-2">
-            <DeleteAlertDialog />
+            <DeleteSelectedWebsiteAlertDialog table={table} loading={loading} />
             <AddWebsiteDialog />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="flex-1 w-full">
-                  Columns
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {table
-                  .getAllColumns()
-                  .filter((column) => column.getCanHide())
-                  .map((column) => {
-                    if (column.id === "actions") return null
-                    return (
-                      <DropdownMenuCheckboxItem
-                        key={column.id}
-                        className="capitalize"
-                        checked={column.getIsVisible()}
-                        onCheckedChange={(value) =>
-                          column.toggleVisibility(!!value)
-                        }
-                      >
-                        {columnsLabels[column.id as keyof typeof columnsLabels]}
-                      </DropdownMenuCheckboxItem>
-                    )
-                  })}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <ColumnSelection table={table} />
           </div>
         </div>
       </div>
@@ -324,4 +155,114 @@ const columnsLabels = {
   language: "Language",
   geoReach: "Geographical Reach",
   keywords: "Keywords",
+}
+
+function TableFilters({ table }: any) {
+  return (
+    <div className="flex flex-wrap items-center w-full gap-2 mb-2">
+      <Input
+        placeholder="Website Name"
+        value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+        onChange={(event) =>
+          table.getColumn("name")?.setFilterValue(event.target.value)
+        }
+        className="max-w-[200px]"
+      />
+      <Input
+        placeholder="Category"
+        value={(table.getColumn("category")?.getFilterValue() as string) ?? ""}
+        onChange={(event) =>
+          table.getColumn("category")?.setFilterValue(event.target.value)
+        }
+        className="max-w-[200px]"
+      />
+    </div>
+  )
+}
+
+function ColumnSelection({ table }: any) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" className="flex-1 w-full">
+          Columns
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        {table
+          .getAllColumns()
+          .filter((column: any) => column.getCanHide())
+          .map((column: any) => {
+            if (column.id === "actions") return null
+            return (
+              <DropdownMenuCheckboxItem
+                key={column.id}
+                className="capitalize"
+                checked={column.getIsVisible()}
+                onCheckedChange={(value) => column.toggleVisibility(!!value)}
+              >
+                {columnsLabels[column.id as keyof typeof columnsLabels]}
+              </DropdownMenuCheckboxItem>
+            )
+          })}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+function DeleteSelectedWebsiteAlertDialog({ table, loading }: any) {
+  const router = useRouter()
+
+  async function deleteSelected(): Promise<void> {
+    const selectedWebsites = table
+      .getFilteredSelectedRowModel()
+      .rows.map((r: any) => r.original as Website)
+
+    selectedWebsites.forEach(async (website: Website) => {
+      try {
+        await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_API_URL}/website?id=${website.id}`, // TO IMPLEMENT
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        )
+        router.refresh()
+      } catch (error) {
+        console.error(error)
+      }
+    })
+  }
+
+  function getSelecteRowsAmount(): number {
+    return table.getFilteredSelectedRowModel().rows.length
+  }
+
+  if (!getSelecteRowsAmount()) return null
+
+  if (loading) return <LoaderSmall />
+
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant="outline" className="flex-1 w-full">
+          Delete
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action is irreversible and will delete the website.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={deleteSelected}>Delete</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
 }
