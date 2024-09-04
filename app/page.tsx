@@ -6,9 +6,9 @@ import Link from "next/link"
 
 export default function Home() {
   return (
-    <main className="min-h-[100vh] flex flex-col items-center justify-center bg-gray-50">
+    <main className="min-h-[100vh] flex flex-col items-center justify-cente">
       {/* Hero Section */}
-      <section className="w-full flex flex-col items-center justify-center text-center h-[100vh] bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6">
+      <section className="w-full flex flex-col items-center justify-center text-center h-[100vh] text-brand px-6">
         <h1 className="text-7xl font-extrabold mb-6">
           Decentralize Your Ad Campaigns
         </h1>
@@ -20,11 +20,14 @@ export default function Home() {
         <div className="flex gap-6">
           <Button
             size="lg"
-            className="bg-brand text-white hover:bg-white hover:text-brand"
+            className="bg-brand text-white hover:bg-white hover:text-brand shadow-md"
           >
             Start as Publisher
           </Button>
-          <Button size="lg" className="bg-white text-brand hover:bg-gray-200">
+          <Button
+            size="lg"
+            className="bg-white text-brand hover:bg-gray-200 shadow-md"
+          >
             Start as Advertiser
           </Button>
         </div>
