@@ -1,4 +1,4 @@
-import { getWebsitesByUser, getWebsiteById, addWebsiteToUser } from "@/lib/actions/server/firebase-actions";
+import { getWebsitesByUser, getWebsiteById, addWebsiteToUser, updateWebsite } from "@/lib/actions/server/firebase-actions";
 import { pinJSONToIPFS } from "@/lib/actions/server/pinata-actions";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -53,6 +53,24 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   } catch (error) {
     console.error("API error:", error);
     return NextResponse.json({ error: "Failed to fetch websites" }, { status: 500 });
+  }
+}
+
+export async function PUT(req: NextRequest): Promise<NextResponse> {
+  try {
+    const { uid, websiteId, ...updatedWebsiteData } = await req.json();
+
+    if (!uid || !websiteId) {
+      return NextResponse.json({ error: "L'ID utilisateur et l'ID du site web sont requis" }, { status: 400 });
+    }
+
+    // Mettre à jour le site web dans Firebase
+    await updateWebsite(uid, websiteId, updatedWebsiteData);
+
+    return NextResponse.json({ message: "Website updated successfully" });
+  } catch (error) {
+    console.error("Erreur API :", error);
+    return NextResponse.json({ error: "Échec de la mise à jour du site web" }, { status: 500 });
   }
 }
 

@@ -70,25 +70,29 @@ export default function MarketplacePage() {
   }, [user?.firebaseId])
 
   const filteredParcels = adParcels
-    .filter((parcel) => {
-      const website = parcel.website
-      return (
-        (!search ||
-          website?.name.toLowerCase().includes(search.toLowerCase()) ||
-          website?.url.toLowerCase().includes(search.toLowerCase())) &&
-        (category === "all" || website?.category === category) &&
-        (language === "all" || website?.language === language) &&
-        (geoReach === "all" || website?.geoReach.includes(geoReach)) &&
-        (!hideRented || parcel.renter !== user?.address)
-      )
-    })
-    .sort((a, b) => {
-      if (sortOption === "bid") return b.bid - a.bid
-      if (sortOption === "minBid") return b.minBid - a.minBid
-      return 0
-    })
+  .filter((parcel) => {
+    const website = parcel.website;
+    
+    const isNotRented = parcel.renter === "0x0000000000000000000000000000000000000000";
 
-  if (!user) return
+    return (
+      isNotRented &&  
+      (!search || 
+        website?.name.toLowerCase().includes(search.toLowerCase()) ||
+        website?.url.toLowerCase().includes(search.toLowerCase())) &&
+      (category === "all" || website?.category === category) &&
+      (language === "all" || website?.language === language) &&
+      (geoReach === "all" || website?.geoReach.includes(geoReach)) &&
+      (!hideRented || parcel.renter !== user?.address)
+    );
+  })
+  .sort((a, b) => {
+    if (sortOption === "bid") return b.bid - a.bid;
+    if (sortOption === "minBid") return b.minBid - a.minBid;
+    return 0;
+  });
+
+if (!user) return;
 
   if (loading) {
     return (
