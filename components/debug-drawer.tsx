@@ -31,7 +31,6 @@ import {
   writeEditAdParcelTraits,
   writeRentAdParcel,
 } from "@/lib/actions/onchain/contract-actions"
-import { mockWebsites } from "@/lib/data/website-list-mock"
 import { Input } from "@/components/ui/input"
 import { useUser } from "@/service/user.service"
 
@@ -46,71 +45,8 @@ import { GrTest } from "react-icons/gr"
 export default function DebugDrawer() {
   const { user } = useUser()
   const { toast } = useToast()
-  const [website, setWebsite] = useState<Website>(mockWebsites[0])
   const [searchedAdParcelId, setSearchedAdParcelId] = useState<string>("")
   const [loading, setLoading] = useState<boolean>(false)
-
-  async function storeWebsiteMetadata() {
-    setLoading(true)
-    const pinnedWebsite = await pinWebsiteMetadata(website)
-    setWebsite(pinnedWebsite)
-    setLoading(false)
-  }
-
-  async function createAdParcel() {
-    setLoading(true)
-    if (!user) {
-      setLoading(false)
-      throw new Error("User not found !")
-    }
-
-    if (!website.ipfsHash) {
-      setLoading(false)
-      throw new Error("Website hash not found !")
-    }
-
-    const traits = {
-      width: "400px",
-    }
-
-    const adParcelId = uuidv4()
-    const traitsHash = await pinAdParcelTraits(traits, adParcelId)
-
-    try {
-      const transactionHash = await writeAdParcel({
-        account: user.address,
-        id: uuidToUint256(uuidv4()),
-        minBid: 1,
-        traitsHash,
-        websiteInfoHash: website?.ipfsHash,
-      })
-
-      toast({
-        title: "Ad parcel created !",
-        description: "See on block explorer",
-        action: (
-          <ToastAction
-            altText="See details"
-            onClick={() =>
-              window.open(
-                `${BASE_ETHERSCAN_TX_URL}/${transactionHash}`,
-                "_blank"
-              )
-            }
-          >
-            See details
-          </ToastAction>
-        ),
-      })
-    } catch (error) {
-      toast({
-        title: "Error during parcel creation",
-        description: "Please try again. Error: " + error,
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
 
   async function getPublisherAdParcels() {
     if (!user?.address) return
@@ -346,17 +282,6 @@ export default function DebugDrawer() {
         ) : (
           <div className="flex gap-4">
             <div className="flex flex-col gap-4">
-              <Button onClick={() => storeWebsiteMetadata()}>
-                Store website metadata
-              </Button>
-              <Button onClick={() => console.log(website)}>
-                Check website
-              </Button>
-            </div>
-            <div className="flex flex-col gap-4">
-              <Button onClick={() => createAdParcel()}>
-                Create ad parcel <FaEthereum className="ml-2" />
-              </Button>
               <Button onClick={() => getPublisherAdParcels()}>
                 Get publisher parcels
               </Button>
