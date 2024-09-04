@@ -27,7 +27,7 @@ export default function MarketplacePage() {
   const [language, setLanguage] = useState("all")
   const [geoReach, setGeoReach] = useState("all")
   const [sortOption, setSortOption] = useState("bid")
-  const [hideRented, setHideRented] = useState<boolean>(false) // New state for checkbox
+  const [hideRented, setHideRented] = useState<boolean>(false)
 
   const [availableCategories, setAvailableCategories] = useState<string[]>([])
   const [availableLanguages, setAvailableLanguages] = useState<string[]>([])

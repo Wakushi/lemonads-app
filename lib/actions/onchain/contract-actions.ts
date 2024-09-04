@@ -15,6 +15,7 @@ import {
 import { simulateContract, writeContract, readContract } from "@wagmi/core"
 import { config } from "@/providers"
 import { getWebsiteByHash } from "../client/pinata-actions"
+import { getWebsiteAnalytics } from "../client/firebase-actions"
 
 interface WriteAdParcelArgs {
   account: Address
@@ -352,6 +353,19 @@ export async function getAllParcels(
       const websiteInfo = await getWebsiteByHash(adParcel.websiteInfoHash)
 
       if (websiteInfo) {
+        if (
+          websiteInfo.analyticsPropertyId &&
+          websiteInfo.analyticsPropertyId.length >= 9
+        ) {
+          const metrics = await getWebsiteAnalytics(
+            websiteInfo.analyticsPropertyId
+          )
+
+          if (metrics) {
+            websiteInfo.metrics = metrics
+          }
+        }
+
         adParcel.website = websiteInfo
       }
     }

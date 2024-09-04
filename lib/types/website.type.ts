@@ -9,4 +9,15 @@ export type Website = {
   geoReach: string
   ipfsHash?: string
   analyticsPropertyId?: string
+  metrics?: Metrics
+}
+
+export type Metrics = {
+  activeUsers: string
+  averageSessionDuration: string
+  bounceRate: string
+  engagementRate: string
+  screenPageViews: string
+  sessions: string
+  sessionsPerUser: string
 }

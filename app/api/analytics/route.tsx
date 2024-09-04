@@ -54,28 +54,22 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         if (!row.metricValues) return
         return {
           activeUsers: row.metricValues[0].value,
-          engagementRate: row.metricValues[1].value,
+          engagementRate: Number(row.metricValues[1].value) * 100,
           sessions: row.metricValues[2].value,
           sessionsPerUser: row.metricValues[3].value,
-          averageSessionDuration: row.metricValues[4].value,
+          averageSessionDuration: Math.ceil(Number(row.metricValues[4].value)),
           screenPageViews: row.metricValues[5].value,
-          bounceRate: row.metricValues[6].value,
+          bounceRate: Number(row.metricValues[6].value) * 100,
         }
       })
-
-      console.log("Metrics: ", metricsResult)
 
       return NextResponse.json({
         metrics: metricsResult[0],
       })
     }
 
-    return NextResponse.json({ message: "No data found" })
+    return NextResponse.json({ metrics: null })
   } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
-    } else {
-      return NextResponse.json({ error: "Unknown error" }, { status: 500 })
-    }
+    return NextResponse.json({ metrics: null }, { status: 500 })
   }
 }

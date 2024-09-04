@@ -29,6 +29,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+
 import { Input } from "@/components/ui/input"
 import { writeRentAdParcel } from "@/lib/actions/onchain/contract-actions"
 import { User, UserType } from "@/lib/types/user.type"
@@ -36,6 +42,10 @@ import { AdContent } from "@/lib/types/ad-content.type"
 import { pinAdContent } from "@/lib/actions/client/pinata-actions"
 import TooltipWrapper from "./ui/custom-tooltip"
 import { Label } from "./ui/label"
+import { FcGoogle } from "react-icons/fc"
+import { FiUsers, FiClock, FiBarChart, FiActivity } from "react-icons/fi"
+import { FaEye } from "react-icons/fa"
+import clsx from "clsx"
 
 interface AdParcelCardProps {
   parcel: AdParcel
@@ -120,29 +130,99 @@ export default function AdParcelCard({
       <CardContent className="flex flex-col gap-3">
         <div className="flex justify-between gap-2">
           <div className="flex flex-col items-center rounded bg-gray-50 p-4 shadow flex-1">
-            <BiSolidCategory className="text-slate-800 text-2xl mb-1" />
+            <TooltipWrapper message="Category">
+              <BiSolidCategory className="text-slate-800 text-2xl mb-1" />
+            </TooltipWrapper>
             <p className="text-slate-800 text-sm">
               {parcel.website?.category || "N/A"}
             </p>
           </div>
 
-          <div className="flex flex-col items-center rounded bg-gray-50 p-4 shadow flex-1">
-            <BiSolidTrafficCone className="text-slate-800 text-2xl mb-1" />
-            <p className="text-slate-800 text-sm">
-              {parcel.website?.trafficAverage || "N/A"}
-            </p>
-          </div>
+          <Popover>
+            <PopoverTrigger
+              className={clsx(
+                "cursor-pointer border border-transparent transition-all duration-200 ease-in-out relative flex flex-col items-center rounded bg-gray-50 p-4 shadow flex-1",
+                {
+                  "hover:border-brand": parcel.website?.metrics,
+                }
+              )}
+            >
+              {" "}
+              {parcel.website?.metrics && (
+                <FcGoogle className="absolute top-2 right-2 text-lg" />
+              )}
+              <BiSolidTrafficCone className="text-slate-800 text-2xl mb-1" />
+              <p className="text-slate-800 text-sm">
+                {parcel.website?.trafficAverage || "N/A"}
+              </p>
+            </PopoverTrigger>
+            <PopoverContent>
+              {" "}
+              {parcel.website?.metrics ? (
+                <div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <MetricDisplay
+                      icon={<FiUsers />}
+                      label="Active Users"
+                      value={parcel.website?.metrics.activeUsers}
+                    />
+                    <MetricDisplay
+                      icon={<FiClock />}
+                      label="Avg. Session Duration"
+                      value={`${parcel.website?.metrics.averageSessionDuration}s`}
+                    />
+                    <MetricDisplay
+                      icon={<FiBarChart />}
+                      label="Bounce Rate"
+                      value={`${parcel.website?.metrics.bounceRate}%`}
+                    />
+                    <MetricDisplay
+                      icon={<FiActivity />}
+                      label="Engagement Rate"
+                      value={`${parcel.website?.metrics.engagementRate}%`}
+                    />
+                    <MetricDisplay
+                      icon={<FaEye />}
+                      label="Page Views"
+                      value={parcel.website?.metrics.screenPageViews}
+                    />
+                    <MetricDisplay
+                      icon={<FiUsers />}
+                      label="Sessions"
+                      value={parcel.website?.metrics.sessions}
+                    />
+                    <MetricDisplay
+                      icon={<FiUsers />}
+                      label="Sessions/User"
+                      value={parcel.website?.metrics.sessionsPerUser}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <p>
+                    This is the monthly average traffic estimated by the owner
+                    of this ad parcel.
+                  </p>
+                </div>
+              )}
+            </PopoverContent>
+          </Popover>
         </div>
 
         <div className="flex justify-between gap-2">
           <div className="flex flex-col items-center rounded bg-gray-50 p-4 shadow flex-1">
-            <FaLanguage className="text-slate-800 text-2xl mb-1" />
+            <TooltipWrapper message="Language">
+              <FaLanguage className="text-slate-800 text-2xl mb-1" />
+            </TooltipWrapper>
             <p className="text-slate-800 text-sm">
               {parcel.website?.language || "N/A"}
             </p>
           </div>
           <div className="flex flex-col items-center rounded bg-gray-50 p-4 shadow flex-1">
-            <FaGlobeAmericas className="text-slate-800 text-2xl mb-1" />
+            <TooltipWrapper message="Geo reach">
+              <FaGlobeAmericas className="text-slate-800 text-2xl mb-1" />
+            </TooltipWrapper>
             <p
               className="text-slate-800 text-sm"
               title={parcel.website?.geoReach ? parcel.website.geoReach : "N/A"}
@@ -229,5 +309,25 @@ export default function AdParcelCard({
         )}
       </CardFooter>
     </Card>
+  )
+}
+
+function MetricDisplay({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode
+  label: string
+  value: string
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="text-lg">{icon}</div>
+      <div>
+        <p className="font-medium text-xs">{label}</p>
+        <p className="text-sm text-gray-500">{value}</p>
+      </div>
+    </div>
   )
 }

@@ -4,6 +4,7 @@ import { pinFile } from "./pinata-actions"
 import { PINATA_GATEWAY_BASE_URL } from "@/lib/constants"
 import { AdContent } from "@/lib/types/ad-content.type"
 import { AdEvent } from "@/lib/types/interaction.type"
+import { Metrics } from "@/lib/types/website.type"
 
 interface CreateAdContentArgs {
   user: User
@@ -75,17 +76,26 @@ export async function createAdContent({
   return adContent
 }
 
-
-export async function getAdContents(userFirebaseId: string): Promise<AdContent[]> {
+export async function getAdContents(
+  userFirebaseId: string
+): Promise<AdContent[]> {
   const response = await fetch(`/api/ad/content?uid=${userFirebaseId}`, {
     method: "GET",
-  });
+  })
 
   if (!response.ok) {
-    console.error("Failed to fetch ad contents");
-    return [];
+    console.error("Failed to fetch ad contents")
+    return []
   }
 
-  const adContents = await response.json();
-  return adContents;
+  const adContents = await response.json()
+  return adContents
+}
+
+export async function getWebsiteAnalytics(
+  propertyId: string
+): Promise<Metrics> {
+  const response = await fetch(`/api/analytics?propertyId=${propertyId}`)
+  const { metrics } = await response.json()
+  return metrics
 }
