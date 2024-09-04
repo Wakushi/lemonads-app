@@ -6,7 +6,7 @@ export const BASE_ETHERSCAN_TX_URL = "https://sepolia.basescan.org/tx"
 export const CONTACT_EMAIL = "zoukushimetazord@gmail.com"
 
 export const LEMONADS_CONTRACT_ADDRESS =
-  "0xae2c2483909A16e3a01a86653f070BEC3B5dA50f"
+  "0x7f842E83518688174A08427c0999D021b57dEbD9"
 
 export const LEMONADS_CONTRACT_ABI = [
   {
@@ -33,7 +33,16 @@ export const LEMONADS_CONTRACT_ABI = [
         type: "string",
         internalType: "string",
       },
-      { name: "_secretReference", type: "bytes", internalType: "bytes" },
+      {
+        name: "_secretReference",
+        type: "bytes",
+        internalType: "bytes",
+      },
+      {
+        name: "_nativeToUsdpriceFeed",
+        type: "address",
+        internalType: "address",
+      },
     ],
     stateMutability: "nonpayable",
   },
@@ -142,6 +151,13 @@ export const LEMONADS_CONTRACT_ABI = [
     name: "getContentHash",
     inputs: [{ name: "_parcelId", type: "uint256", internalType: "uint256" }],
     outputs: [{ name: "", type: "string", internalType: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getEthPrice",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
     stateMutability: "view",
   },
   {
