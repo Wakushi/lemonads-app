@@ -22,6 +22,7 @@ import {
   ErrorType,
   getAdParcelById,
   getAllPublisherAdParcels,
+  getEthPrice,
   getLastCronTimestamp,
   getPayableAdParcels,
   getRenterFundsAmount,
@@ -260,6 +261,11 @@ export default function DebugDrawer() {
     console.log("Funds: ", funds)
   }
 
+  async function logEthPriceInUsd() {
+    const price = await getEthPrice()
+    console.log("Price: ", price)
+  }
+
   async function checkPayableAdParcels() {
     const payableAdParcels = await getPayableAdParcels()
     console.log("payableAdParcels: ", payableAdParcels)
@@ -285,9 +291,9 @@ export default function DebugDrawer() {
               <Button onClick={() => getPublisherAdParcels()}>
                 Get publisher parcels
               </Button>
-            </div>
-            <div className="flex flex-col gap-4">
-              <Button>Add funds</Button>
+              <Button onClick={() => logEthPriceInUsd()}>
+                Log ETH price USD
+              </Button>
             </div>
             <div className="flex flex-col gap-4">
               <Button onClick={() => onRunAggregateClicks()}>

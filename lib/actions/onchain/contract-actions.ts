@@ -5,6 +5,7 @@ import {
   Address,
   parseEther,
   formatEther,
+  formatUnits,
 } from "viem"
 import RPC from "@/lib/web3/viemRPC"
 import { web3AuthInstance } from "@/lib/web3/Web3AuthConnectorInstance"
@@ -378,6 +379,16 @@ export async function getAllParcels(
   }
 
   return adParcels
+}
+
+export async function getEthPrice(): Promise<string> {
+  const price: any = await readContract(config, {
+    address: LEMONADS_CONTRACT_ADDRESS,
+    abi: LEMONADS_CONTRACT_ABI,
+    functionName: "getEthPrice",
+  })
+
+  return formatUnits(price, 8)
 }
 
 export enum ErrorType {
