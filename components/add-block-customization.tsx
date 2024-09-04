@@ -1,19 +1,22 @@
-import Image from "next/image";
-import { useState, useEffect } from "react";
+import Image from "next/image"
+import { useState, useEffect } from "react"
 
 interface AdBlockCustomizationProps {
-  setAdBlockSettings: (settings: Record<string, string | number>) => void;
+  setAdBlockSettings: (settings: Record<string, string | number>) => void
 }
 
-export function AdBlockCustomization({ setAdBlockSettings }: AdBlockCustomizationProps) {
-  const [selectedTemplate, setSelectedTemplate] = useState<TemplateKey>("banner");
+export function AdBlockCustomization({
+  setAdBlockSettings,
+}: AdBlockCustomizationProps) {
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<TemplateKey>("banner")
 
-  type TemplateKey = "banner" | "card" | "imageBox";
+  type TemplateKey = "banner" | "card" | "imageBox"
 
   interface Template {
-    name: string;
-    preview: JSX.Element;
-    styles: Record<string, string | number>; // Styles for the ad block
+    name: string
+    preview: JSX.Element
+    styles: Record<string, string | number>
   }
 
   const templates: Record<TemplateKey, Template> = {
@@ -49,7 +52,9 @@ export function AdBlockCustomization({ setAdBlockSettings }: AdBlockCustomizatio
           <div className="p-2">
             <h2 className="font-bold text-lg">Ad Title</h2>
             <p className="text-sm text-gray-700">Quick ad description...</p>
-            <button className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg">Learn More</button>
+            <button className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg">
+              Learn More
+            </button>
           </div>
         </div>
       ),
@@ -70,7 +75,9 @@ export function AdBlockCustomization({ setAdBlockSettings }: AdBlockCustomizatio
             width={1280}
             height={1280}
           />
-          <span style={{ fontSize: "16px", color: "#000" }}>Short advertising text</span>
+          <span style={{ fontSize: "16px", color: "#000" }}>
+            Short advertising text
+          </span>
         </div>
       ),
       styles: {
@@ -78,12 +85,11 @@ export function AdBlockCustomization({ setAdBlockSettings }: AdBlockCustomizatio
         height: "300px",
       },
     },
-  };
+  }
 
-  // Utiliser useEffect pour mettre à jour les paramètres du bloc publicitaire quand le template change
   useEffect(() => {
-    setAdBlockSettings(templates[selectedTemplate].styles);
-  }, [selectedTemplate, setAdBlockSettings]);
+    setAdBlockSettings(templates[selectedTemplate].styles)
+  }, [selectedTemplate, setAdBlockSettings])
 
   return (
     <div className="flex gap-4 justify-around">
@@ -95,10 +101,26 @@ export function AdBlockCustomization({ setAdBlockSettings }: AdBlockCustomizatio
             <div className="text-2xl font-bold">My Website</div>
             <nav>
               <ul className="flex space-x-4">
-                <li><a href="#" className="text-white hover:text-yellow-400">Home</a></li>
-                <li><a href="#" className="text-white hover:text-yellow-400">About</a></li>
-                <li><a href="#" className="text-white hover:text-yellow-400">Services</a></li>
-                <li><a href="#" className="text-white hover:text-yellow-400">Contact</a></li>
+                <li>
+                  <a href="#" className="text-white hover:text-yellow-400">
+                    Home
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-white hover:text-yellow-400">
+                    About
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-white hover:text-yellow-400">
+                    Services
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-white hover:text-yellow-400">
+                    Contact
+                  </a>
+                </li>
               </ul>
             </nav>
           </div>
@@ -112,8 +134,12 @@ export function AdBlockCustomization({ setAdBlockSettings }: AdBlockCustomizatio
           <div className="bg-gray-800 text-white text-center py-4">
             <p>&copy; 2024 My Website. All rights reserved.</p>
             <div className="flex justify-center space-x-4 mt-2">
-              <a href="#" className="text-white hover:text-yellow-400">Privacy Policy</a>
-              <a href="#" className="text-white hover:text-yellow-400">Terms of Service</a>
+              <a href="#" className="text-white hover:text-yellow-400">
+                Privacy Policy
+              </a>
+              <a href="#" className="text-white hover:text-yellow-400">
+                Terms of Service
+              </a>
             </div>
           </div>
         </div>
@@ -125,15 +151,19 @@ export function AdBlockCustomization({ setAdBlockSettings }: AdBlockCustomizatio
           <div
             key={templateKey}
             className={`p-4 border rounded-lg cursor-pointer ${
-              selectedTemplate === templateKey ? "border-blue-500" : "border-gray-300"
+              selectedTemplate === templateKey
+                ? "border-blue-500"
+                : "border-gray-300"
             }`}
             onClick={() => setSelectedTemplate(templateKey as TemplateKey)}
           >
-            <div className="mb-2">{templates[templateKey as TemplateKey].name}</div>
+            <div className="mb-2">
+              {templates[templateKey as TemplateKey].name}
+            </div>
             {templates[templateKey as TemplateKey].preview}
           </div>
         ))}
       </div>
     </div>
-  );
+  )
 }

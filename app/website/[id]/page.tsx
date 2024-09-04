@@ -190,31 +190,7 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
         <FaBackspace className="text-2xl" />
         <span>Back</span>
       </Link>
-      <div className="w-1/2">
-        <h1 className="text-3xl font-bold mb-4">{website.name}</h1>
-        <p className="mb-2">
-          <strong>URL:</strong>{" "}
-          <a href={website.url} target="_blank" rel="noopener noreferrer">
-            {website.url}
-          </a>
-        </p>
-        <p className="mb-2">
-          <strong>Category:</strong> {website.category}
-        </p>
-        <p className="mb-2">
-          <strong>Traffic Average:</strong> {website.trafficAverage}
-        </p>
-        <p className="mb-2">
-          <strong>Language:</strong> {website.language}
-        </p>
-        <p className="mb-2">
-          <strong>Geographical Reach:</strong> {website.geoReach.join(", ")}
-        </p>
-        <p className="mb-2">
-          <strong>Keywords:</strong> {website.keywords.join(", ")}
-        </p>
-      </div>
-
+      <WebsiteDetails website={website} />
       <div className="w-1/2 h-full py-10">
         {loadingParcels ? (
           <LoaderSmall />
@@ -223,33 +199,15 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
             {adParcels.map((parcel, index) => (
               <div
                 key={index}
-                className="h-1/3 border border-gray-300 bg-gray-100 bg-opacity-40 shadow-inner flex items-center justify-center"
+                className="h-[200px] w-[200px] border text-center text-xl text-gray-500 border-gray-300 rounded bg-gray-100 bg-opacity-40shadow-inner flex flex-col items-center justify-center"
               >
-                Bloc {index + 1}
+                Ad parcel #{parcel.id}
               </div>
             ))}
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <div className="h-1/3 border border-gray-300 bg-gray-100 bg-opacity-40 shadow-inner flex items-center justify-center cursor-pointer">
-                  <span className="text-3xl text-gray-500">+</span>
-                </div>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="max-w-7xl w-full h-[90vh] mx-auto overflow-y-auto p-10">
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Create New Ad Block</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Customize and create your new ad block here.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AdBlockCustomization setAdBlockSettings={setAdBlockSettings} />
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={createAdParcel}>
-                    Create
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <CreateAdParcelDialog
+              createAdParcel={createAdParcel}
+              setAdBlockSettings={setAdBlockSettings}
+            />
           </div>
         )}
       </div>
@@ -258,3 +216,64 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
 }
 
 export default WebsiteDetailPage
+
+function CreateAdParcelDialog({
+  createAdParcel,
+  setAdBlockSettings,
+}: {
+  createAdParcel: () => void
+  setAdBlockSettings: (settings: any) => void
+}) {
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <div className="h-[200px] w-[200px] border text-xl text-gray-500 border-gray-300 rounded bg-gray-100 bg-opacity-40 hover:border-brand hover:text-brand shadow-inner flex flex-col items-center justify-center cursor-pointer">
+          <p>Create ad parcel</p>
+          <span className="text-3xl">+</span>
+        </div>
+      </AlertDialogTrigger>
+      <AlertDialogContent className="max-w-7xl w-full h-[90vh] mx-auto overflow-y-auto p-10">
+        <AlertDialogHeader>
+          <AlertDialogTitle>Create New Ad Block</AlertDialogTitle>
+          <AlertDialogDescription>
+            Customize and create your new ad block here.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AdBlockCustomization setAdBlockSettings={setAdBlockSettings} />
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={createAdParcel}>Create</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
+
+function WebsiteDetails({ website }: { website: Website }) {
+  return (
+    <div className="w-1/2">
+      <h1 className="text-3xl font-bold mb-4">{website.name}</h1>
+      <p className="mb-2">
+        <strong>URL:</strong>{" "}
+        <a href={website.url} target="_blank" rel="noopener noreferrer">
+          {website.url}
+        </a>
+      </p>
+      <p className="mb-2">
+        <strong>Category:</strong> {website.category}
+      </p>
+      <p className="mb-2">
+        <strong>Traffic Average:</strong> {website.trafficAverage}
+      </p>
+      <p className="mb-2">
+        <strong>Language:</strong> {website.language}
+      </p>
+      <p className="mb-2">
+        <strong>Geographical Reach:</strong> {website.geoReach}
+      </p>
+      <p className="mb-2">
+        <strong>Keywords:</strong> {website.keywords.join(", ")}
+      </p>
+    </div>
+  )
+}

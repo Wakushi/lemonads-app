@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { writeRentAdParcel } from "@/lib/actions/onchain/contract-actions"
-import { User } from "@/lib/types/user.type"
+import { User, UserType } from "@/lib/types/user.type"
 import { AdContent } from "@/lib/types/ad-content.type"
 import { pinAdContent } from "@/lib/actions/client/pinata-actions"
 import TooltipWrapper from "./ui/custom-tooltip"
@@ -141,28 +141,21 @@ export default function AdParcelCard({
               {parcel.website?.language || "N/A"}
             </p>
           </div>
-        <div className="flex flex-col items-center rounded bg-gray-50 p-4 shadow flex-1">
-          <FaGlobeAmericas className="text-slate-800 text-2xl mb-1" />
-          <p
-            className="text-slate-800 text-sm"
-            title={
-              parcel.website?.geoReach
-                ? parcel.website.geoReach.join(", ")
-                : "N/A"
-            }
-          >
-            {Array.isArray(parcel.website?.geoReach) &&
-            parcel.website.geoReach.length > 1
-              ? `${parcel.website.geoReach[0]}...`
-              : parcel.website?.geoReach?.[0] || "N/A"}
-          </p>
-        </div>
+          <div className="flex flex-col items-center rounded bg-gray-50 p-4 shadow flex-1">
+            <FaGlobeAmericas className="text-slate-800 text-2xl mb-1" />
+            <p
+              className="text-slate-800 text-sm"
+              title={parcel.website?.geoReach ? parcel.website.geoReach : "N/A"}
+            >
+              {parcel.website?.geoReach ? parcel.website.geoReach : "N/A"}
+            </p>
+          </div>
         </div>
       </CardContent>
 
       {/* Footer Section */}
       <CardFooter className="flex justify-between items-center">
-        {parcel.owner !== user.address && parcel.renter !== user.address && (
+        {user.type === UserType.ANNOUNCER && parcel.renter !== user.address && (
           <Dialog>
             <DialogTrigger asChild>
               <Button className="w-full bg-brand hover:bg-white hover:text-brand transition-colors duration-200">

@@ -48,7 +48,7 @@ export default function MarketplacePage() {
       allAdParcels.forEach((parcel) => {
         if (parcel.website?.category) categories.add(parcel.website.category)
         if (parcel.website?.language) languages.add(parcel.website.language)
-        parcel.website?.geoReach.forEach((reach) => geoReaches.add(reach))
+        if (parcel.website?.geoReach) geoReaches.add(parcel.website.geoReach)
       })
 
       setAvailableCategories(Array.from(categories))
@@ -70,29 +70,30 @@ export default function MarketplacePage() {
   }, [user?.firebaseId])
 
   const filteredParcels = adParcels
-  .filter((parcel) => {
-    const website = parcel.website;
-    
-    const isNotRented = parcel.renter === "0x0000000000000000000000000000000000000000";
+    .filter((parcel) => {
+      const website = parcel.website
 
-    return (
-      isNotRented &&  
-      (!search || 
-        website?.name.toLowerCase().includes(search.toLowerCase()) ||
-        website?.url.toLowerCase().includes(search.toLowerCase())) &&
-      (category === "all" || website?.category === category) &&
-      (language === "all" || website?.language === language) &&
-      (geoReach === "all" || website?.geoReach.includes(geoReach)) &&
-      (!hideRented || parcel.renter !== user?.address)
-    );
-  })
-  .sort((a, b) => {
-    if (sortOption === "bid") return b.bid - a.bid;
-    if (sortOption === "minBid") return b.minBid - a.minBid;
-    return 0;
-  });
+      const isNotRented =
+        parcel.renter === "0x0000000000000000000000000000000000000000"
 
-if (!user) return;
+      return (
+        isNotRented &&
+        (!search ||
+          website?.name.toLowerCase().includes(search.toLowerCase()) ||
+          website?.url.toLowerCase().includes(search.toLowerCase())) &&
+        (category === "all" || website?.category === category) &&
+        (language === "all" || website?.language === language) &&
+        (geoReach === "all" || website?.geoReach === geoReach) &&
+        (!hideRented || parcel.renter !== user?.address)
+      )
+    })
+    .sort((a, b) => {
+      if (sortOption === "bid") return b.bid - a.bid
+      if (sortOption === "minBid") return b.minBid - a.minBid
+      return 0
+    })
+
+  if (!user) return
 
   if (loading) {
     return (
