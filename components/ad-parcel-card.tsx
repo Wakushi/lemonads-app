@@ -141,13 +141,22 @@ export default function AdParcelCard({
               {parcel.website?.language || "N/A"}
             </p>
           </div>
-
-          <div className="flex flex-col items-center rounded bg-gray-50 p-4 shadow flex-1">
-            <FaGlobeAmericas className="text-slate-800 text-2xl mb-1" />
-            <p className="text-slate-800 text-sm">
-              {parcel.website?.geoReach.join(", ") || "N/A"}
-            </p>
-          </div>
+        <div className="flex flex-col items-center rounded bg-gray-50 p-4 shadow flex-1">
+          <FaGlobeAmericas className="text-slate-800 text-2xl mb-1" />
+          <p
+            className="text-slate-800 text-sm"
+            title={
+              parcel.website?.geoReach
+                ? parcel.website.geoReach.join(", ")
+                : "N/A"
+            }
+          >
+            {Array.isArray(parcel.website?.geoReach) &&
+            parcel.website.geoReach.length > 1
+              ? `${parcel.website.geoReach[0]}...`
+              : parcel.website?.geoReach?.[0] || "N/A"}
+          </p>
+        </div>
         </div>
       </CardContent>
 
