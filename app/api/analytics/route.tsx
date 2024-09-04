@@ -1,10 +1,17 @@
 import { BetaAnalyticsDataClient } from "@google-analytics/data"
 import { NextRequest, NextResponse } from "next/server"
 
+function getDefaultStartDate(): string {
+  const date = new Date()
+  date.setMonth(date.getMonth() - 1)
+  return date.toISOString().split("T")[0] // YYYY-MM-DD
+}
+
 // PROTECT THIS ROUTE - USERS ONLY
 export async function GET(req: NextRequest): Promise<NextResponse> {
   const { searchParams } = new URL(req.url)
   const propertyId = searchParams.get("propertyId")
+  const startDate = searchParams.get("startDate") || getDefaultStartDate()
 
   try {
     const analyticsDataClient = new BetaAnalyticsDataClient({
@@ -22,22 +29,48 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         { status: 400 }
       )
     }
-    // await analyticsDataClient.runReport for global report, runRealtimeReport for realtime (also metrics name will be different)
-    const [response] = await analyticsDataClient.runRealtimeReport({
+
+    const [response] = await analyticsDataClient.runReport({
       property: `properties/${propertyId}`,
-      metrics: [
+      dateRanges: [
         {
-          name: "eventCount",
+          startDate,
+          endDate: "today",
         },
+      ],
+      metrics: [
+        { name: "activeUsers" },
+        { name: "engagementRate" },
+        { name: "sessions" },
+        { name: "sessionsPerUser" },
+        { name: "averageSessionDuration" },
+        { name: "screenPageViews" },
+        { name: "bounceRate" },
       ],
     })
 
-    if (response.rows && response.rows[0].metricValues) {
-      const eventCount = response.rows[0].metricValues[0].value
-      console.log("eventCount: ", eventCount)
+    if (response.rows && response.rows.length > 0) {
+      const metricsResult = response.rows.map((row) => {
+        if (!row.metricValues) return
+        return {
+          activeUsers: row.metricValues[0].value,
+          engagementRate: row.metricValues[1].value,
+          sessions: row.metricValues[2].value,
+          sessionsPerUser: row.metricValues[3].value,
+          averageSessionDuration: row.metricValues[4].value,
+          screenPageViews: row.metricValues[5].value,
+          bounceRate: row.metricValues[6].value,
+        }
+      })
+
+      console.log("Metrics: ", metricsResult)
+
+      return NextResponse.json({
+        metrics: metricsResult[0],
+      })
     }
 
-    return NextResponse.json({})
+    return NextResponse.json({ message: "No data found" })
   } catch (error) {
     if (error instanceof Error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
