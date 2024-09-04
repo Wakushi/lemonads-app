@@ -158,7 +158,7 @@ export const columns: ColumnDef<Website>[] = [
       const geoReach: string[] = row.getValue("geoReach")
       return (
         <div className="pl-4 font-medium flex items-center gap-2">
-          <span>{geoReach.join(", ")}</span>
+          <span>{geoReach}</span>
         </div>
       )
     },
@@ -188,7 +188,7 @@ export const columns: ColumnDef<Website>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const websiteId = row.original.id;
+      const websiteId = row.original.id
       return (
         <div className="flex gap-2">
           <Link href={`/website/${websiteId}`}>
@@ -198,7 +198,7 @@ export const columns: ColumnDef<Website>[] = [
           </Link>
           <Button size="sm">Delete</Button>
         </div>
-      );
+      )
     },
   },
 ]

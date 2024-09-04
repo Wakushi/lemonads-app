@@ -6,6 +6,7 @@ export type Website = {
   keywords: string[]
   trafficAverage: string
   language: string
-  geoReach: string[]
+  geoReach: string
   ipfsHash?: string
+  analyticsPropertyId?: string
 }

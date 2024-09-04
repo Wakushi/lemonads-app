@@ -177,7 +177,7 @@ export function WebsiteDataTable<TData, TValue>({
     return (
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <Button variant="secondary">Add new website</Button>
+          <Button className="bg-brand">Add new website</Button>
         </AlertDialogTrigger>
         <AlertDialogContent className="max-w-lg mx-auto my-8 bg-white rounded-lg shadow-lg">
           <AlertDialogHeader className="flex flex-row items-center w-full justify-between justify-self-end">
@@ -188,7 +188,9 @@ export function WebsiteDataTable<TData, TValue>({
               <IoMdClose />
             </AlertDialogCancel>
           </AlertDialogHeader>
-          <div className="h-[60vh] overflow-y-auto">{getDialogContent()}</div>
+          <div className="min-h-[400px] overflow-y-auto">
+            {getDialogContent()}
+          </div>
         </AlertDialogContent>
       </AlertDialog>
     )
@@ -220,10 +222,10 @@ export function WebsiteDataTable<TData, TValue>({
               }
               className="max-w-[200px]"
             />
-            <AddWebsiteDialog />
           </div>
           <div className="flex items-center gap-2">
             <DeleteAlertDialog />
+            <AddWebsiteDialog />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="flex-1 w-full">
