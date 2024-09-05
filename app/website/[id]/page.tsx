@@ -19,15 +19,16 @@ import { AdBlockCustomization } from "@/components/add-block-customization"
 import { v4 as uuidv4 } from "uuid"
 import { uuidToUint256 } from "@/lib/utils"
 import { pinAdParcelTraits } from "@/lib/actions/client/pinata-actions"
-import { writeAdParcel } from "@/lib/actions/onchain/contract-actions"
 import { ToastAction } from "@/components/ui/toast"
 import { toast } from "@/components/ui/use-toast"
 import { getAllPublisherAdParcels } from "@/lib/actions/onchain/contract-actions"
 import Link from "next/link"
 import { FaBackspace } from "react-icons/fa"
-import { parseEther, zeroAddress } from "viem"
+import { zeroAddress } from "viem"
 import { MdOutlineScreenshotMonitor } from "react-icons/md"
 import Copy from "@/components/ui/copy"
+import { AdParcelDataTable } from "@/components/ad-parcel-data-table/ad-parcel-data-table"
+import { adParcelColumns } from "@/components/ad-parcel-data-table/ad-parcel-data-table-column"
 
 const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
   const { id } = params
@@ -203,7 +204,7 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
   }
 
   return (
-    <div className="px-10 flex justify-around w-full h-[90vh] pt-[10rem]">
+    <div className="px-10 flex flex-col gap-2 w-full h-[90vh] pt-[10rem]">
       <Link
         className="text-brand text-xl absolute top-[6rem] left-10 flex items-center gap-2 opacity-80 hover:opacity-100 hover:gap-1 hover:translate-x-[-2px] transition-all duration-500"
         href="/publisher?view=adContent"
@@ -212,29 +213,11 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
         <span>Back</span>
       </Link>
       <WebsiteDetails website={website} />
-      <div className="w-1/2 h-full py-10">
+      <div>
         {loadingParcels ? (
           <LoaderSmall />
         ) : (
-          <div className="grid grid-cols-3 gap-4 p-4 border border-gray-300 rounded-lg h-full">
-            {adParcels.map((parcel, index) => (
-              <div
-                key={index}
-                className="h-[200px] w-[200px] border text-center text-gray-500 border-gray-300 rounded bg-gray-100 bg-opacity-40shadow-inner flex flex-col items-center justify-center"
-              >
-                <MdOutlineScreenshotMonitor className="text-4xl" />
-                <span className="text-lg"> Ad parcel </span>
-                <div className="flex items-center gap-1">
-                  <span className="text-md font-bold"> #{parcel.id} </span>
-                  <Copy contentToCopy={parcel.id} />
-                </div>
-              </div>
-            ))}
-            <CreateAdParcelDialog
-              createAdParcel={createAdParcel}
-              setAdBlockSettings={setAdBlockSettings}
-            />
-          </div>
+          <AdParcelDataTable columns={adParcelColumns} data={adParcels} />
         )}
       </div>
     </div>
@@ -275,31 +258,54 @@ function CreateAdParcelDialog({
   )
 }
 
+import {
+  FaExternalLinkAlt,
+  FaGlobeAmericas,
+  FaLanguage,
+  FaTags,
+} from "react-icons/fa"
+import { BiCategory } from "react-icons/bi"
+import { AiOutlineLineChart } from "react-icons/ai"
+
 function WebsiteDetails({ website }: { website: Website }) {
   return (
-    <div className="w-1/2">
-      <h1 className="text-3xl font-bold mb-4">{website.name}</h1>
-      <p className="mb-2">
-        <strong>URL:</strong>{" "}
-        <a href={website.url} target="_blank" rel="noopener noreferrer">
-          {website.url}
-        </a>
-      </p>
-      <p className="mb-2">
-        <strong>Category:</strong> {website.category}
-      </p>
-      <p className="mb-2">
-        <strong>Traffic Average:</strong> {website.trafficAverage}
-      </p>
-      <p className="mb-2">
-        <strong>Language:</strong> {website.language}
-      </p>
-      <p className="mb-2">
-        <strong>Geographical Reach:</strong> {website.geoReach}
-      </p>
-      <p className="mb-2">
-        <strong>Keywords:</strong> {website.keywords.join(", ")}
-      </p>
+    <div className="w-full flex gap-4 bg-white shadow-md p-6 rounded-lg">
+      <div className="flex items-center gap-2 mr-8">
+        <h1 className="text-3xl font-bold">{website.name}</h1>
+
+        <div className="flex text-xl items-center">
+          <a href={website.url} target="_blank" rel="noopener noreferrer">
+            <FaExternalLinkAlt className="text-brand" />
+          </a>
+        </div>
+      </div>
+
+      <div className="flex items-center">
+        <BiCategory className="text-gray-700 text-lg" />
+        <span className="ml-1 text-gray-600">{website.category}</span>
+      </div>
+
+      <div className="flex items-center">
+        <AiOutlineLineChart className="text-yellow-500 text-lg" />{" "}
+        <span className="ml-1 text-gray-600">{website.trafficAverage}</span>
+      </div>
+
+      <div className="flex items-center">
+        <FaLanguage className="text-green-600 text-lg" />
+        <span className="ml-1 text-gray-600">{website.language}</span>
+      </div>
+
+      <div className="flex items-center">
+        <FaGlobeAmericas className="text-blue-500 text-lg" />
+        <span className="ml-1 text-gray-600">{website.geoReach}</span>
+      </div>
+
+      <div className="flex items-center">
+        <FaTags className="text-purple-500 text-lg" />
+        <span className="ml-1 text-gray-600">
+          {website.keywords.join(", ")}
+        </span>
+      </div>
     </div>
   )
 }
