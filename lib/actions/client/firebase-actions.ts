@@ -99,3 +99,17 @@ export async function getWebsiteAnalytics(
   const { metrics } = await response.json()
   return metrics
 }
+
+export async function deleteAdContent(
+  uid: string,
+  firebaseId: string
+): Promise<void> {
+  await fetch("/api/ad/content", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      uid,
+      firebaseId,
+    }),
+  })
+}

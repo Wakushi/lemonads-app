@@ -222,7 +222,7 @@ export const getAdContentsByUser = async (
     const adContents: AdContent[] = adContentsSnapshot.docs.map((doc) => {
       const data = doc.data()
       return {
-        id: doc.id,
+        firebaseId: doc.id,
         title: data.title,
         description: data.description,
         imageUrl: data.imageUrl,
@@ -319,5 +319,22 @@ export const updateWebsite = async (
   } catch (error) {
     console.error("Error updating website:", error)
     throw new Error("Failed to update website")
+  }
+}
+
+export async function deleteAdContent(
+  userFirebaseId: string,
+  adContentFirebaseId: string
+): Promise<void> {
+  try {
+    await adminDb
+      .collection(USER_COLLECTION)
+      .doc(userFirebaseId)
+      .collection(AD_CONTENT_COLLECTION)
+      .doc(adContentFirebaseId)
+      .delete()
+  } catch (error) {
+    console.error("Error deleting ad content: ", error)
+    throw new Error("Failed to delete ad content")
   }
 }

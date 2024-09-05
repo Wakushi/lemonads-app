@@ -4,20 +4,25 @@ import { AdParcelTraits } from "./types/ad-parcel.type"
 interface AdTemplateProps {
   traits: AdParcelTraits
   adContent: AdContent
+  clickId?: string
 }
 
-export function getAdTemplate({ traits, adContent }: AdTemplateProps): string {
+export function getAdTemplate({
+  traits,
+  adContent,
+  clickId,
+}: AdTemplateProps): string {
   const { width } = traits
   const { title, imageUrl, linkUrl, description } = adContent
 
   return `
     <div class="ad-content">
-        <a href=${linkUrl} target="_blank">   
+        <a href=${linkUrl}?click_id=${clickId} target="_blank">   
             <img src=${imageUrl} alt=${title} class="ad-image" />
             <div class="ad-text">
                 <h2 class="ad-title">${title}</h2>
                 <p class="ad-description">${description}</p>
-                <a href=${linkUrl} class="ad-link" target="_blank">Learn More</a>
+                <a href=${linkUrl}?click_id=${clickId} class="ad-link" target="_blank">Learn More</a>
             </div>
         </a>
     </div>

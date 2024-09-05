@@ -25,7 +25,6 @@ export default function AnnouncerDashboard({
   const [activeComponent, setActiveComponent] = useState("dashboard")
   const [impressions, setImpressions] = useState<AdEvent[]>([])
   const [clicks, setClicks] = useState<AdEvent[]>([])
-  const [loading, setLoading] = useState(false)
   const [loadingEvents, setLoadingEvents] = useState<boolean>(false)
 
   useEffect(() => {
@@ -154,9 +153,7 @@ export default function AnnouncerDashboard({
         </ul>
       </nav>
 
-      <div className="ml-[20%] w-[80%] p-8">
-        {loading ? <LoaderSmall /> : renderComponent()}
-      </div>
+      <div className="ml-[20%] w-[80%] p-8">{renderComponent()}</div>
     </div>
   )
 }

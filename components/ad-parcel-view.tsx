@@ -1,10 +1,11 @@
 import { AdParcel } from "@/lib/types/ad-parcel.type"
 import { User } from "@/lib/types/user.type"
-import AdParcelCard from "@/components/ad-parcel-card"
 import LoaderSmall from "@/components/ui/loader-small/loader-small"
 import { getAllParcels } from "@/lib/actions/onchain/contract-actions"
 import Link from "next/link"
 import { useQuery } from "@tanstack/react-query"
+import { AdParcelDataTable } from "./ad-parcel-data-table/ad-parcel-data-table"
+import { adParcelAnnouncerColumns } from "./ad-parcel-data-table/ad-parcel-data-table-announcer-columns"
 
 interface AdParcelViewProps {
   user: User
@@ -49,15 +50,9 @@ export default function AdParcelView({ user }: AdParcelViewProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {rentedParcels.map((parcel) => (
-        <AdParcelCard
-          key={parcel.id}
-          parcel={parcel}
-          user={user}
-          adCampaigns={[]}
-        />
-      ))}
-    </div>
+    <AdParcelDataTable
+      columns={adParcelAnnouncerColumns}
+      data={rentedParcels}
+    />
   )
 }

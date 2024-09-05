@@ -13,6 +13,7 @@ import {
 import { useUser } from "@/service/user.service"
 import {
   createAdContent,
+  deleteAdContent,
   getAdContents,
 } from "@/lib/actions/client/firebase-actions"
 import { toast } from "@/components/ui/use-toast"
@@ -28,6 +29,8 @@ import { moderateImage } from "@/lib/actions/client/aws-actions"
 import LoaderSmall from "./ui/loader-small/loader-small"
 import { IoWarningOutline } from "react-icons/io5"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { FaRegTrashAlt } from "react-icons/fa"
+import { FaCircleCheck } from "react-icons/fa6"
 
 const adContentSchema = z.object({
   file: z.instanceof(File, { message: "File is required" }),
@@ -47,7 +50,6 @@ export default function AdContentPage() {
   const {
     register,
     formState: { errors, isValid },
-    reset,
     setValue,
     watch,
   } = useForm<AdContentFormValues>({
@@ -123,6 +125,26 @@ export default function AdContentPage() {
       })
       console.error("Error creating ad content:", error)
     }
+  }
+
+  async function onDeleteAdContent(adContentId: string): Promise<void> {
+    if (!user?.firebaseId) return
+
+    toast({
+      title: "Deleting content...",
+      action: <LoaderSmall color="#000" scale={0.4} />,
+    })
+
+    await deleteAdContent(user?.firebaseId, adContentId)
+
+    toast({
+      title: "Ad campaign deleted !",
+      action: <FaCircleCheck className="text-green-600" />,
+    })
+
+    queryClient.invalidateQueries({
+      queryKey: ["adContent", user?.firebaseId],
+    })
   }
 
   if (isLoading) {
@@ -204,8 +226,33 @@ export default function AdContentPage() {
           adContent.map((content, i) => (
             <div
               key={content.linkUrl + i}
-              className="bg-white border border-gray-300 rounded-lg shadow-md min-h-52"
+              className="relative bg-white border border-gray-300 rounded-lg shadow-md min-h-52"
             >
+              <AlertDialog>
+                <AlertDialogTrigger className="absolute top-2 right-2 bg-white rounded p-1 hover:text-red-600 cursor-pointer opacity-60 hover:opacity-100">
+                  <FaRegTrashAlt />
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Are you absolutely sure?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      this advertisement campaign.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => onDeleteAdContent(content.firebaseId!)}
+                    >
+                      Continue
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+
               <Image
                 src={content.imageUrl}
                 alt="Ad Image"
