@@ -84,13 +84,14 @@ export default function AdContentPage() {
         title: "Verifying content...",
         description:
           "We're checking if the content follows our moderation rules..",
-        action: <LoaderSmall color="#000" />,
+        action: <LoaderSmall color="#000" scale={0.4} />,
       })
 
       const detectedLabels = await moderateImage(formValues.file)
 
       if (detectedLabels?.length) {
-        setModerationLabels(detectedLabels)
+        console.log("detectedLabels: ", detectedLabels)
+        setModerationLabels(Array.from(new Set(detectedLabels)))
         setIsModerationAlertOpen(true)
         return
       }
@@ -98,7 +99,7 @@ export default function AdContentPage() {
       toast({
         title: "Content verified !",
         description: "Uploading your ad campaign...",
-        action: <LoaderSmall color="#000" />,
+        action: <LoaderSmall color="#000" scale={0.4} />,
       })
 
       const createdAdContent = await createAdContent({
@@ -139,7 +140,7 @@ export default function AdContentPage() {
         {adContents.map((content, i) => (
           <div
             key={content.linkUrl + i}
-            className="p-4 bg-white border border-gray-300 rounded-lg shadow-md min-h-52"
+            className="bg-white border border-gray-300 rounded-lg shadow-md min-h-52"
           >
             <Image
               src={content.imageUrl}
@@ -148,7 +149,7 @@ export default function AdContentPage() {
               width={1280}
               height={1280}
             />
-            <div className="p-2 relative">
+            <div className="py-2 px-4 relative">
               <h2 className="font-bold text-lg">{content.title}</h2>
               <p className="line-clamp-2 relative z-10">
                 {content.description}
