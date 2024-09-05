@@ -29,8 +29,21 @@ import { MdOutlineScreenshotMonitor } from "react-icons/md"
 import Copy from "@/components/ui/copy"
 import { AdParcelDataTable } from "@/components/ad-parcel-data-table/ad-parcel-data-table"
 import { adParcelColumns } from "@/components/ad-parcel-data-table/ad-parcel-data-table-column"
+import {
+  FaExternalLinkAlt,
+  FaGlobeAmericas,
+  FaLanguage,
+  FaTags,
+} from "react-icons/fa"
+import { BiCategory } from "react-icons/bi"
+import { AiOutlineLineChart } from "react-icons/ai"
+import { Button } from "@/components/ui/button"
 
-const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
+export default function WebsiteDetailPage({
+  params,
+}: {
+  params: { id: string }
+}) {
   const { id } = params
   const { user, loading: userLoading, websites } = useUser()
 
@@ -212,7 +225,11 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
         <FaBackspace className="text-2xl" />
         <span>Back</span>
       </Link>
-      <WebsiteDetails website={website} />
+      <WebsiteDetails
+        website={website}
+        createAdParcel={createAdParcel}
+        setAdBlockSettings={setAdBlockSettings}
+      />
       <div>
         {loadingParcels ? (
           <LoaderSmall />
@@ -224,7 +241,63 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
   )
 }
 
-export default WebsiteDetailPage
+function WebsiteDetails({
+  website,
+  createAdParcel,
+  setAdBlockSettings,
+}: {
+  website: Website
+  createAdParcel: () => void
+  setAdBlockSettings: (state: any) => void
+}) {
+  return (
+    <div className="w-full flex gap-4 bg-white shadow-md p-6 rounded-lg border border-brand">
+      <div className="flex items-center gap-2 mr-8">
+        <h1 className="text-3xl font-bold">{website.name}</h1>
+
+        <div className="flex text-xl items-center">
+          <a href={website.url} target="_blank" rel="noopener noreferrer">
+            <FaExternalLinkAlt className="text-brand" />
+          </a>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <div className="flex items-center">
+          <BiCategory className="text-gray-700 text-lg" />
+          <span className="ml-1 text-gray-600">{website.category}</span>
+        </div>
+
+        <div className="flex items-center">
+          <AiOutlineLineChart className="text-yellow-500 text-lg" />{" "}
+          <span className="ml-1 text-gray-600">{website.trafficAverage}</span>
+        </div>
+
+        <div className="flex items-center">
+          <FaLanguage className="text-green-600 text-lg" />
+          <span className="ml-1 text-gray-600">{website.language}</span>
+        </div>
+
+        <div className="flex items-center">
+          <FaGlobeAmericas className="text-blue-500 text-lg" />
+          <span className="ml-1 text-gray-600">{website.geoReach}</span>
+        </div>
+
+        <div className="flex items-center">
+          <FaTags className="text-purple-500 text-lg" />
+          <span className="ml-1 text-gray-600">
+            {website.keywords.join(", ")}
+          </span>
+        </div>
+      </div>
+
+      <CreateAdParcelDialog
+        createAdParcel={createAdParcel}
+        setAdBlockSettings={setAdBlockSettings}
+      />
+    </div>
+  )
+}
 
 function CreateAdParcelDialog({
   createAdParcel,
@@ -236,10 +309,7 @@ function CreateAdParcelDialog({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <div className="h-[200px] w-[200px] border text-xl text-gray-500 border-gray-300 rounded bg-gray-100 bg-opacity-40 hover:border-brand hover:text-brand shadow-inner flex flex-col items-center justify-center cursor-pointer">
-          <p>Create ad parcel</p>
-          <span className="text-3xl">+</span>
-        </div>
+        <Button className="ml-auto bg-brand">Add parcel</Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="max-w-7xl w-full h-[90vh] mx-auto overflow-y-auto p-10">
         <AlertDialogHeader>
@@ -255,57 +325,5 @@ function CreateAdParcelDialog({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
-}
-
-import {
-  FaExternalLinkAlt,
-  FaGlobeAmericas,
-  FaLanguage,
-  FaTags,
-} from "react-icons/fa"
-import { BiCategory } from "react-icons/bi"
-import { AiOutlineLineChart } from "react-icons/ai"
-
-function WebsiteDetails({ website }: { website: Website }) {
-  return (
-    <div className="w-full flex gap-4 bg-white shadow-md p-6 rounded-lg">
-      <div className="flex items-center gap-2 mr-8">
-        <h1 className="text-3xl font-bold">{website.name}</h1>
-
-        <div className="flex text-xl items-center">
-          <a href={website.url} target="_blank" rel="noopener noreferrer">
-            <FaExternalLinkAlt className="text-brand" />
-          </a>
-        </div>
-      </div>
-
-      <div className="flex items-center">
-        <BiCategory className="text-gray-700 text-lg" />
-        <span className="ml-1 text-gray-600">{website.category}</span>
-      </div>
-
-      <div className="flex items-center">
-        <AiOutlineLineChart className="text-yellow-500 text-lg" />{" "}
-        <span className="ml-1 text-gray-600">{website.trafficAverage}</span>
-      </div>
-
-      <div className="flex items-center">
-        <FaLanguage className="text-green-600 text-lg" />
-        <span className="ml-1 text-gray-600">{website.language}</span>
-      </div>
-
-      <div className="flex items-center">
-        <FaGlobeAmericas className="text-blue-500 text-lg" />
-        <span className="ml-1 text-gray-600">{website.geoReach}</span>
-      </div>
-
-      <div className="flex items-center">
-        <FaTags className="text-purple-500 text-lg" />
-        <span className="ml-1 text-gray-600">
-          {website.keywords.join(", ")}
-        </span>
-      </div>
-    </div>
   )
 }
