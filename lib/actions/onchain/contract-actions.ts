@@ -17,6 +17,7 @@ import { simulateContract, writeContract, readContract } from "@wagmi/core"
 import { config } from "@/providers"
 import { getAdContentByHash, getWebsiteByHash } from "../client/pinata-actions"
 import { getWebsiteAnalytics } from "../client/firebase-actions"
+import { Metrics } from "@/lib/types/website.type"
 
 interface WriteAdParcelArgs {
   account: Address
@@ -320,6 +321,7 @@ export async function getAllParcels(
   })
 
   const adParcels: AdParcel[] = []
+  const metricByPropertyId = new Map<string, Metrics>()
 
   for (let parcelId of adParcelIds) {
     const adParcel = await getAdParcelById(Number(parcelId))
@@ -331,15 +333,24 @@ export async function getAllParcels(
 
       if (websiteInfo) {
         if (
-          websiteInfo.analyticsPropertyId &&
-          websiteInfo.analyticsPropertyId.length >= 9
+          !websiteInfo.analyticsPropertyId ||
+          websiteInfo.analyticsPropertyId.length < 9
         ) {
+          continue
+        }
+
+        if (metricByPropertyId.has(websiteInfo.analyticsPropertyId)) {
+          websiteInfo.metrics = metricByPropertyId.get(
+            websiteInfo.analyticsPropertyId
+          )
+        } else {
           const metrics = await getWebsiteAnalytics(
             websiteInfo.analyticsPropertyId
           )
 
           if (metrics) {
             websiteInfo.metrics = metrics
+            metricByPropertyId.set(websiteInfo.analyticsPropertyId, metrics)
           }
         }
 
