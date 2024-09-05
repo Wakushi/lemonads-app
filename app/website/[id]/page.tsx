@@ -92,6 +92,7 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
 
   async function createAdParcel() {
     setLoading(true)
+
     if (!user) {
       setLoading(false)
       throw new Error("User not found !")
@@ -107,8 +108,19 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
     }
 
     const adParcelId = uuidToUint256(uuidv4())
+
+    toast({
+      title: "Verifying and uploading ad parcel settings...",
+      action: <LoaderSmall color="#000" scale={0.4} />,
+    })
+
     const traitsHash = await pinAdParcelTraits(traits, adParcelId.toString())
     const minBid = 0.0001
+
+    toast({
+      title: "Uploading ad parcel...",
+      action: <LoaderSmall color="#000" scale={0.4} />,
+    })
 
     try {
       const response = await fetch("/api/ad/parcel", {
