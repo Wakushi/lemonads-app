@@ -28,12 +28,14 @@ import { BASE_ETHERSCAN_TX_URL } from "@/lib/constants"
 import { Label } from "@/components/ui/label"
 import { FaEthereum } from "react-icons/fa"
 import { GrTest } from "react-icons/gr"
+import { moderateImage } from "@/lib/actions/client/aws-actions"
 
 export default function DebugDrawer() {
   const { user } = useUser()
   const { toast } = useToast()
   const [searchedAdParcelId, setSearchedAdParcelId] = useState<string>("")
   const [loading, setLoading] = useState<boolean>(false)
+  const [uploadedFile, setUploadedFile] = useState<File>()
 
   async function getPublisherAdParcels() {
     if (!user?.address) return
@@ -194,9 +196,25 @@ export default function DebugDrawer() {
     console.log("Price: ", price)
   }
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null
+    if (file) {
+      setUploadedFile(file)
+    }
+  }
+
   async function checkPayableAdParcels() {
     const payableAdParcels = await getPayableAdParcels()
     console.log("payableAdParcels: ", payableAdParcels)
+  }
+
+  async function verifyImage() {
+    if (!uploadedFile) {
+      throw new Error("No file to upload !")
+    }
+
+    const labels = await moderateImage(uploadedFile)
+    console.log("Labels: ", labels)
   }
 
   return (
@@ -249,6 +267,14 @@ export default function DebugDrawer() {
               <Button onClick={() => logRenterUserFunds()}>
                 Log renter funds()
               </Button>
+            </div>
+            <div className="flex flex-col gap-4">
+              <Input
+                type="file"
+                className="border p-2 rounded"
+                onChange={handleFileChange}
+              />
+              <Button onClick={() => verifyImage()}>Moderate image</Button>
             </div>
           </div>
         )}
