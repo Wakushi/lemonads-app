@@ -26,6 +26,8 @@ import { getAllPublisherAdParcels } from "@/lib/actions/onchain/contract-actions
 import Link from "next/link"
 import { FaBackspace } from "react-icons/fa"
 import { parseEther, zeroAddress } from "viem"
+import { MdOutlineScreenshotMonitor } from "react-icons/md"
+import Copy from "@/components/ui/copy"
 
 const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
   const { id } = params
@@ -206,9 +208,14 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
             {adParcels.map((parcel, index) => (
               <div
                 key={index}
-                className="h-[200px] w-[200px] border text-center text-xl text-gray-500 border-gray-300 rounded bg-gray-100 bg-opacity-40shadow-inner flex flex-col items-center justify-center"
+                className="h-[200px] w-[200px] border text-center text-gray-500 border-gray-300 rounded bg-gray-100 bg-opacity-40shadow-inner flex flex-col items-center justify-center"
               >
-                Ad parcel #{parcel.id}
+                <MdOutlineScreenshotMonitor className="text-4xl" />
+                <span className="text-lg"> Ad parcel </span>
+                <div className="flex items-center gap-1">
+                  <span className="text-md font-bold"> #{parcel.id} </span>
+                  <Copy contentToCopy={parcel.id} />
+                </div>
               </div>
             ))}
             <CreateAdParcelDialog
