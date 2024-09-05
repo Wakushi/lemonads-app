@@ -1,33 +1,30 @@
-import { useState, useEffect } from "react"
 import { AdParcel } from "@/lib/types/ad-parcel.type"
 import { User } from "@/lib/types/user.type"
 import AdParcelCard from "@/components/ad-parcel-card"
 import LoaderSmall from "@/components/ui/loader-small/loader-small"
 import { getAllParcels } from "@/lib/actions/onchain/contract-actions"
 import Link from "next/link"
+import { useQuery } from "@tanstack/react-query"
 
 interface AdParcelViewProps {
   user: User
 }
 
 export default function AdParcelView({ user }: AdParcelViewProps) {
-  const [adParcels, setAdParcels] = useState<AdParcel[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
+  async function fetchRentedParcels() {
+    const allAdParcels = await getAllParcels(true)
+    const rentedParcels = allAdParcels.filter(
+      (parcel) => parcel.renter === user.address
+    )
+    return rentedParcels
+  }
 
-  useEffect(() => {
-    async function fetchRentedParcels() {
-      const allAdParcels = await getAllParcels(true)
-      const rentedParcels = allAdParcels.filter(
-        (parcel) => parcel.renter === user.address
-      )
-      setAdParcels(rentedParcels)
-      setLoading(false)
-    }
+  const { data: rentedParcels, isLoading } = useQuery<AdParcel[], Error>({
+    queryKey: ["rentedParcels", user?.address],
+    queryFn: () => fetchRentedParcels(),
+  })
 
-    fetchRentedParcels()
-  }, [user.address])
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center">
         <LoaderSmall />
@@ -35,7 +32,7 @@ export default function AdParcelView({ user }: AdParcelViewProps) {
     )
   }
 
-  if (adParcels.length === 0) {
+  if (!rentedParcels || rentedParcels.length === 0) {
     return (
       <div className="pt-10 flex flex-col gap-8 items-center justify-center">
         <p className="text-2xl font-semibold">
@@ -53,7 +50,7 @@ export default function AdParcelView({ user }: AdParcelViewProps) {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {adParcels.map((parcel) => (
+      {rentedParcels.map((parcel) => (
         <AdParcelCard
           key={parcel.id}
           parcel={parcel}

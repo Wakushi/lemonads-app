@@ -27,6 +27,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { moderateImage } from "@/lib/actions/client/aws-actions"
 import LoaderSmall from "./ui/loader-small/loader-small"
 import { IoWarningOutline } from "react-icons/io5"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 
 const adContentSchema = z.object({
   file: z.instanceof(File, { message: "File is required" }),
@@ -39,10 +40,9 @@ type AdContentFormValues = z.infer<typeof adContentSchema>
 
 export default function AdContentPage() {
   const { user } = useUser()
-  const [adContents, setAdContents] = useState<AdContent[]>([])
+  const queryClient = useQueryClient()
   const [moderationLabels, setModerationLabels] = useState<string[]>([])
   const [isModerationAlertOpen, setIsModerationAlertOpen] = useState(false)
-  const [loadingAdContents, setLoadingAdContents] = useState(true)
 
   const {
     register,
@@ -55,17 +55,14 @@ export default function AdContentPage() {
     mode: "onChange",
   })
 
-  useEffect(() => {
-    async function fetchAdContents() {
-      if (user?.firebaseId) {
-        const contents = await getAdContents(user.firebaseId)
-        setAdContents(contents)
-        setLoadingAdContents(false)
-      }
-    }
+  async function fetchAdContents(): Promise<AdContent[]> {
+    return user?.firebaseId ? await getAdContents(user.firebaseId) : []
+  }
 
-    fetchAdContents()
-  }, [user])
+  const { data: adContent, isLoading } = useQuery<AdContent[], Error>({
+    queryKey: ["adContent", user?.firebaseId],
+    queryFn: () => fetchAdContents(),
+  })
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files ? e.target.files[0] : null
@@ -90,7 +87,6 @@ export default function AdContentPage() {
       const detectedLabels = await moderateImage(formValues.file)
 
       if (detectedLabels?.length) {
-        console.log("detectedLabels: ", detectedLabels)
         setModerationLabels(Array.from(new Set(detectedLabels)))
         setIsModerationAlertOpen(true)
         return
@@ -115,8 +111,9 @@ export default function AdContentPage() {
           title: "Success",
           description: "Ad content created successfully!",
         })
-        setAdContents((prevContents) => [...prevContents, createdAdContent])
-        reset()
+        queryClient.invalidateQueries({
+          queryKey: ["adContent", user?.firebaseId],
+        })
       }
     } catch (error) {
       toast({
@@ -128,7 +125,7 @@ export default function AdContentPage() {
     }
   }
 
-  if (loadingAdContents) {
+  if (isLoading) {
     return <LoaderSmall />
   }
 
@@ -137,28 +134,6 @@ export default function AdContentPage() {
       <h1 className="text-3xl font-bold mb-6">Your Ad Campaigns</h1>
 
       <div className="grid grid-cols-3 gap-4">
-        {adContents.map((content, i) => (
-          <div
-            key={content.linkUrl + i}
-            className="bg-white border border-gray-300 rounded-lg shadow-md min-h-52"
-          >
-            <Image
-              src={content.imageUrl}
-              alt="Ad Image"
-              className="w-full h-32 object-cover rounded-t-lg"
-              width={1280}
-              height={1280}
-            />
-            <div className="py-2 px-4 relative">
-              <h2 className="font-bold text-lg">{content.title}</h2>
-              <p className="line-clamp-2 relative z-10">
-                {content.description}
-              </p>
-              <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent z-0"></div>
-            </div>
-          </div>
-        ))}
-
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <div className="flex justify-center items-center border border-gray-300 bg-gray-100 bg-opacity-40 shadow-inner rounded-lg cursor-pointer min-h-52">
@@ -212,19 +187,41 @@ export default function AdContentPage() {
               )}
 
               <AlertDialogFooter>
-                <AlertDialogCancel disabled={loadingAdContents}>
+                <AlertDialogCancel disabled={isLoading}>
                   Cancel
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={onSubmit}
-                  disabled={!isValid || loadingAdContents}
+                  disabled={!isValid || isLoading}
                 >
-                  {loadingAdContents ? "Creating..." : "Create"}
+                  {isLoading ? "Creating..." : "Create"}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </form>
           </AlertDialogContent>
         </AlertDialog>
+        {adContent &&
+          adContent.map((content, i) => (
+            <div
+              key={content.linkUrl + i}
+              className="bg-white border border-gray-300 rounded-lg shadow-md min-h-52"
+            >
+              <Image
+                src={content.imageUrl}
+                alt="Ad Image"
+                className="w-full h-32 object-cover rounded-t-lg"
+                width={1280}
+                height={1280}
+              />
+              <div className="py-2 px-4 relative">
+                <h2 className="font-bold text-lg">{content.title}</h2>
+                <p className="line-clamp-2 relative z-10">
+                  {content.description}
+                </p>
+                <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent z-0"></div>
+              </div>
+            </div>
+          ))}
       </div>
       <ModerationWarningAlert
         open={isModerationAlertOpen}

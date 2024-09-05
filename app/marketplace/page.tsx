@@ -1,5 +1,6 @@
 "use client"
-import { useEffect, useState } from "react"
+
+import { useState } from "react"
 import LoaderSmall from "@/components/ui/loader-small/loader-small"
 import { getAllParcels } from "@/lib/actions/onchain/contract-actions"
 import { AdParcel } from "@/lib/types/ad-parcel.type"
@@ -16,12 +17,12 @@ import AdParcelCard from "@/components/ad-parcel-card"
 import { useUser } from "@/service/user.service"
 import { AdContent } from "@/lib/types/ad-content.type"
 import { getAdContents } from "@/lib/actions/client/firebase-actions"
+import { useQuery } from "@tanstack/react-query"
+import { zeroAddress } from "viem"
 
 export default function MarketplacePage() {
   const { user } = useUser()
-  const [adParcels, setAdParcels] = useState<AdParcel[]>([])
-  const [adCampaigns, setAdCampaigns] = useState<AdContent[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
+
   const [search, setSearch] = useState("")
   const [category, setCategory] = useState("all")
   const [language, setLanguage] = useState("all")
@@ -33,69 +34,72 @@ export default function MarketplacePage() {
   const [availableLanguages, setAvailableLanguages] = useState<string[]>([])
   const [availableGeoReaches, setAvailableGeoReaches] = useState<string[]>([])
 
-  useEffect(() => {
-    async function fetchParcels() {
-      if (adParcels.length) return
+  const { data: adParcels, isLoading } = useQuery<AdParcel[], Error>({
+    queryKey: ["allAdParcels", user?.firebaseId],
+    queryFn: () => fetchParcels(),
+  })
 
-      setLoading(true)
+  const { data: adContents } = useQuery<AdContent[], Error>({
+    queryKey: ["adContents", user?.firebaseId],
+    queryFn: () => fetchAdContent(),
+  })
 
-      const allAdParcels = await getAllParcels(true)
+  async function fetchParcels(): Promise<AdParcel[]> {
+    const allAdParcels = await getAllParcels(true)
 
-      const categories = new Set<string>()
-      const languages = new Set<string>()
-      const geoReaches = new Set<string>()
+    const categories = new Set<string>()
+    const languages = new Set<string>()
+    const geoReaches = new Set<string>()
 
-      allAdParcels.forEach((parcel) => {
-        if (parcel.website?.category) categories.add(parcel.website.category)
-        if (parcel.website?.language) languages.add(parcel.website.language)
-        if (parcel.website?.geoReach) geoReaches.add(parcel.website.geoReach)
+    allAdParcels.forEach((parcel) => {
+      if (parcel.website?.category) categories.add(parcel.website.category)
+      if (parcel.website?.language) languages.add(parcel.website.language)
+      if (parcel.website?.geoReach) geoReaches.add(parcel.website.geoReach)
+    })
+
+    setAvailableCategories(Array.from(categories))
+    setAvailableLanguages(Array.from(languages))
+    setAvailableGeoReaches(Array.from(geoReaches))
+
+    return allAdParcels
+  }
+
+  async function fetchAdContent(): Promise<AdContent[]> {
+    if (!user?.firebaseId) return []
+    const adContents = await getAdContents(user?.firebaseId)
+    return adContents
+  }
+
+  function filteredParcels(): AdParcel[] {
+    if (!adParcels) return []
+
+    return adParcels
+      .filter((parcel) => {
+        const website = parcel.website
+
+        const isNotRented = parcel.renter === zeroAddress
+
+        return (
+          isNotRented &&
+          (!search ||
+            website?.name.toLowerCase().includes(search.toLowerCase()) ||
+            website?.url.toLowerCase().includes(search.toLowerCase())) &&
+          (category === "all" || website?.category === category) &&
+          (language === "all" || website?.language === language) &&
+          (geoReach === "all" || website?.geoReach === geoReach) &&
+          (!hideRented || parcel.renter !== user?.address)
+        )
       })
-
-      setAvailableCategories(Array.from(categories))
-      setAvailableLanguages(Array.from(languages))
-      setAvailableGeoReaches(Array.from(geoReaches))
-
-      setAdParcels(allAdParcels)
-      setLoading(false)
-    }
-
-    async function fetchAdContent() {
-      if (!user?.firebaseId) return
-      const adContents = await getAdContents(user?.firebaseId)
-      setAdCampaigns(adContents)
-    }
-
-    fetchParcels()
-    fetchAdContent()
-  }, [user?.firebaseId])
-
-  const filteredParcels = adParcels
-    .filter((parcel) => {
-      const website = parcel.website
-
-      const isNotRented =
-        parcel.renter === "0x0000000000000000000000000000000000000000"
-
-      return (
-        isNotRented &&
-        (!search ||
-          website?.name.toLowerCase().includes(search.toLowerCase()) ||
-          website?.url.toLowerCase().includes(search.toLowerCase())) &&
-        (category === "all" || website?.category === category) &&
-        (language === "all" || website?.language === language) &&
-        (geoReach === "all" || website?.geoReach === geoReach) &&
-        (!hideRented || parcel.renter !== user?.address)
-      )
-    })
-    .sort((a, b) => {
-      if (sortOption === "bid") return b.bid - a.bid
-      if (sortOption === "minBid") return b.minBid - a.minBid
-      return 0
-    })
+      .sort((a, b) => {
+        if (sortOption === "bid") return b.bid - a.bid
+        if (sortOption === "minBid") return b.minBid - a.minBid
+        return 0
+      })
+  }
 
   if (!user) return
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="pt-20 min-h-[100vh] flex items-center justify-center">
         <LoaderSmall />
@@ -103,7 +107,7 @@ export default function MarketplacePage() {
     )
   }
 
-  if (!adParcels.length) {
+  if (!adParcels || !adParcels.length) {
     return (
       <div className="pt-20 min-h-[100vh] flex items-center justify-center">
         <p className="text-4xl">No Ad Parcels Available</p>
@@ -204,20 +208,19 @@ export default function MarketplacePage() {
         </Button>
       </div>
 
-      {/* Ad Parcels Display */}
       <div className="ml-[25%] w-[75%] p-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredParcels.map((parcel) => (
+          {filteredParcels().map((parcel) => (
             <AdParcelCard
               key={parcel.id}
               parcel={parcel}
               user={user}
-              adCampaigns={adCampaigns}
+              adCampaigns={adContents || []}
             />
           ))}
         </div>
 
-        {filteredParcels.length === 0 && (
+        {filteredParcels().length === 0 && (
           <div className="text-center text-gray-500 mt-8">
             No ad parcels match your criteria.
           </div>

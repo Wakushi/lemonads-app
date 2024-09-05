@@ -85,12 +85,12 @@ export default function AnnouncerDashboard({
   return (
     <div className="flex pt-20 min-h-[100vh]">
       <nav className="w-1/5 h-screen fixed top-0 left-0 text-brand border-r flex flex-col pt-24">
-        <ul className="flex flex-col gap-4">
+        <ul className="flex flex-col">
           <li>
             <button
               onClick={() => setActiveComponent("dashboard")}
               className={clsx(
-                "block text-left w-full px-8 py-2 font-bold",
+                "block text-left w-full px-8 py-4 font-bold",
                 activeComponent === "dashboard"
                   ? "bg-brand text-white"
                   : "hover:bg-brand hover:text-white"
@@ -103,7 +103,7 @@ export default function AnnouncerDashboard({
             <button
               onClick={() => setActiveComponent("adContent")}
               className={clsx(
-                "block text-left w-full px-8 py-2",
+                "block text-left w-full px-8 py-4",
                 activeComponent === "adContent"
                   ? "bg-brand text-white"
                   : "hover:bg-brand hover:text-white"
@@ -116,7 +116,7 @@ export default function AnnouncerDashboard({
             <button
               onClick={() => setActiveComponent("adParcels")}
               className={clsx(
-                "block text-left w-full px-8 py-2",
+                "block text-left w-full px-8 py-4",
                 activeComponent === "adParcels"
                   ? "bg-brand text-white"
                   : "hover:bg-brand hover:text-white"
@@ -129,7 +129,7 @@ export default function AnnouncerDashboard({
             <button
               onClick={() => setActiveComponent("stats")}
               className={clsx(
-                "block text-left w-full px-8 py-2",
+                "block text-left w-full px-8 py-4",
                 activeComponent === "stats"
                   ? "bg-brand text-white"
                   : "hover:bg-brand hover:text-white"
@@ -142,7 +142,7 @@ export default function AnnouncerDashboard({
             <button
               onClick={() => setActiveComponent("conversionTutorial")}
               className={clsx(
-                "block text-left w-full px-8 py-2",
+                "block text-left w-full px-8 py-4",
                 activeComponent === "conversionTutorial"
                   ? "bg-brand text-white"
                   : "hover:bg-brand hover:text-white"
