@@ -112,6 +112,7 @@ export default function AdContentPage() {
         toast({
           title: "Success",
           description: "Ad content created successfully!",
+          action: <FaCircleCheck className="text-green-600" />,
         })
         queryClient.invalidateQueries({
           queryKey: ["adContent", user?.firebaseId],

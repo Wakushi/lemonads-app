@@ -6,7 +6,7 @@ export const BASE_ETHERSCAN_TX_URL = "https://sepolia.basescan.org/tx"
 export const CONTACT_EMAIL = "zoukushimetazord@gmail.com"
 
 export const LEMONADS_CONTRACT_ADDRESS =
-  "0x603716eEFF8a9f4342cC11D1f0071E99bC2Cc236"
+  "0x8305D540a6eE61F59aAf5d3F78fccEA1797f52B8"
 
 export const LEMONADS_CONTRACT_ABI = [
   {
@@ -244,6 +244,13 @@ export const LEMONADS_CONTRACT_ABI = [
   },
   {
     type: "function",
+    name: "releaseParcel",
+    inputs: [{ name: "_parcelId", type: "uint256", internalType: "uint256" }],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     name: "renounceOwnership",
     inputs: [],
     outputs: [],
@@ -264,6 +271,16 @@ export const LEMONADS_CONTRACT_ABI = [
     type: "function",
     name: "transferOwnership",
     inputs: [{ name: "newOwner", type: "address", internalType: "address" }],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "updateAdContent",
+    inputs: [
+      { name: "_parcelId", type: "uint256", internalType: "uint256" },
+      { name: "_contentHash", type: "string", internalType: "string" },
+    ],
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -316,6 +333,25 @@ export const LEMONADS_CONTRACT_ABI = [
     inputs: [{ name: "_amount", type: "uint256", internalType: "uint256" }],
     outputs: [],
     stateMutability: "nonpayable",
+  },
+  {
+    type: "event",
+    name: "AdContentUpdated",
+    inputs: [
+      {
+        name: "parcelId",
+        type: "uint256",
+        indexed: true,
+        internalType: "uint256",
+      },
+      {
+        name: "contentHash",
+        type: "string",
+        indexed: false,
+        internalType: "string",
+      },
+    ],
+    anonymous: false,
   },
   {
     type: "event",
@@ -635,6 +671,7 @@ export const LEMONADS_CONTRACT_ABI = [
   { type: "error", name: "Lemonads__NoPayableParcel", inputs: [] },
   { type: "error", name: "Lemonads__NotEnoughTimePassed", inputs: [] },
   { type: "error", name: "Lemonads__NotParcelOwner", inputs: [] },
+  { type: "error", name: "Lemonads__NotParcelRenter", inputs: [] },
   { type: "error", name: "Lemonads__NotZero", inputs: [] },
   {
     type: "error",

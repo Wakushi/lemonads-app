@@ -18,8 +18,6 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
@@ -111,16 +109,6 @@ export const adParcelAnnouncerColumns: ColumnDef<AdParcel>[] = [
           ({Number(formatEther(BigInt(row.original.minBid))).toFixed(7)}{" "}
           <FaEthereum />)
         </span>
-      </div>
-    ),
-  },
-  {
-    accessorKey: "owner",
-    header: "Owner",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-1">
-        {shortenAddress(row.original.owner)}
-        <Copy contentToCopy={row.original.owner} />
       </div>
     ),
   },
