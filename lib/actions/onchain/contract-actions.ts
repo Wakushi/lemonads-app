@@ -474,6 +474,45 @@ export async function getPriceUsd(ethAmount: number): Promise<number> {
   return price
 }
 
+export async function releaseAdParcel({
+  account,
+  adParcelId,
+}: {
+  account: Address
+  adParcelId: string
+}) {
+  if (!web3AuthInstance.provider) {
+    throw new Error("Failed to release ad parcel: missing provider")
+  }
+
+  if (!account) {
+    throw new Error("Failed to release ad parcel: missing account")
+  }
+
+  try {
+    const walletClient = createWalletClient({
+      account,
+      chain: RPC.getViewChain(web3AuthInstance.provider),
+      transport: custom(web3AuthInstance.provider),
+    })
+
+    const { request: releaseAdParcelRequest } = await simulateContract(config, {
+      account: walletClient.account,
+      address: LEMONADS_CONTRACT_ADDRESS,
+      abi: LEMONADS_CONTRACT_ABI,
+      functionName: "releaseParcel",
+      args: [adParcelId],
+    })
+
+    const result = await writeContract(config, releaseAdParcelRequest)
+
+    return result
+  } catch (error) {
+    console.error("Error releasing ad parcel:", error)
+    throw new Error("Failed to release ad parcel")
+  }
+}
+
 export enum ErrorType {
   Lemonads__NoPayableParcel = "Lemonads__NoPayableParcel",
   Lemonads__NotEnoughTimePassed = "Lemonads__NotEnoughTimePassed",

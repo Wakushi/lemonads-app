@@ -6,7 +6,7 @@ export const BASE_ETHERSCAN_TX_URL = "https://sepolia.basescan.org/tx"
 export const CONTACT_EMAIL = "zoukushimetazord@gmail.com"
 
 export const LEMONADS_CONTRACT_ADDRESS =
-  "0x8305D540a6eE61F59aAf5d3F78fccEA1797f52B8"
+  "0x0fB3B9D61A5189fD227F578664C26B61599B8135"
 
 export const LEMONADS_CONTRACT_ABI = [
   {
@@ -399,6 +399,25 @@ export const LEMONADS_CONTRACT_ABI = [
         type: "uint256",
         indexed: true,
         internalType: "uint256",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "AdParcelReleased",
+    inputs: [
+      {
+        name: "parcelId",
+        type: "uint256",
+        indexed: true,
+        internalType: "uint256",
+      },
+      {
+        name: "prevRenter",
+        type: "address",
+        indexed: true,
+        internalType: "address",
       },
     ],
     anonymous: false,

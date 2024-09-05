@@ -2,7 +2,7 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { AdParcel } from "@/lib/types/ad-parcel.type"
 import Copy from "../ui/copy"
-import { formatEther } from "viem"
+import { createPublicClient, formatEther, http } from "viem"
 
 import { PiEmpty } from "react-icons/pi"
 import { FaEthereum } from "react-icons/fa"
@@ -28,9 +28,29 @@ import { getAdContents } from "@/lib/actions/client/firebase-actions"
 import { AdContent } from "@/lib/types/ad-content.type"
 import { toast } from "@/components/ui/use-toast"
 import { FaCircleCheck, FaGear } from "react-icons/fa6"
-import { writeEditAdParcelContent } from "@/lib/actions/onchain/contract-actions"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
+import {
+  releaseAdParcel,
+  writeEditAdParcelContent,
+} from "@/lib/actions/onchain/contract-actions"
 import { pinAdContent } from "@/lib/actions/client/pinata-actions"
 import LoaderSmall from "../ui/loader-small/loader-small"
+import {
+  LEMONADS_CONTRACT_ABI,
+  LEMONADS_CONTRACT_ADDRESS,
+} from "@/lib/constants"
+import { baseSepolia } from "viem/chains"
 
 export const adParcelAnnouncerColumns: ColumnDef<AdParcel>[] = [
   {
@@ -131,6 +151,8 @@ export const adParcelAnnouncerColumns: ColumnDef<AdParcel>[] = [
     cell: ({ row }) => {
       const [selectedCampaignId, setSelectedCampaignId] = useState<string>("")
       const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false)
+      const [showReleaseConfirmModal, setShowReleaseConfirmModal] =
+        useState<boolean>(false)
       const { user } = useUser()
       const queryClient = useQueryClient()
 
@@ -146,9 +168,53 @@ export const adParcelAnnouncerColumns: ColumnDef<AdParcel>[] = [
         },
       })
 
-      const handleReleaseParcel = () => {
-        console.log("Release ad parcel with ID:", row.original.id)
-        // Implement release logic
+      async function handleReleaseParcel() {
+        if (!user?.address) {
+          return
+        }
+
+        toast({
+          title: "Releasing parcel...",
+          action: <LoaderSmall color="#000" scale={0.4} />,
+        })
+
+        try {
+          await releaseAdParcel({
+            account: user.address,
+            adParcelId: row.original.id,
+          })
+
+          const publicClient = createPublicClient({
+            chain: baseSepolia,
+            transport: http(
+              process.env.NEXT_PUBLIC_ALCHEMY_BASE_SEPOLIA_RPC_URL
+            ),
+          })
+
+          publicClient.watchContractEvent({
+            address: LEMONADS_CONTRACT_ADDRESS,
+            abi: LEMONADS_CONTRACT_ABI,
+            eventName: "AdParcelReleased",
+            args: { parcelId: BigInt(row.original.id) },
+            onLogs: (logs: any) => {
+              toast({
+                title: "Success",
+                description: "Ad parcel released !",
+                action: <FaCircleCheck className="text-green-600" />,
+              })
+
+              queryClient.invalidateQueries({
+                queryKey: ["rentedParcels", user?.address],
+              })
+            },
+          })
+        } catch (error: any) {
+          toast({
+            title: "Error",
+            description: "Error releasing ad parcel. Please try again.",
+            variant: "destructive",
+          })
+        }
       }
 
       async function handleUpdateCampaign() {
@@ -174,7 +240,7 @@ export const adParcelAnnouncerColumns: ColumnDef<AdParcel>[] = [
           const contentHash = await pinAdContent(adContent, +row.original.id)
 
           await writeEditAdParcelContent({
-            account: user?.address,
+            account: user.address,
             adParcelId: +row.original.id,
             contentHash: contentHash,
           })
@@ -240,13 +306,37 @@ export const adParcelAnnouncerColumns: ColumnDef<AdParcel>[] = [
               )}
               <Button
                 variant="destructive"
-                onClick={handleReleaseParcel}
+                onClick={() => {
+                  setShowSettingsModal(false)
+                  setShowReleaseConfirmModal(true)
+                }}
                 className="w-full"
               >
                 Release Parcel
               </Button>
             </DialogContent>
           </Dialog>
+
+          <AlertDialog
+            open={showReleaseConfirmModal}
+            onOpenChange={setShowReleaseConfirmModal}
+          >
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will release the rent on the ad parcel ID #
+                  {row.original.id}. This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleReleaseParcel}>
+                  Continue
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       )
     },
