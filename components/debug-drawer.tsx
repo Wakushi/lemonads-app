@@ -5,22 +5,12 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer"
-import { v4 as uuidv4 } from "uuid"
 import { Button } from "@/components/ui/button"
 import LoaderSmall from "@/components/ui/loader-small/loader-small"
-import {
-  getTraitsByHash,
-  pinAdContent,
-  pinAdParcelTraits,
-  pinWebsiteMetadata,
-  unpinFile,
-} from "@/lib/actions/client/pinata-actions"
-import { Website } from "@/lib/types/website.type"
+import { pinAdContent } from "@/lib/actions/client/pinata-actions"
 import { useState } from "react"
-import { AdParcelTraits } from "@/lib/types/ad-parcel.type"
 import {
   ErrorType,
-  getAdParcelById,
   getAllPublisherAdParcels,
   getEthPrice,
   getLastCronTimestamp,
@@ -28,14 +18,10 @@ import {
   getRenterFundsAmount,
   runAggregateClicks,
   runPayParcelOwners,
-  writeAdParcel,
-  writeEditAdParcelTraits,
   writeRentAdParcel,
 } from "@/lib/actions/onchain/contract-actions"
 import { Input } from "@/components/ui/input"
 import { useUser } from "@/service/user.service"
-
-import { uuidToUint256 } from "@/lib/utils"
 import { useToast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
 import { BASE_ETHERSCAN_TX_URL } from "@/lib/constants"
@@ -81,66 +67,21 @@ export default function DebugDrawer() {
     })
   }
 
-  async function onUpdateParcelTraits(
-    adParcelId: number,
-    newTraits: AdParcelTraits
-  ) {
-    if (!user) {
-      throw new Error("User not found !")
-    }
-
-    if (!adParcelId) {
-      throw new Error("Ad parcel id not found !")
-    }
-
+  async function onRunAggregateClicks(): Promise<void> {
+    if (!user?.address) return
     setLoading(true)
-
-    const adParcel = await getAdParcelById(adParcelId)
-
-    if (!adParcel) {
-      setLoading(false)
-      return
-    }
-
-    let needsUpdate = false
-
-    const traits = await getTraitsByHash(adParcel.traitsHash)
-
-    if (traits) {
-      for (let key in traits) {
-        const traitKey = key as keyof AdParcelTraits
-
-        if (traits[traitKey] !== newTraits[traitKey]) {
-          needsUpdate = true
-        }
-      }
-    }
-
-    if (!needsUpdate) {
-      setLoading(false)
-      return
-    }
-
-    const traitsHash = await pinAdParcelTraits(newTraits, adParcelId.toString())
-
     try {
-      const transactionHash = await writeEditAdParcelTraits({
-        account: user?.address,
-        adParcelId,
-        traitsHash,
-      })
-
-      await unpinFile(adParcel.traitsHash)
+      await runAggregateClicks(user?.address)
 
       toast({
-        title: "Ad parcel updated !",
-        description: "See on block explorer",
+        title: "Aggregate click ran !",
+        description: "See on Chainlink Functions Manager",
         action: (
           <ToastAction
             altText="See details"
             onClick={() =>
               window.open(
-                `${BASE_ETHERSCAN_TX_URL}/${transactionHash}`,
+                `https://functions.chain.link/base-sepolia/162`,
                 "_blank"
               )
             }
@@ -149,22 +90,10 @@ export default function DebugDrawer() {
           </ToastAction>
         ),
       })
-    } catch (error) {
-      toast({
-        title: "Error during parcel update",
-        description: "Please try again. Error: " + error,
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  async function onRunAggregateClicks(): Promise<void> {
-    if (!user?.address) return
-    try {
-      await runAggregateClicks(user?.address)
     } catch (error: any) {
       handleContractErrors(error.message)
+    } finally {
+      setLoading(false)
     }
   }
 
