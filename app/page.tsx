@@ -3,6 +3,7 @@ import { FaBullhorn, FaCheckCircle, FaRocket } from "react-icons/fa"
 import { FaArrowTrendUp } from "react-icons/fa6"
 
 import Link from "next/link"
+import { UserType } from "@/lib/types/user.type"
 
 export default function Home() {
   return (
@@ -18,18 +19,18 @@ export default function Home() {
           advertising strategy.
         </p>
         <div className="flex gap-6">
-          <Button
-            size="lg"
-            className="bg-brand text-white hover:bg-white hover:text-brand shadow-md"
+          <Link
+            href={`/signup?type=${UserType.PUBLISHER}`}
+            className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-11 rounded-md px-8 bg-brand text-white hover:bg-white hover:text-brand shadow-md"
           >
             Start as Publisher
-          </Button>
-          <Button
-            size="lg"
-            className="bg-white text-brand hover:bg-gray-200 shadow-md"
+          </Link>
+          <Link
+            href={`/signup?type=${UserType.ANNOUNCER}`}
+            className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-11 rounded-md px-8 bg-brand text-white hover:bg-white hover:text-brand shadow-md"
           >
             Start as Advertiser
-          </Button>
+          </Link>
         </div>
       </section>
 

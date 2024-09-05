@@ -44,7 +44,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>
 
-export default function SignupForm() {
+export default function SignupForm({ type }: { type?: UserType }) {
   const router = useRouter()
   const { user, setUser } = useUser()
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
@@ -54,7 +54,7 @@ export default function SignupForm() {
     defaultValues: {
       fullName: "",
       email: "",
-      userType: UserType.PUBLISHER,
+      userType: type,
       companyName: "",
       agreeToTerms: false,
     },

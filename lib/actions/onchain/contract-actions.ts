@@ -32,7 +32,7 @@ export async function writeAdParcel({
   minBid,
   traitsHash,
   websiteInfoHash,
-}: WriteAdParcelArgs) {
+}: WriteAdParcelArgs): Promise<any> {
   if (!web3AuthInstance.provider) {
     throw new Error("Failed to create ad parcel: missing provider")
   }

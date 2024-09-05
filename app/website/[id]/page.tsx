@@ -25,7 +25,7 @@ import { toast } from "@/components/ui/use-toast"
 import { getAllPublisherAdParcels } from "@/lib/actions/onchain/contract-actions"
 import Link from "next/link"
 import { FaBackspace } from "react-icons/fa"
-import { zeroAddress } from "viem"
+import { parseEther, zeroAddress } from "viem"
 
 const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
   const { id } = params
@@ -106,15 +106,22 @@ const WebsiteDetailPage = ({ params }: { params: { id: string } }) => {
 
     const adParcelId = uuidToUint256(uuidv4())
     const traitsHash = await pinAdParcelTraits(traits, adParcelId.toString())
+    const minBid = 0.0001
 
     try {
-      const transactionHash = await writeAdParcel({
-        account: user.address,
-        id: adParcelId,
-        minBid: 1,
-        traitsHash,
-        websiteInfoHash: website.ipfsHash,
+      const response = await fetch("/api/ad/parcel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: adParcelId,
+          minBid: minBid * 10e18,
+          owner: user.address,
+          traitsHash,
+          websiteInfoHash: website.ipfsHash,
+        }),
       })
+
+      const transactionHash = await response.json()
 
       toast({
         title: "Ad parcel created !",

@@ -6,7 +6,7 @@ export const BASE_ETHERSCAN_TX_URL = "https://sepolia.basescan.org/tx"
 export const CONTACT_EMAIL = "zoukushimetazord@gmail.com"
 
 export const LEMONADS_CONTRACT_ADDRESS =
-  "0x7f842E83518688174A08427c0999D021b57dEbD9"
+  "0x603716eEFF8a9f4342cC11D1f0071E99bC2Cc236"
 
 export const LEMONADS_CONTRACT_ABI = [
   {
@@ -87,6 +87,7 @@ export const LEMONADS_CONTRACT_ABI = [
     inputs: [
       { name: "_parcelId", type: "uint256", internalType: "uint256" },
       { name: "_minBid", type: "uint256", internalType: "uint256" },
+      { name: "_owner", type: "address", internalType: "address" },
       { name: "_traitsHash", type: "string", internalType: "string" },
       {
         name: "_websiteInfoHash",
@@ -629,6 +630,7 @@ export const LEMONADS_CONTRACT_ABI = [
   },
   { type: "error", name: "EmptyArgs", inputs: [] },
   { type: "error", name: "EmptySource", inputs: [] },
+  { type: "error", name: "Lemonads__AddressZero", inputs: [] },
   { type: "error", name: "Lemonads__BidLowerThanCurrent", inputs: [] },
   { type: "error", name: "Lemonads__NoPayableParcel", inputs: [] },
   { type: "error", name: "Lemonads__NotEnoughTimePassed", inputs: [] },

@@ -5,6 +5,7 @@ import { ArrowUpDown } from "lucide-react"
 import { Checkbox } from "../ui/checkbox"
 import { Website } from "@/lib/types/website.type"
 import Link from "next/link"
+import { FaEye, FaRegTrashAlt } from "react-icons/fa"
 
 export const columns: ColumnDef<Website>[] = [
   {
@@ -193,10 +194,15 @@ export const columns: ColumnDef<Website>[] = [
         <div className="flex gap-2">
           <Link href={`/website/${websiteId}`}>
             <Button variant="outline" size="sm">
-              Edit
+              <FaEye />
             </Button>
           </Link>
-          <Button size="sm">Delete</Button>
+          <Button
+            className="border border-red-600 bg-white hover:bg-red-100"
+            size="sm"
+          >
+            <FaRegTrashAlt className="text-red-600" />
+          </Button>
         </div>
       )
     },

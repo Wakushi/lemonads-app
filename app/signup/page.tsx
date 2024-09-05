@@ -8,8 +8,13 @@ import LoaderSmall from "@/components/ui/loader-small/loader-small"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { useUser } from "@/service/user.service"
+import { UserType } from "@/lib/types/user.type"
 
-export default function SignUpPage() {
+export default function SignUpPage({
+  searchParams,
+}: {
+  searchParams?: { [key: string]: string | string[] | undefined }
+}) {
   const { user, loading } = useUser()
   const router = useRouter()
 
@@ -40,7 +45,7 @@ export default function SignUpPage() {
 
   return (
     <div className="mx-auto flex flex-col justify-center items-center gap-4 pt-20 h-[100vh]">
-      <SignupForm />
+      <SignupForm type={searchParams?.type as UserType} />
     </div>
   )
 }
