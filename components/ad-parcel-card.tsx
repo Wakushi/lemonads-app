@@ -58,6 +58,7 @@ import clsx from "clsx"
 import { useRouter } from "next/navigation"
 import { useToast } from "./ui/use-toast"
 import Copy from "./ui/copy"
+import { CiCircleCheck } from "react-icons/ci"
 
 interface AdParcelCardProps {
   parcel: AdParcel
@@ -293,8 +294,9 @@ export default function AdParcelCard({
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               {success ? (
-                <div className="w-full h-[300px] flex items-center justify-center text-2xl">
-                  Ad parcel rented!
+                <div className="h-[300px] flex flex-col gap-4 justify-center items-center">
+                  <CiCircleCheck className="text-green-600 text-[8rem]" />
+                  <p className="text-3xl pb-20">Ad parcel rented!</p>
                 </div>
               ) : (
                 <>
@@ -335,7 +337,22 @@ export default function AdParcelCard({
                       </Link>
                     )}
 
-                    <Label>Amount paid per click (USD)</Label>
+                    <div>
+                      <Label>Amount paid per click (USD)</Label>
+                      <div className="flex text-slate-600 text-sm gap-1">
+                        Minimum bid amount is
+                        <span className="font-semibold">
+                          {parcel.minBidUsd?.toFixed(2)}$
+                        </span>{" "}
+                        <span className="flex items-center">
+                          (
+                          {Number(formatEther(BigInt(parcel.minBid))).toFixed(
+                            7
+                          )}{" "}
+                          <FaEthereum />)
+                        </span>
+                      </div>
+                    </div>
                     <Input
                       id="bid"
                       type="number"
