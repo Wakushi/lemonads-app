@@ -13,6 +13,7 @@ import {
   getAllClicks,
   getAllImpressions,
 } from "@/lib/actions/client/firebase-actions"
+import ConversionTrackingTutorial from "@/components/conversion-tracking-help"
 
 export default function AnnouncerDashboard({
   searchParams,
@@ -63,6 +64,8 @@ export default function AnnouncerDashboard({
         return <AdStats />
       case "adParcels":
         return <AdParcelView user={user} />
+      case "conversionTutorial":
+        return <ConversionTrackingTutorial />
       default:
         return (
           <div className="flex p-8 items-center justify-center">
@@ -133,6 +136,19 @@ export default function AnnouncerDashboard({
               )}
             >
               Statistics
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => setActiveComponent("conversionTutorial")}
+              className={clsx(
+                "block text-left w-full px-8 py-2",
+                activeComponent === "conversionTutorial"
+                  ? "bg-brand text-white"
+                  : "hover:bg-brand hover:text-white"
+              )}
+            >
+              Conversion tracking (help)
             </button>
           </li>
         </ul>
