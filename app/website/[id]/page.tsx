@@ -14,7 +14,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { BASE_ETHERSCAN_TX_URL } from "@/lib/constants"
+import {
+  BASE_ETHERSCAN_TX_URL,
+  LEMONADS_CONTRACT_ABI,
+  LEMONADS_CONTRACT_ADDRESS,
+} from "@/lib/constants"
 import { AdBlockCustomization } from "@/components/add-block-customization"
 import { v4 as uuidv4 } from "uuid"
 import { uuidToUint256 } from "@/lib/utils"
@@ -24,9 +28,6 @@ import { toast } from "@/components/ui/use-toast"
 import { getAllPublisherAdParcels } from "@/lib/actions/onchain/contract-actions"
 import Link from "next/link"
 import { FaBackspace } from "react-icons/fa"
-import { zeroAddress } from "viem"
-import { MdOutlineScreenshotMonitor } from "react-icons/md"
-import Copy from "@/components/ui/copy"
 import { AdParcelDataTable } from "@/components/ad-parcel-data-table/ad-parcel-data-table"
 import { adParcelColumns } from "@/components/ad-parcel-data-table/ad-parcel-data-table-column"
 import {
@@ -38,6 +39,10 @@ import {
 import { BiCategory } from "react-icons/bi"
 import { AiOutlineLineChart } from "react-icons/ai"
 import { Button } from "@/components/ui/button"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { AdParcel } from "@/lib/types/ad-parcel.type"
+import { createPublicClient, http } from "viem"
+import { baseSepolia } from "viem/chains"
 
 export default function WebsiteDetailPage({
   params,
@@ -46,74 +51,61 @@ export default function WebsiteDetailPage({
 }) {
   const { id } = params
   const { user, loading: userLoading, websites } = useUser()
+  const queryClient = useQueryClient()
 
-  const [website, setWebsite] = useState<Website | null>(null)
-  const [error, setError] = useState<string | null>(null)
   const [adBlockSettings, setAdBlockSettings] = useState({})
-  const [adParcels, setAdParcels] = useState<any[]>([])
 
-  const [loading, setLoading] = useState<boolean>(true)
-  const [loadingParcels, setLoadingParcels] = useState<boolean>(true)
+  async function fetchWebsite(): Promise<Website | null> {
+    if (!user || userLoading) return null
 
-  useEffect(() => {
-    const fetchWebsite = async () => {
-      if (!user || userLoading) return
-      const foundWebsite = websites.find((w) => w.id === id)
+    const foundWebsite = websites.find((w) => w.id === id)
 
-      if (foundWebsite) {
-        setWebsite(foundWebsite)
-      }
-
-      try {
-        const response = await fetch(
-          `/api/website?id=${id}&uid=${user.firebaseId}`
-        )
-        if (!response.ok) {
-          throw new Error("Failed to fetch website details")
-        }
-        const data = await response.json()
-        setWebsite(data)
-      } catch (error) {
-        setError("An error occurred while fetching the website details.")
-      } finally {
-        setLoading(false)
-      }
+    if (foundWebsite) {
+      return foundWebsite
     }
 
-    fetchWebsite()
-  }, [id, user, userLoading])
-
-  useEffect(() => {
-    const fetchAdParcels = async () => {
-      if (!user?.address || !website?.url) return
-
-      try {
-        const adParcels = await getAllPublisherAdParcels(
-          user.address,
-          website.url
-        )
-
-        setAdParcels(adParcels)
-      } catch (error) {
-        console.error("Failed to fetch ad parcels:", error)
-      } finally {
-        setLoadingParcels(false)
+    try {
+      const response = await fetch(
+        `/api/website?id=${id}&uid=${user.firebaseId}`
+      )
+      if (!response.ok) {
+        throw new Error("Failed to fetch website details")
       }
+      const data = await response.json()
+      return data
+    } catch (error) {
+      return null
     }
+  }
 
-    fetchAdParcels()
-  }, [user, website?.url])
+  const { data: website, isLoading: loadingWebsite } = useQuery<
+    Website | null,
+    Error
+  >({
+    queryKey: ["website", user?.firebaseId],
+    queryFn: () => fetchWebsite(),
+    enabled: !!user?.firebaseId,
+  })
+
+  async function fetchPublisherAdParcels(): Promise<AdParcel[]> {
+    if (!user?.address || !website?.url) return []
+    return await getAllPublisherAdParcels(user.address, website.url)
+  }
+
+  const { data: publisherParcels, isLoading: loadingParcels } = useQuery<
+    AdParcel[],
+    Error
+  >({
+    queryKey: ["publisherParcels", website?.url],
+    queryFn: () => fetchPublisherAdParcels(),
+  })
 
   async function createAdParcel() {
-    setLoading(true)
-
     if (!user) {
-      setLoading(false)
       throw new Error("User not found !")
     }
 
     if (!website?.ipfsHash) {
-      setLoading(false)
       throw new Error("Website hash not found !")
     }
 
@@ -151,59 +143,52 @@ export default function WebsiteDetailPage({
 
       const transactionHash = await response.json()
 
-      toast({
-        title: "Ad parcel created !",
-        description: "See on block explorer",
-        action: (
-          <ToastAction
-            altText="See details"
-            onClick={() =>
-              window.open(
-                `${BASE_ETHERSCAN_TX_URL}/${transactionHash}`,
-                "_blank"
-              )
-            }
-          >
-            See details
-          </ToastAction>
-        ),
+      const publicClient = createPublicClient({
+        chain: baseSepolia,
+        transport: http(process.env.NEXT_PUBLIC_ALCHEMY_BASE_SEPOLIA_RPC_URL),
       })
 
-      setAdParcels((prevAdParcels) => [
-        ...prevAdParcels,
-        {
-          id: adParcelId.toString(),
-          bid: 0,
-          minBid: 1,
-          owner: user.address,
-          renter: zeroAddress,
-          traitsHash,
-          websiteInfoHash: website.ipfsHash,
-          active: true,
+      publicClient.watchContractEvent({
+        address: LEMONADS_CONTRACT_ADDRESS,
+        abi: LEMONADS_CONTRACT_ABI,
+        eventName: "AdParcelCreated",
+        args: { parcelId: BigInt(adParcelId) },
+        onLogs: (logs: any) => {
+          toast({
+            title: "Ad parcel created !",
+            description: "See on block explorer",
+            action: (
+              <ToastAction
+                altText="See details"
+                onClick={() =>
+                  window.open(
+                    `${BASE_ETHERSCAN_TX_URL}/${transactionHash}`,
+                    "_blank"
+                  )
+                }
+              >
+                See details
+              </ToastAction>
+            ),
+          })
+
+          queryClient.invalidateQueries({
+            queryKey: ["publisherParcels", website?.url],
+          })
         },
-      ])
+      })
     } catch (error) {
       toast({
         title: "Error during parcel creation",
         description: `Please try again. Error: ${error}`,
       })
-    } finally {
-      setLoading(false)
     }
   }
 
-  if (loading || userLoading) {
+  if (loadingParcels || userLoading || loadingWebsite) {
     return (
       <div className="min-h-screen flex items-center justify-center pt-20">
         <LoaderSmall />
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-3xl pt-20">
-        {error}
       </div>
     )
   }
@@ -234,7 +219,10 @@ export default function WebsiteDetailPage({
         {loadingParcels ? (
           <LoaderSmall />
         ) : (
-          <AdParcelDataTable columns={adParcelColumns} data={adParcels} />
+          <AdParcelDataTable
+            columns={adParcelColumns}
+            data={publisherParcels || []}
+          />
         )}
       </div>
     </div>
