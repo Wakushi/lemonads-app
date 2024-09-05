@@ -15,6 +15,8 @@ export type AdParcel = {
   contentHash?: string
   websiteInfoHash?: string
   website?: Website
+  bidUsd?: number
+  minBidUsd?: number
   active: boolean
 }
 

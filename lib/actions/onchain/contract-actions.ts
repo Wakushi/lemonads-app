@@ -171,9 +171,8 @@ export async function writeRentAdParcel({
     const result = await writeContract(config, writeRentAdParcelRequest)
 
     return result
-  } catch (error) {
-    console.error("Error renting ad parcel:", error)
-    throw new Error("Failed to rent ad parcel")
+  } catch (error: any) {
+    throw new Error(error.metaMessages[0])
   }
 }
 
@@ -371,8 +370,13 @@ export async function getAllParcels(
       }
     }
 
+    const bidUsd = await getPriceUsd(adParcel.bid)
+    const minBidUsd = await getPriceUsd(adParcel.minBid)
+
     adParcels.push({
       ...adParcel,
+      bidUsd,
+      minBidUsd,
       owner: adParcel.owner.toLowerCase() as Address,
       renter: adParcel.renter.toLowerCase() as Address,
     })
@@ -391,7 +395,14 @@ export async function getEthPrice(): Promise<string> {
   return formatUnits(price, 8)
 }
 
+export async function getPriceUsd(ethAmount: number): Promise<number> {
+  const ethPrice = await getEthPrice()
+  const price = +ethPrice * (ethAmount / 10e17)
+  return price
+}
+
 export enum ErrorType {
   Lemonads__NoPayableParcel = "Lemonads__NoPayableParcel",
   Lemonads__NotEnoughTimePassed = "Lemonads__NotEnoughTimePassed",
+  Lemonads__BidLowerThanCurrent = "Lemonads__BidLowerThanCurrent",
 }

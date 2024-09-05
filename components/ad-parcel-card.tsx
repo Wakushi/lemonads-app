@@ -12,7 +12,12 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { BiSolidCategory, BiSolidTrafficCone } from "react-icons/bi"
 import { AiOutlineCheckCircle } from "react-icons/ai"
-import { FaExternalLinkAlt, FaLanguage, FaGlobeAmericas } from "react-icons/fa"
+import {
+  FaExternalLinkAlt,
+  FaLanguage,
+  FaGlobeAmericas,
+  FaEthereum,
+} from "react-icons/fa"
 import {
   Dialog,
   DialogContent,
@@ -36,7 +41,11 @@ import {
 } from "@/components/ui/popover"
 
 import { Input } from "@/components/ui/input"
-import { writeRentAdParcel } from "@/lib/actions/onchain/contract-actions"
+import {
+  ErrorType,
+  getEthPrice,
+  writeRentAdParcel,
+} from "@/lib/actions/onchain/contract-actions"
 import { User, UserType } from "@/lib/types/user.type"
 import { AdContent } from "@/lib/types/ad-content.type"
 import { pinAdContent } from "@/lib/actions/client/pinata-actions"
@@ -47,6 +56,7 @@ import { FiUsers, FiClock, FiBarChart, FiActivity } from "react-icons/fi"
 import { FaEye } from "react-icons/fa"
 import clsx from "clsx"
 import { useRouter } from "next/navigation"
+import { useToast } from "./ui/use-toast"
 
 interface AdParcelCardProps {
   parcel: AdParcel
@@ -60,7 +70,9 @@ export default function AdParcelCard({
   adCampaigns,
 }: AdParcelCardProps) {
   const router = useRouter()
-  const [newBid, setNewBid] = useState<string>("")
+  const { toast } = useToast()
+
+  const [newBidUsd, setNewBidUsd] = useState<string>("")
   const [loading, setLoading] = useState<boolean>(false)
   const [success, setSuccess] = useState<boolean>(false)
   const [selectedCampaignTitle, setSelectedCampaignTitle] = useState<string>("")
@@ -80,16 +92,32 @@ export default function AdParcelCard({
     try {
       const contentHash = await pinAdContent(adContent, +parcel.id)
 
+      const ethPriceUsd = await getEthPrice()
+      const newBidEth = +newBidUsd / +ethPriceUsd
+
       await writeRentAdParcel({
         account: user.address,
         adParcelId: +parcel.id,
-        newBid: +newBid,
+        newBid: +newBidEth,
         contentHash: contentHash,
       })
 
       setSuccess(true)
-    } catch (error) {
-      console.error("Failed to rent parcel: ", error)
+    } catch (error: any) {
+      const errorType = error.message.slice(
+        7,
+        error.message.length - 2
+      ) as ErrorType
+
+      if (errorType === ErrorType.Lemonads__BidLowerThanCurrent) {
+        toast({
+          title: "Error",
+          description: `Bid entered is lower than current bid or than minimum bid for this ad parcel. 
+          Min. bid: ${parcel.minBidUsd?.toFixed(2)}$ /
+          Current bid: ${parcel.bidUsd?.toFixed(2)}$`,
+          variant: "destructive",
+        })
+      }
     } finally {
       setLoading(false)
     }
@@ -114,16 +142,20 @@ export default function AdParcelCard({
             <FaExternalLinkAlt className="w-5 h-5 text-brand hover:text-brand-dark transition-colors duration-200" />
           </Link>
         </div>
-        <div className="text-md text-gray-800 mt-1">
+        <div className="text-md text-gray-800 mt-1 flex gap-2">
           Bid:{" "}
-          <span className="font-semibold">
-            {formatEther(BigInt(parcel.bid))} ETH
+          <span className="font-semibold">{parcel.bidUsd?.toFixed(2)}$</span>{" "}
+          <span className="flex items-center">
+            ({Number(formatEther(BigInt(parcel.bid))).toFixed(7)} <FaEthereum />
+            )
           </span>
         </div>
-        <div className="text-sm text-gray-600">
-          Min Bid:{" "}
-          <span className="font-medium">
-            {formatEther(BigInt(parcel.minBid))} ETH
+        <div className="text-md text-gray-800 mt-1 flex gap-2">
+          Min bid:{" "}
+          <span className="font-semibold">{parcel.minBidUsd?.toFixed(2)}$</span>{" "}
+          <span className="flex items-center">
+            ({Number(formatEther(BigInt(parcel.minBid))).toFixed(7)}{" "}
+            <FaEthereum />)
           </span>
         </div>
       </CardHeader>
@@ -298,13 +330,12 @@ export default function AdParcelCard({
                       </Link>
                     )}
 
-                    <Label>Amount paid per click</Label>
+                    <Label>Amount paid per click (USD)</Label>
                     <Input
                       id="bid"
                       type="number"
-                      placeholder={formatEther(BigInt(parcel.bid))}
-                      value={newBid}
-                      onChange={(e) => setNewBid(e.target.value)}
+                      value={newBidUsd}
+                      onChange={(e) => setNewBidUsd(e.target.value)}
                       className="col-span-3"
                     />
                   </div>
