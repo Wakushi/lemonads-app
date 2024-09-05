@@ -217,7 +217,7 @@ export default function WebsiteDetailPage({
   }
 
   return (
-    <div className="px-10 flex flex-col gap-2 w-full h-[90vh] pt-[10rem]">
+    <div className="px-10 flex flex-col gap-4 w-full h-[90vh] pt-[10rem]">
       <Link
         className="text-brand text-xl absolute top-[6rem] left-10 flex items-center gap-2 opacity-80 hover:opacity-100 hover:gap-1 hover:translate-x-[-2px] transition-all duration-500"
         href="/publisher?view=adContent"
@@ -230,7 +230,7 @@ export default function WebsiteDetailPage({
         createAdParcel={createAdParcel}
         setAdBlockSettings={setAdBlockSettings}
       />
-      <div>
+      <div className="pt-8">
         {loadingParcels ? (
           <LoaderSmall />
         ) : (
@@ -251,41 +251,41 @@ function WebsiteDetails({
   setAdBlockSettings: (state: any) => void
 }) {
   return (
-    <div className="w-full flex gap-4 bg-white shadow-md p-6 rounded-lg border border-brand">
+    <div className="w-full flex bg-brand text-white shadow-md p-6 rounded-lg">
       <div className="flex items-center gap-2 mr-8">
         <h1 className="text-3xl font-bold">{website.name}</h1>
 
         <div className="flex text-xl items-center">
           <a href={website.url} target="_blank" rel="noopener noreferrer">
-            <FaExternalLinkAlt className="text-brand" />
+            <FaExternalLinkAlt className="text-white" />
           </a>
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-8">
         <div className="flex items-center">
-          <BiCategory className="text-gray-700 text-lg" />
-          <span className="ml-1 text-gray-600">{website.category}</span>
+          <BiCategory className="text-xl" />
+          <span className="font-semibold ml-1">{website.category}</span>
         </div>
 
         <div className="flex items-center">
-          <AiOutlineLineChart className="text-yellow-500 text-lg" />{" "}
-          <span className="ml-1 text-gray-600">{website.trafficAverage}</span>
+          <AiOutlineLineChart className=" text-xl" />{" "}
+          <span className="font-semibold ml-1 ">{website.trafficAverage}</span>
         </div>
 
         <div className="flex items-center">
-          <FaLanguage className="text-green-600 text-lg" />
-          <span className="ml-1 text-gray-600">{website.language}</span>
+          <FaLanguage className=" text-xl" />
+          <span className="font-semibold ml-1 ">{website.language}</span>
         </div>
 
         <div className="flex items-center">
-          <FaGlobeAmericas className="text-blue-500 text-lg" />
-          <span className="ml-1 text-gray-600">{website.geoReach}</span>
+          <FaGlobeAmericas className=" text-xl" />
+          <span className="font-semibold ml-1 ">{website.geoReach}</span>
         </div>
 
         <div className="flex items-center">
-          <FaTags className="text-purple-500 text-lg" />
-          <span className="ml-1 text-gray-600">
+          <FaTags className=" text-xl" />
+          <span className="font-semibold ml-1 ">
             {website.keywords.join(", ")}
           </span>
         </div>
@@ -309,7 +309,9 @@ function CreateAdParcelDialog({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button className="ml-auto bg-brand">Add parcel</Button>
+        <Button className="ml-auto bg-white text-brand hover:bg-slate-50 hover:shadow-lg transition-all duration-200 ease-in-out">
+          Add parcel
+        </Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="max-w-7xl w-full h-[90vh] mx-auto overflow-y-auto p-10">
         <AlertDialogHeader>

@@ -15,7 +15,7 @@ import {
 } from "@/lib/constants"
 import { simulateContract, writeContract, readContract } from "@wagmi/core"
 import { config } from "@/providers"
-import { getWebsiteByHash } from "../client/pinata-actions"
+import { getAdContentByHash, getWebsiteByHash } from "../client/pinata-actions"
 import { getWebsiteAnalytics } from "../client/firebase-actions"
 
 interface WriteAdParcelArgs {
@@ -65,36 +65,6 @@ export async function writeAdParcel({
   }
 }
 
-export async function getAllPublisherAdParcels(
-  address: Address,
-  websiteUrl?: string
-): Promise<AdParcel[]> {
-  const adParcelIds: any = await readContract(config, {
-    address: LEMONADS_CONTRACT_ADDRESS,
-    abi: LEMONADS_CONTRACT_ABI,
-    functionName: "getOwnerParcels",
-    args: [address],
-  })
-
-  const adParcels: AdParcel[] = []
-
-  for (let i = 0; i < adParcelIds.length; i++) {
-    const adParcel = await getAdParcelById(Number(adParcelIds[i]))
-
-    if (
-      !adParcel ||
-      !adParcel.website ||
-      (websiteUrl && adParcel.website && adParcel.website.url !== websiteUrl)
-    ) {
-      continue
-    }
-
-    adParcels.push(adParcel)
-  }
-
-  return adParcels
-}
-
 export async function getAdParcelById(
   adParcelId: number
 ): Promise<AdParcel | null> {
@@ -107,12 +77,19 @@ export async function getAdParcelById(
 
   const website = await getWebsiteByHash(adParcel.websiteInfoHash)
 
+  let content
+
+  if (adParcel.contentHash) {
+    content = await getAdContentByHash(adParcel.contentHash)
+  }
+
   return {
     ...adParcel,
     id: adParcelId,
     bid: Number(adParcel.bid),
     minBid: Number(adParcel.minBid),
     website,
+    content,
   } as AdParcel
 }
 
@@ -368,6 +345,45 @@ export async function getAllParcels(
 
         adParcel.website = websiteInfo
       }
+    }
+
+    const bidUsd = await getPriceUsd(adParcel.bid)
+    const minBidUsd = await getPriceUsd(adParcel.minBid)
+
+    adParcels.push({
+      ...adParcel,
+      bidUsd,
+      minBidUsd,
+      owner: adParcel.owner.toLowerCase() as Address,
+      renter: adParcel.renter.toLowerCase() as Address,
+    })
+  }
+
+  return adParcels
+}
+
+export async function getAllPublisherAdParcels(
+  address: Address,
+  websiteUrl?: string
+): Promise<AdParcel[]> {
+  const adParcelIds: any = await readContract(config, {
+    address: LEMONADS_CONTRACT_ADDRESS,
+    abi: LEMONADS_CONTRACT_ABI,
+    functionName: "getOwnerParcels",
+    args: [address],
+  })
+
+  const adParcels: AdParcel[] = []
+
+  for (let i = 0; i < adParcelIds.length; i++) {
+    const adParcel = await getAdParcelById(Number(adParcelIds[i]))
+
+    if (
+      !adParcel ||
+      !adParcel.website ||
+      (websiteUrl && adParcel.website && adParcel.website.url !== websiteUrl)
+    ) {
+      continue
     }
 
     const bidUsd = await getPriceUsd(adParcel.bid)
