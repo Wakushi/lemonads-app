@@ -18,13 +18,15 @@ import {
 import { toast } from "@/components/ui/use-toast"
 import { AdContent } from "@/lib/types/ad-content.type"
 import Image from "next/image"
-import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
+
+import { moderateImage } from "@/lib/actions/client/aws-actions"
+import LoaderSmall from "./ui/loader-small/loader-small"
+import { IoWarningOutline } from "react-icons/io5"
 
 const adContentSchema = z.object({
   file: z.instanceof(File, { message: "File is required" }),
@@ -35,24 +37,19 @@ const adContentSchema = z.object({
 
 type AdContentFormValues = z.infer<typeof adContentSchema>
 
-interface AdContentPageProps {
-  loading: boolean
-  setLoading: (bool: boolean) => void
-}
-
-export default function AdContentPage({
-  loading,
-  setLoading,
-}: AdContentPageProps) {
+export default function AdContentPage() {
   const { user } = useUser()
   const [adContents, setAdContents] = useState<AdContent[]>([])
+  const [moderationLabels, setModerationLabels] = useState<string[]>([])
+  const [isModerationAlertOpen, setIsModerationAlertOpen] = useState(false)
+  const [loadingAdContents, setLoadingAdContents] = useState(true)
 
   const {
     register,
-    handleSubmit,
     formState: { errors, isValid },
     reset,
     setValue,
+    watch,
   } = useForm<AdContentFormValues>({
     resolver: zodResolver(adContentSchema),
     mode: "onChange",
@@ -63,6 +60,7 @@ export default function AdContentPage({
       if (user?.firebaseId) {
         const contents = await getAdContents(user.firebaseId)
         setAdContents(contents)
+        setLoadingAdContents(false)
       }
     }
 
@@ -76,18 +74,39 @@ export default function AdContentPage({
     }
   }
 
-  const onSubmit = async (data: AdContentFormValues) => {
-    if (!user || !data.file) return
+  async function onSubmit() {
+    const formValues = watch()
 
-    setLoading(true)
+    if (!user || !formValues.file) return
 
     try {
+      toast({
+        title: "Verifying content...",
+        description:
+          "We're checking if the content follows our moderation rules..",
+        action: <LoaderSmall color="#000" />,
+      })
+
+      const detectedLabels = await moderateImage(formValues.file)
+
+      if (detectedLabels?.length) {
+        setModerationLabels(detectedLabels)
+        setIsModerationAlertOpen(true)
+        return
+      }
+
+      toast({
+        title: "Content verified !",
+        description: "Uploading your ad campaign...",
+        action: <LoaderSmall color="#000" />,
+      })
+
       const createdAdContent = await createAdContent({
         user,
-        file: data.file,
-        title: data.title,
-        description: data.description,
-        linkUrl: data.linkUrl,
+        file: formValues.file,
+        title: formValues.title,
+        description: formValues.description,
+        linkUrl: formValues.linkUrl,
       })
 
       if (createdAdContent) {
@@ -105,9 +124,11 @@ export default function AdContentPage({
         variant: "destructive",
       })
       console.error("Error creating ad content:", error)
-    } finally {
-      setLoading(false)
     }
+  }
+
+  if (loadingAdContents) {
+    return <LoaderSmall />
   }
 
   return (
@@ -150,10 +171,7 @@ export default function AdContentPage({
                 Fill in the details below to create a new ad content.
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="flex flex-col gap-4"
-            >
+            <form className="flex flex-col gap-4">
               <Input
                 type="file"
                 className="border p-2 rounded"
@@ -193,15 +211,68 @@ export default function AdContentPage({
               )}
 
               <AlertDialogFooter>
-                <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
-                <AlertDialogAction type="submit" disabled={!isValid || loading}>
-                  {loading ? "Creating..." : "Create"}
+                <AlertDialogCancel disabled={loadingAdContents}>
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={onSubmit}
+                  disabled={!isValid || loadingAdContents}
+                >
+                  {loadingAdContents ? "Creating..." : "Create"}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </form>
           </AlertDialogContent>
         </AlertDialog>
       </div>
+      <ModerationWarningAlert
+        open={isModerationAlertOpen}
+        setOpen={setIsModerationAlertOpen}
+        moderationLabels={moderationLabels}
+      />
     </div>
+  )
+}
+
+function ModerationWarningAlert({
+  open,
+  setOpen,
+  moderationLabels,
+}: {
+  open: boolean
+  setOpen: (state: boolean) => void
+  moderationLabels: string[]
+}) {
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Content Moderation Warning</AlertDialogTitle>
+          <AlertDialogDescription>
+            The uploaded image contains the following inappropriate content:
+          </AlertDialogDescription>
+          <div>
+            <div className="flex flex-col gap-1 mb-2">
+              {moderationLabels.map((label, idx) => (
+                <div key={label} className="flex items-center gap-1">
+                  <IoWarningOutline className="text-red-500" />
+                  <span key={idx} className="text-red-500">
+                    {label}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <AlertDialogDescription>
+              Please upload an image that adheres to our content guidelines.
+            </AlertDialogDescription>
+          </div>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogAction onClick={() => setOpen(false)}>
+            I understand
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }

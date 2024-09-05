@@ -5,15 +5,12 @@
 
 .bar {
   display: inline-block;
-  width: 3px;
   height: 20px;
-  background-color: #f59e0b;
   border-radius: 10px;
   animation: scale-up4 1s linear infinite;
 }
 
 .bar:nth-child(2) {
-  height: 35px;
   margin: 0 5px;
   animation-delay: 0.25s;
 }

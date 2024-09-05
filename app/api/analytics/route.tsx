@@ -54,12 +54,12 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         if (!row.metricValues) return
         return {
           activeUsers: row.metricValues[0].value,
-          engagementRate: Number(row.metricValues[1].value) * 100,
+          engagementRate: (Number(row.metricValues[1].value) * 100).toFixed(2),
           sessions: row.metricValues[2].value,
           sessionsPerUser: row.metricValues[3].value,
           averageSessionDuration: Math.ceil(Number(row.metricValues[4].value)),
           screenPageViews: row.metricValues[5].value,
-          bounceRate: Number(row.metricValues[6].value) * 100,
+          bounceRate: (Number(row.metricValues[6].value) * 100).toFixed(2),
         }
       })
 

@@ -50,12 +50,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       Boolean
     )
 
-    console.log("Found labels:", JSON.stringify(labels))
-
     const foundForbiddenLabels = labels.filter(
       (label) => label && forbiddenLabels.includes(label)
     )
-    console.log("Found forbidden labels:", JSON.stringify(foundForbiddenLabels))
 
     return NextResponse.json({ foundForbiddenLabels })
   } catch (error) {

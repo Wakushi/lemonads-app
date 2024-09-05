@@ -58,7 +58,7 @@ export default function AnnouncerDashboard({
 
     switch (activeComponent) {
       case "adContent":
-        return <AdContentPage loading={loading} setLoading={setLoading} />
+        return <AdContentPage />
       case "stats":
         return <AdStats />
       case "adParcels":
