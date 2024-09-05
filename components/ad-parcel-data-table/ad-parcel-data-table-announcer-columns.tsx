@@ -3,7 +3,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { AdParcel } from "@/lib/types/ad-parcel.type"
 import Copy from "../ui/copy"
 import { formatEther } from "viem"
-import { shortenAddress } from "@/lib/utils"
+
 import { PiEmpty } from "react-icons/pi"
 import { FaEthereum } from "react-icons/fa"
 import Link from "next/link"
@@ -22,11 +22,15 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { useState } from "react"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useUser } from "@/service/user.service"
 import { getAdContents } from "@/lib/actions/client/firebase-actions"
 import { AdContent } from "@/lib/types/ad-content.type"
-import { FaGear } from "react-icons/fa6"
+import { toast } from "@/components/ui/use-toast"
+import { FaCircleCheck, FaGear } from "react-icons/fa6"
+import { writeEditAdParcelContent } from "@/lib/actions/onchain/contract-actions"
+import { pinAdContent } from "@/lib/actions/client/pinata-actions"
+import LoaderSmall from "../ui/loader-small/loader-small"
 
 export const adParcelAnnouncerColumns: ColumnDef<AdParcel>[] = [
   {
@@ -125,13 +129,20 @@ export const adParcelAnnouncerColumns: ColumnDef<AdParcel>[] = [
     id: "actions",
     header: "Actions",
     cell: ({ row }) => {
-      const [selectedCampaignTitle, setSelectedCampaignTitle] = useState("")
+      const [selectedCampaignId, setSelectedCampaignId] = useState<string>("")
+      const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false)
       const { user } = useUser()
+      const queryClient = useQueryClient()
 
-      const { data: adContent } = useQuery<AdContent[], Error>({
-        queryKey: ["adContent", user?.firebaseId],
+      const { data: adContents } = useQuery<AdContent[], Error>({
+        queryKey: ["adContents", user?.firebaseId],
         queryFn: async () => {
-          return user?.firebaseId ? await getAdContents(user.firebaseId) : []
+          if (!user?.firebaseId) return []
+          const adContents = await getAdContents(user.firebaseId)
+          return adContents.filter(
+            (adContent) =>
+              adContent.firebaseId !== row.original.content?.firebaseId
+          )
         },
       })
 
@@ -140,30 +151,71 @@ export const adParcelAnnouncerColumns: ColumnDef<AdParcel>[] = [
         // Implement release logic
       }
 
-      const handleUpdateCampaign = () => {
-        console.log("Update campaign to:", selectedCampaignTitle)
-        // Implement update logic
+      async function handleUpdateCampaign() {
+        if (!user?.address) {
+          return
+        }
+
+        const adContent = adContents?.find(
+          (a) => a.firebaseId === selectedCampaignId
+        )
+
+        if (!adContent) return
+
+        setShowSettingsModal(false)
+
+        toast({
+          title: "Updating parcel...",
+          description: "Adding new ad campaign...",
+          action: <LoaderSmall color="#000" scale={0.4} />,
+        })
+
+        try {
+          const contentHash = await pinAdContent(adContent, +row.original.id)
+
+          await writeEditAdParcelContent({
+            account: user?.address,
+            adParcelId: +row.original.id,
+            contentHash: contentHash,
+          })
+
+          toast({
+            title: "Success",
+            description: "Ad content updated !",
+            action: <FaCircleCheck className="text-green-600" />,
+          })
+
+          queryClient.invalidateQueries({
+            queryKey: ["rentedParcels", user?.address],
+          })
+        } catch (error: any) {
+          toast({
+            title: "Error",
+            description: "Error updating ad parcel campaing. Please try again.",
+            variant: "destructive",
+          })
+        }
       }
 
       return (
         <div className="space-y-2">
-          <Dialog>
-            <DialogTrigger>
+          <Dialog open={showSettingsModal} onOpenChange={setShowSettingsModal}>
+            <DialogTrigger onClick={() => setShowSettingsModal(true)}>
               <FaGear />
             </DialogTrigger>
             <DialogContent>
               <DialogTitle>Ad parcel settings</DialogTitle>
-              {!!adContent && !!adContent.length ? (
+              {!!adContents && !!adContents.length ? (
                 <>
-                  <Select onValueChange={setSelectedCampaignTitle}>
+                  <Select onValueChange={setSelectedCampaignId}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a campaign" />
                     </SelectTrigger>
                     <SelectContent>
-                      {adContent.map((campaign, index) => (
+                      {adContents.map((campaign) => (
                         <SelectItem
-                          key={campaign.title + index}
-                          value={campaign.title}
+                          key={campaign.firebaseId}
+                          value={campaign.firebaseId!}
                         >
                           {campaign.title}
                         </SelectItem>
@@ -173,7 +225,7 @@ export const adParcelAnnouncerColumns: ColumnDef<AdParcel>[] = [
                   <Button
                     onClick={handleUpdateCampaign}
                     className="w-full mt-2"
-                    disabled={!selectedCampaignTitle}
+                    disabled={!selectedCampaignId}
                   >
                     Update Campaign
                   </Button>

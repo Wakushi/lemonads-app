@@ -200,6 +200,52 @@ export async function writeEditAdParcelTraits({
   }
 }
 
+interface WriteEditAdParcelContentArg {
+  account: Address
+  adParcelId: number
+  contentHash: string
+}
+
+export async function writeEditAdParcelContent({
+  account,
+  adParcelId,
+  contentHash,
+}: WriteEditAdParcelContentArg) {
+  if (!web3AuthInstance.provider) {
+    throw new Error("Failed to update ad parcel: missing provider")
+  }
+
+  if (!account) {
+    throw new Error("Failed to update ad parcel: missing account")
+  }
+
+  try {
+    const walletClient = createWalletClient({
+      account,
+      chain: RPC.getViewChain(web3AuthInstance.provider),
+      transport: custom(web3AuthInstance.provider),
+    })
+
+    const { request: writeEditAdParcelContentRequest } = await simulateContract(
+      config,
+      {
+        account: walletClient.account,
+        address: LEMONADS_CONTRACT_ADDRESS,
+        abi: LEMONADS_CONTRACT_ABI,
+        functionName: "updateAdContent",
+        args: [adParcelId, contentHash],
+      }
+    )
+
+    const result = await writeContract(config, writeEditAdParcelContentRequest)
+
+    return result
+  } catch (error) {
+    console.error("Error updating ad parcel content:", error)
+    throw new Error("Failed to update ad parcel")
+  }
+}
+
 export async function runAggregateClicks(account: Address) {
   if (!web3AuthInstance.provider) {
     throw new Error("Missing provider")
