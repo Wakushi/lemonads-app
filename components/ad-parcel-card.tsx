@@ -57,6 +57,7 @@ import { FaEye } from "react-icons/fa"
 import clsx from "clsx"
 import { useRouter } from "next/navigation"
 import { useToast } from "./ui/use-toast"
+import Copy from "./ui/copy"
 
 interface AdParcelCardProps {
   parcel: AdParcel
@@ -137,6 +138,10 @@ export default function AdParcelCard({
                 <AiOutlineCheckCircle className="text-yellow-500 text-xl" />
               </TooltipWrapper>
             )}
+            <div className="flex gap-1">
+              <span className="text-sm">#{parcel.id}</span>
+              <Copy contentToCopy={parcel.id} />
+            </div>
           </div>
           <Link href={parcel.website?.url || "#"} target="_blank">
             <FaExternalLinkAlt className="w-5 h-5 text-brand hover:text-brand-dark transition-colors duration-200" />

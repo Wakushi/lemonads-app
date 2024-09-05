@@ -62,7 +62,6 @@ export default function AdContentPage({
     async function fetchAdContents() {
       if (user?.firebaseId) {
         const contents = await getAdContents(user.firebaseId)
-        console.log(contents)
         setAdContents(contents)
       }
     }

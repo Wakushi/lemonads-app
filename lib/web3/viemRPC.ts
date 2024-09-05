@@ -100,7 +100,6 @@ const sendTransaction = async (provider: IProvider): Promise<any> => {
       to: destination,
       value: amount,
     })
-    console.log(hash)
     const receipt = await publicClient.waitForTransactionReceipt({ hash })
 
     return JSON.stringify(
@@ -128,8 +127,6 @@ const signMessage = async (provider: IProvider): Promise<any> => {
       account: address[0],
       message: originalMessage,
     })
-
-    console.log(hash)
 
     return hash.toString()
   } catch (error) {

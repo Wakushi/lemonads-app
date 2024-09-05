@@ -54,7 +54,6 @@ export default function DebugDrawer() {
     setLoading(true)
     const adParcels = await getAllPublisherAdParcels(user?.address)
     setLoading(false)
-    console.log("Ad parcels: ", adParcels)
   }
 
   async function onRentParcel(adParcelId: number) {

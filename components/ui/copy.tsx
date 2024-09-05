@@ -21,7 +21,7 @@ export default function Copy({ contentToCopy, tooltipPosition }: CopyProps) {
   }
 
   return (
-    <TooltipWrapper side={tooltipPosition} message="Copier">
+    <TooltipWrapper side={tooltipPosition} message="Copy">
       <IoCopyOutline onClick={(e) => copyToClipboard(e)} />
     </TooltipWrapper>
   )
