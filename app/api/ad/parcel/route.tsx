@@ -36,8 +36,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({ result })
   } catch (error) {
+    console.log(error)
     return NextResponse.json(
-      { error: "Failed to create parcel" },
+      { error: "Failed to create parcel" + error },
       { status: 500 }
     )
   }
