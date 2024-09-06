@@ -15,7 +15,7 @@ import {
   getEthPrice,
   getLastCronTimestamp,
   getPayableAdParcels,
-  getRenterFundsAmount,
+  getRenterBudgetAmountByParcel,
   runAggregateClicks,
   runPayParcelOwners,
   writeRentAdParcel,
@@ -185,10 +185,10 @@ export default function DebugDrawer() {
   }
 
   async function logRenterUserFunds() {
-    if (!user?.address) return
+    // if (!user?.address) return
 
-    const funds = await getRenterFundsAmount(user?.address)
-    console.log("Funds: ", funds)
+    // const funds = await getRenterBudgetAmountByParcel(user?.address) // DEPRECATED
+    // console.log("Funds: ", funds)
   }
 
   async function logEthPriceInUsd() {

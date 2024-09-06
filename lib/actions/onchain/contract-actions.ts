@@ -311,14 +311,15 @@ export async function runPayParcelOwners(account: Address) {
   }
 }
 
-export async function getRenterFundsAmount(
-  renterAddress: Address
+export async function getRenterBudgetAmountByParcel(
+  renterAddress: Address,
+  adParcelId: number
 ): Promise<string> {
   const fundAmount: any = await readContract(config, {
     address: LEMONADS_CONTRACT_ADDRESS,
     abi: LEMONADS_CONTRACT_ABI,
-    functionName: "getRenterFundsAmount",
-    args: [renterAddress],
+    functionName: "getRenterBudgetAmountByParcel",
+    args: [adParcelId, renterAddress],
   })
 
   return formatEther(fundAmount)

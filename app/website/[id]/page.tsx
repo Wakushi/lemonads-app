@@ -121,7 +121,7 @@ export default function WebsiteDetailPage({
     })
 
     const traitsHash = await pinAdParcelTraits(traits, adParcelId.toString())
-    const minBid = 0.0001
+    const minBid = 0.00002
 
     toast({
       title: "Uploading ad parcel...",

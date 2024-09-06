@@ -16,6 +16,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const body = await req.json()
   const { uuid, notificationList } = body
 
+  console.log("uuid: ", uuid)
+  console.log("notificationList: ", notificationList)
+
   const authorization = headers().get("authorization")
   const token = authorization && authorization.split(" ")[1]
   const secret = process.env.SECRET
@@ -37,18 +40,28 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   try {
     const success = await processUuid(uuid, async () => {
-      const uniqueNotificationList = [...new Set(notificationList)] as Address[]
+      const provider = new ethers.JsonRpcProvider(
+        process.env.NEXT_PUBLIC_ALCHEMY_BASE_SEPOLIA_RPC_URL
+      )
 
-      for (let renterAddress of uniqueNotificationList) {
-        if (!renterAddress) continue
+      const uniqueNotifications = []
 
-        const renter = await getUserByAddress(renterAddress.toLowerCase())
+      for (let i = 0; i < notificationList.length; i += 2) {
+        const renterAddress = notificationList[i]
+        const parcelId = notificationList[i + 1]
 
-        if (!renter || !renter.email) continue
+        if (!renterAddress || !parcelId) continue
 
-        const provider = new ethers.JsonRpcProvider(
-          process.env.NEXT_PUBLIC_ALCHEMY_BASE_SEPOLIA_RPC_URL
+        uniqueNotifications.push({ renterAddress, parcelId })
+      }
+
+      for (let notification of uniqueNotifications) {
+        console.log("notification: ", notification)
+
+        const renter = await getUserByAddress(
+          notification.renterAddress.toLowerCase()
         )
+        if (!renter || !renter.email) continue
 
         const contract = new ethers.Contract(
           LEMONADS_CONTRACT_ADDRESS,
@@ -56,12 +69,21 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           provider
         )
 
-        const balance = await contract.getRenterFundsAmount(renter.address)
+        const budget = await contract.getRenterBudgetAmountByParcel(
+          notification.parcelId,
+          renter.address
+        )
+
+        console.log("budget: ", budget)
 
         await sendMail({
           to: renter.email!,
-          subject: "Lemonads - Low funds",
-          template: getTemplate(renter, formatEther(balance)),
+          subject: "Lemonads - Low funds for Parcel",
+          template: getTemplate(
+            renter,
+            formatEther(budget),
+            notification.parcelId
+          ),
         })
       }
     })

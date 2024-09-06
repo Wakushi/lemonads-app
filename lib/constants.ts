@@ -6,7 +6,7 @@ export const BASE_ETHERSCAN_TX_URL = "https://sepolia.basescan.org/tx"
 export const CONTACT_EMAIL = "zoukushimetazord@gmail.com"
 
 export const LEMONADS_CONTRACT_ADDRESS =
-  "0x0fB3B9D61A5189fD227F578664C26B61599B8135"
+  "0xCA8b7A0D2f50d2F6Db79b3Ae784b15e111115fBA"
 
 export const LEMONADS_CONTRACT_ABI = [
   {
@@ -62,8 +62,8 @@ export const LEMONADS_CONTRACT_ABI = [
   },
   {
     type: "function",
-    name: "addFunds",
-    inputs: [],
+    name: "addBudget",
+    inputs: [{ name: "_parcelId", type: "uint256", internalType: "uint256" }],
     outputs: [],
     stateMutability: "payable",
   },
@@ -143,7 +143,7 @@ export const LEMONADS_CONTRACT_ABI = [
   {
     type: "function",
     name: "getClickPerAdParcel",
-    inputs: [{ name: "_adParcelId", type: "uint256", internalType: "uint256" }],
+    inputs: [{ name: "_parcelId", type: "uint256", internalType: "uint256" }],
     outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
     stateMutability: "view",
   },
@@ -152,6 +152,13 @@ export const LEMONADS_CONTRACT_ABI = [
     name: "getContentHash",
     inputs: [{ name: "_parcelId", type: "uint256", internalType: "uint256" }],
     outputs: [{ name: "", type: "string", internalType: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getEarningsByAdParcel",
+    inputs: [{ name: "_parcelId", type: "uint256", internalType: "uint256" }],
+    outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
     stateMutability: "view",
   },
   {
@@ -191,8 +198,11 @@ export const LEMONADS_CONTRACT_ABI = [
   },
   {
     type: "function",
-    name: "getRenterFundsAmount",
-    inputs: [{ name: "_renter", type: "address", internalType: "address" }],
+    name: "getRenterBudgetAmountByParcel",
+    inputs: [
+      { name: "_parcelId", type: "uint256", internalType: "uint256" },
+      { name: "_renter", type: "address", internalType: "address" },
+    ],
     outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
     stateMutability: "view",
   },
@@ -329,8 +339,11 @@ export const LEMONADS_CONTRACT_ABI = [
   },
   {
     type: "function",
-    name: "withdrawFunds",
-    inputs: [{ name: "_amount", type: "uint256", internalType: "uint256" }],
+    name: "withdrawBudget",
+    inputs: [
+      { name: "_parcelId", type: "uint256", internalType: "uint256" },
+      { name: "_amount", type: "uint256", internalType: "uint256" },
+    ],
     outputs: [],
     stateMutability: "nonpayable",
   },
@@ -395,7 +408,7 @@ export const LEMONADS_CONTRACT_ABI = [
         internalType: "address",
       },
       {
-        name: "renterFunds",
+        name: "renterBudget",
         type: "uint256",
         indexed: true,
         internalType: "uint256",
@@ -449,6 +462,44 @@ export const LEMONADS_CONTRACT_ABI = [
   },
   {
     type: "event",
+    name: "BudgetAdded",
+    inputs: [
+      {
+        name: "renter",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+      {
+        name: "amount",
+        type: "uint256",
+        indexed: false,
+        internalType: "uint256",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "BudgetWithdrawn",
+    inputs: [
+      {
+        name: "renter",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+      {
+        name: "amount",
+        type: "uint256",
+        indexed: false,
+        internalType: "uint256",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
     name: "ChainlinkRequestSent",
     inputs: [
       {
@@ -475,45 +526,7 @@ export const LEMONADS_CONTRACT_ABI = [
   },
   {
     type: "event",
-    name: "FundsAdded",
-    inputs: [
-      {
-        name: "renter",
-        type: "address",
-        indexed: true,
-        internalType: "address",
-      },
-      {
-        name: "amount",
-        type: "uint256",
-        indexed: false,
-        internalType: "uint256",
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    type: "event",
-    name: "FundsWithdrawn",
-    inputs: [
-      {
-        name: "renter",
-        type: "address",
-        indexed: true,
-        internalType: "address",
-      },
-      {
-        name: "amount",
-        type: "uint256",
-        indexed: false,
-        internalType: "uint256",
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    type: "event",
-    name: "LowFunds",
+    name: "LowBudget",
     inputs: [
       {
         name: "adParcelId",
@@ -528,7 +541,7 @@ export const LEMONADS_CONTRACT_ABI = [
         internalType: "address",
       },
       {
-        name: "renterFunds",
+        name: "renterBudget",
         type: "uint256",
         indexed: true,
         internalType: "uint256",
@@ -706,7 +719,7 @@ export const LEMONADS_CONTRACT_ABI = [
   { type: "error", name: "Lemonads__TransferFailed", inputs: [] },
   {
     type: "error",
-    name: "Lemonads__UnsufficientFundsLocked",
+    name: "Lemonads__UnsufficientBudgetLocked",
     inputs: [],
   },
   { type: "error", name: "NoInlineSecrets", inputs: [] },

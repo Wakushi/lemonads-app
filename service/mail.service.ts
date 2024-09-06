@@ -33,7 +33,11 @@ export async function sendMail({
   return info
 }
 
-export function getTemplate(renter: User, funds: string): string {
+export function getTemplate(
+  renter: User,
+  funds: string,
+  parcelId: number
+): string {
   return `
   <html>
     <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; margin: 0; padding: 0;">
@@ -41,19 +45,19 @@ export function getTemplate(renter: User, funds: string): string {
         <div style="text-align: center;">
           <img src="https://peach-genuine-lamprey-766.mypinata.cloud/ipfs/QmUS842zCNWgHZUex73pTeYN8URozhrNvsXg235HmZidjM" alt="Lemonads Logo" style="width: 150px; margin-bottom: 20px;" />
         </div>
-        <h1 style="color: #FFA500; text-align: center;">⚠️ Attention Needed: Low Budget Alert</h1>
+        <h1 style="color: #FFA500; text-align: center;">⚠️ Attention Needed: Low Budget Alert for Parcel #${parcelId}</h1>
         <p style="font-size: 18px;">Dear ${renter.name},</p>
         <p style="font-size: 16px; line-height: 1.6;">
-          We hope this message finds you well. We are reaching out to inform you that your current balance for your ad campaigns on the Lemonads platform is running low. As a result, your ad campaign with Nike may soon be paused if additional funds are not added.
+          We hope this message finds you well. We are reaching out to inform you that your current balance for your ad campaigns on the Lemonads platform is running low. As a result, your ad campaign for <strong>Parcel #${parcelId}</strong> may soon be paused if additional funds are not added.
         </p>
         <p style="font-size: 16px; line-height: 1.6;">
-          <strong>Current Balance:</strong> ${funds} ETH
+          <strong>Current Balance for Parcel #${parcelId}:</strong> ${funds} ETH
         </p>
         <p style="font-size: 16px; line-height: 1.6;">
           We encourage you to top up your balance to ensure that your campaign continues to run smoothly without any interruptions.
         </p>
         <p style="font-size: 16px; line-height: 1.6;">
-          If your balance reaches zero, your campaign will automatically be removed from the ad parcels you have rented.
+          If your balance reaches zero, your campaign for Parcel #${parcelId} will automatically be removed from the ad parcels you have rented.
         </p>
         <p style="font-size: 16px; line-height: 1.6;">
           Please take a moment to log in to your account and review your campaign's status. You can add more funds by visiting the <a href="https://lemonads.vercel.app/dashboard" style="color: #FFA500; text-decoration: none;">dashboard</a>.
