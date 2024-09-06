@@ -1,11 +1,22 @@
+"use client"
 import { ColumnDef } from "@tanstack/react-table"
 import { AdParcel } from "@/lib/types/ad-parcel.type"
 import Copy from "../ui/copy"
 import { formatEther } from "viem"
 import { shortenAddress } from "@/lib/utils"
 import { PiEmpty } from "react-icons/pi"
-import { FaEthereum } from "react-icons/fa"
+import { FaCode, FaEthereum } from "react-icons/fa"
 import Link from "next/link"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import CodeSnippet from "../code-snippet"
+import { useQuery } from "@tanstack/react-query"
+import { getEthPrice } from "@/lib/actions/onchain/contract-actions"
 
 export const adParcelColumns: ColumnDef<AdParcel>[] = [
   {
@@ -77,6 +88,33 @@ export const adParcelColumns: ColumnDef<AdParcel>[] = [
     ),
   },
   {
+    accessorKey: "earnings",
+    header: "Total earnings",
+    cell: ({ row }) => {
+      if (!row.original.earnings) return
+
+      const { data: ethPrice } = useQuery<string, Error>({
+        queryKey: ["ethPrice"],
+        queryFn: async () => {
+          return await getEthPrice()
+        },
+      })
+
+      const earningsUSD = ethPrice
+        ? (row.original.earnings * +ethPrice).toFixed(2)
+        : "NC"
+
+      return (
+        <div>
+          <span className="font-semibold">{earningsUSD}$</span>{" "}
+          <span className="flex items-center">
+            ({row.original.earnings.toFixed(7)} <FaEthereum />)
+          </span>
+        </div>
+      )
+    },
+  },
+  {
     accessorKey: "minBid",
     header: "Min Bid",
     cell: ({ row }) => (
@@ -117,4 +155,40 @@ export const adParcelColumns: ColumnDef<AdParcel>[] = [
       </div>
     ),
   },
+  {
+    id: "gear",
+    header: "",
+    cell: ({ row }) => <EmbedCodeDialog adParcelId={+row.original.id} />,
+  },
 ]
+
+const EmbedCodeDialog = ({ adParcelId }: { adParcelId: number }) => {
+  const codeSnippet = `<div id="ad-parcel-container" data-ad-parcel-id="${adParcelId}">\n  <script src="https://lemonads.vercel.app/ad-parcel.js" defer></script>\n</div>`
+
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <FaCode className="cursor-pointer" />
+      </DialogTrigger>
+      <DialogContent className="min-w-fit">
+        <DialogHeader>
+          <DialogTitle>Embed Ad Parcel Code</DialogTitle>
+        </DialogHeader>
+        <div className="relative mb-6">
+          <p className="mb-4 text-sm text-gray-600">
+            To display this ad parcel on your website, simply copy the code
+            snippet below and paste it into your website's HTML where you want
+            the ad to appear. The parcel ID has already been included for you.
+          </p>
+          <CodeSnippet codeString={codeSnippet} language="typescript" />
+          <p className="mt-4 text-sm text-gray-600">
+            This script will dynamically load the ad content associated with
+            this parcel ID from the Lemonads platform. If you want to make
+            further adjustments, like updating the styling, make sure to wrap
+            this code in your custom styles.
+          </p>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}

@@ -1,5 +1,4 @@
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
-import { prism } from "react-syntax-highlighter/dist/esm/styles/prism"
+import CodeSnippet from "./code-snippet"
 
 export default function ConversionTrackingTutorial() {
   const backendSnippet = `
@@ -66,19 +65,5 @@ export default function ConversionTrackingTutorial() {
         your ad campaigns!
       </p>
     </div>
-  )
-}
-
-function CodeSnippet({
-  codeString,
-  language,
-}: {
-  codeString: string
-  language: string
-}) {
-  return (
-    <SyntaxHighlighter language={language} style={prism}>
-      {codeString}
-    </SyntaxHighlighter>
   )
 }

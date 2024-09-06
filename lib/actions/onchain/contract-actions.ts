@@ -446,6 +446,7 @@ export async function getAllPublisherAdParcels(
 
     const bidUsd = await getPriceUsd(adParcel.bid)
     const minBidUsd = await getPriceUsd(adParcel.minBid)
+    const earnings = await getEarningsByAdParcel(+adParcel.id)
 
     adParcels.push({
       ...adParcel,
@@ -453,6 +454,7 @@ export async function getAllPublisherAdParcels(
       minBidUsd,
       owner: adParcel.owner.toLowerCase() as Address,
       renter: adParcel.renter.toLowerCase() as Address,
+      earnings,
     })
   }
 
@@ -603,6 +605,19 @@ export async function writeWithdrawBudget({
     console.error("Error withdrawing budget:", error)
     throw new Error("Failed to withdraw budget")
   }
+}
+
+export async function getEarningsByAdParcel(
+  adParcelId: number
+): Promise<number> {
+  const earnings: any = await readContract(config, {
+    address: LEMONADS_CONTRACT_ADDRESS,
+    abi: LEMONADS_CONTRACT_ABI,
+    functionName: "getEarningsByAdParcel",
+    args: [adParcelId],
+  })
+
+  return Number(formatEther(earnings))
 }
 
 export enum ErrorType {

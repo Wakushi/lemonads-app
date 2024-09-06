@@ -19,6 +19,7 @@ export type AdParcel = {
   content?: AdContent
   bidUsd?: number
   minBidUsd?: number
+  earnings?: number
   active: boolean
 }
 
