@@ -149,12 +149,18 @@ export const adParcelAnnouncerColumns: ColumnDef<AdParcel>[] = [
     id: "actions",
     header: "Actions",
     cell: ({ row }) => {
+      const { user } = useUser()
+      const queryClient = useQueryClient()
+
       const [selectedCampaignId, setSelectedCampaignId] = useState<string>("")
       const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false)
       const [showReleaseConfirmModal, setShowReleaseConfirmModal] =
         useState<boolean>(false)
-      const { user } = useUser()
-      const queryClient = useQueryClient()
+
+      const publicClient = createPublicClient({
+        chain: baseSepolia,
+        transport: http(process.env.NEXT_PUBLIC_ALCHEMY_BASE_SEPOLIA_RPC_URL),
+      })
 
       const { data: adContents } = useQuery<AdContent[], Error>({
         queryKey: ["adContents", user?.firebaseId],
@@ -182,13 +188,6 @@ export const adParcelAnnouncerColumns: ColumnDef<AdParcel>[] = [
           await releaseAdParcel({
             account: user.address,
             adParcelId: row.original.id,
-          })
-
-          const publicClient = createPublicClient({
-            chain: baseSepolia,
-            transport: http(
-              process.env.NEXT_PUBLIC_ALCHEMY_BASE_SEPOLIA_RPC_URL
-            ),
           })
 
           publicClient.watchContractEvent({
@@ -231,7 +230,7 @@ export const adParcelAnnouncerColumns: ColumnDef<AdParcel>[] = [
         setShowSettingsModal(false)
 
         toast({
-          title: "Updating parcel...",
+          title: "Setting up your parcel...",
           description: "Adding new ad campaign...",
           action: <LoaderSmall color="#000" scale={0.4} />,
         })
@@ -246,13 +245,26 @@ export const adParcelAnnouncerColumns: ColumnDef<AdParcel>[] = [
           })
 
           toast({
-            title: "Success",
-            description: "Ad content updated !",
-            action: <FaCircleCheck className="text-green-600" />,
+            title: "Update in process...",
+            action: <LoaderSmall color="#000" scale={0.4} />,
           })
 
-          queryClient.invalidateQueries({
-            queryKey: ["rentedParcels", user?.address],
+          publicClient.watchContractEvent({
+            address: LEMONADS_CONTRACT_ADDRESS,
+            abi: LEMONADS_CONTRACT_ABI,
+            eventName: "AdContentUpdated",
+            args: { parcelId: BigInt(row.original.id) },
+            onLogs: (logs: any) => {
+              toast({
+                title: "Success",
+                description: "Ad content updated !",
+                action: <FaCircleCheck className="text-green-600" />,
+              })
+
+              queryClient.invalidateQueries({
+                queryKey: ["rentedParcels", user?.address],
+              })
+            },
           })
         } catch (error: any) {
           toast({
