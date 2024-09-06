@@ -11,6 +11,7 @@ const AD_CONTENT_COLLECTION = "adContents"
 const AD_CLICK = "ad-clicks"
 const AD_IMPRESSION = "ad-impressions"
 const UUIDS = "uuids"
+const CONVERSION_CLICK_ID_COLLECTION = "conversion-ids"
 
 export const createUser = async (user: User): Promise<User | null> => {
   try {
@@ -337,4 +338,15 @@ export async function deleteAdContent(
     console.error("Error deleting ad content: ", error)
     throw new Error("Failed to delete ad content")
   }
+}
+
+export async function addConversionClickId(
+  adParcelId: number,
+  clickId: string
+) {
+  await adminDb.collection(CONVERSION_CLICK_ID_COLLECTION).add({
+    adParcelId,
+    clickId,
+    timestamp: admin.firestore.FieldValue.serverTimestamp(),
+  })
 }

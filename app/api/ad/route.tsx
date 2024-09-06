@@ -11,11 +11,13 @@ import {
 } from "@/lib/actions/client/pinata-actions"
 import { zeroAddress } from "viem"
 import {
+  addConversionClickId,
   getLastAdClickByIp,
   registerAdClick,
   registerAdImpression,
 } from "@/lib/actions/server/firebase-actions"
 import { AdEvent } from "@/lib/types/interaction.type"
+import { v4 as uuidv4 } from "uuid"
 
 /**
  * @notice Receives an adParcelId query param, find the associated ad parcel by id and returns the template
@@ -103,11 +105,15 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const interactionDetails = await getInteractionDetails(req)
     registerAdImpression(+adParcelId, interactionDetails)
 
+    const conversionClickId = uuidv4()
+    await addConversionClickId(+adParcelId, conversionClickId)
+
     return new NextResponse(
       JSON.stringify({
         htmlContent: getAdTemplate({
           traits,
           adContent,
+          clickId: conversionClickId,
         }),
       }),
       { headers }
