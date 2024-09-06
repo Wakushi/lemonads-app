@@ -18,6 +18,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
@@ -39,10 +40,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-
+import { RiEditBoxLine } from "react-icons/ri"
 import {
+  getEthPrice,
+  getRenterBudgetAmountByParcel,
   releaseAdParcel,
+  writeAddBudget,
   writeEditAdParcelContent,
+  writeWithdrawBudget,
 } from "@/lib/actions/onchain/contract-actions"
 import { pinAdContent } from "@/lib/actions/client/pinata-actions"
 import LoaderSmall from "../ui/loader-small/loader-small"
@@ -51,6 +56,9 @@ import {
   LEMONADS_CONTRACT_ADDRESS,
 } from "@/lib/constants"
 import { baseSepolia } from "viem/chains"
+import { DialogDescription } from "@radix-ui/react-dialog"
+import { Label } from "recharts"
+import { Input } from "../ui/input"
 
 export const adParcelAnnouncerColumns: ColumnDef<AdParcel>[] = [
   {
@@ -109,17 +117,202 @@ export const adParcelAnnouncerColumns: ColumnDef<AdParcel>[] = [
   {
     accessorKey: "bid",
     header: "Current Bid",
-    cell: ({ row }) => (
-      <div>
-        <span className="font-semibold">
-          {row.original.bidUsd?.toFixed(2)}$
-        </span>{" "}
-        <span className="flex items-center">
-          ({Number(formatEther(BigInt(row.original.bid))).toFixed(7)}{" "}
-          <FaEthereum />)
-        </span>
-      </div>
-    ),
+    cell: ({ row }) => {
+      const { user } = useUser()
+      const queryClient = useQueryClient()
+      const [fundAmountUsd, setFundAmountUsd] = useState<string>("")
+      const [withdrawAmountUsd, setWithdrawAmountUsd] = useState<string>("")
+      const [showBudgetModal, setShowBudgetModal] = useState<boolean>(false)
+
+      const publicClient = createPublicClient({
+        chain: baseSepolia,
+        transport: http(process.env.NEXT_PUBLIC_ALCHEMY_BASE_SEPOLIA_RPC_URL),
+      })
+
+      const { data: budgetAmount } = useQuery<string, Error>({
+        queryKey: ["budgetAmount", row.original.id],
+        queryFn: async () => {
+          const ethPriceUsd = await getEthPrice()
+          const budgetEth = await getRenterBudgetAmountByParcel(
+            row.original.renter,
+            +row.original.id
+          )
+          const budget = +budgetEth * +ethPriceUsd
+          return budget.toFixed(2)
+        },
+      })
+
+      async function fundParcel(): Promise<void> {
+        if (!user?.address) return
+
+        setShowBudgetModal(false)
+
+        try {
+          toast({
+            title: "Fetching latest ETH price...",
+            action: <LoaderSmall color="#000" scale={0.4} />,
+          })
+
+          const ethPriceUsd = await getEthPrice()
+          const fundAmountEth = +fundAmountUsd / +ethPriceUsd
+
+          toast({
+            title: "Validating budget price...",
+            action: <LoaderSmall color="#000" scale={0.4} />,
+          })
+
+          await writeAddBudget({
+            account: user?.address,
+            adParcelId: +row.original.id,
+            amount: fundAmountEth,
+          })
+
+          toast({
+            title: "Updating budget price...",
+            action: <LoaderSmall color="#000" scale={0.4} />,
+          })
+
+          publicClient.watchContractEvent({
+            address: LEMONADS_CONTRACT_ADDRESS,
+            abi: LEMONADS_CONTRACT_ABI,
+            eventName: "BudgetAdded",
+            args: { renter: row.original.renter },
+            onLogs: (logs: any) => {
+              toast({
+                title: "Success",
+                description: `Successfully funded ${fundAmountUsd}$ (${fundAmountEth.toFixed(
+                  4
+                )} ETH) to ad parcel`,
+                action: <FaCircleCheck className="text-green-600" />,
+              })
+
+              queryClient.invalidateQueries({
+                queryKey: ["budgetAmount", row.original.id],
+              })
+            },
+          })
+        } catch (error) {
+          console.error("Error funding ad parcel:", error)
+          toast({
+            title: "Error",
+            description: "Failed to fund ad parcel",
+            variant: "destructive",
+          })
+        }
+      }
+
+      async function withdrawFunds(): Promise<void> {
+        if (!user?.address) return
+
+        setShowBudgetModal(false)
+
+        try {
+          toast({
+            title: "Fetching latest ETH price...",
+            action: <LoaderSmall color="#000" scale={0.4} />,
+          })
+
+          const ethPriceUsd = await getEthPrice()
+          const withdrawAmountEth = +withdrawAmountUsd / +ethPriceUsd
+
+          toast({
+            title: "Validating withdrawal amount...",
+            action: <LoaderSmall color="#000" scale={0.4} />,
+          })
+
+          await writeWithdrawBudget({
+            account: user?.address,
+            adParcelId: +row.original.id,
+            amount: withdrawAmountEth,
+          })
+
+          toast({
+            title: "Processing withdrawal...",
+            action: <LoaderSmall color="#000" scale={0.4} />,
+          })
+
+          publicClient.watchContractEvent({
+            address: LEMONADS_CONTRACT_ADDRESS,
+            abi: LEMONADS_CONTRACT_ABI,
+            eventName: "BudgetWithdrawn",
+            args: { renter: row.original.renter },
+            onLogs: (logs: any) => {
+              toast({
+                title: "Success",
+                description: `Successfully withdrew ${withdrawAmountUsd}$ (${withdrawAmountEth.toFixed(
+                  4
+                )} ETH) from ad parcel`,
+                action: <FaCircleCheck className="text-green-600" />,
+              })
+
+              queryClient.invalidateQueries({
+                queryKey: ["budgetAmount", row.original.id],
+              })
+            },
+          })
+        } catch (error) {
+          console.error("Error withdrawing from ad parcel:", error)
+          toast({
+            title: "Error",
+            description: "Failed to withdraw from ad parcel",
+            variant: "destructive",
+          })
+        }
+      }
+
+      return (
+        <div>
+          <div className="flex items-center gap-1">
+            <span className="font-semibold">
+              {row.original.bidUsd?.toFixed(2)}$
+            </span>
+            <Dialog onOpenChange={setShowBudgetModal} open={showBudgetModal}>
+              <DialogTrigger onClick={() => setShowBudgetModal(true)}>
+                <RiEditBoxLine />
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>
+                    Ad Parcel budget (Current: {budgetAmount}$)
+                  </DialogTitle>
+                  <DialogDescription className="text-sm text-slate-500">
+                    Add or withdraw budget for this ad parcel
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-2">
+                    <Label className="text-right">
+                      Amount to add to current budget ($)
+                    </Label>
+                    <Input
+                      id="costPerClick"
+                      placeholder="30$"
+                      value={fundAmountUsd}
+                      onChange={(e) => setFundAmountUsd(e.target.value)}
+                    />
+                    <Button onClick={fundParcel}>Fund ad parcel budget</Button>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label className="text-right">Withdraw budget ($)</Label>
+                    <Input
+                      id="amountToWithdraw"
+                      placeholder="30$"
+                      value={withdrawAmountUsd}
+                      onChange={(e) => setWithdrawAmountUsd(e.target.value)}
+                    />
+                    <Button onClick={withdrawFunds}>Withdraw</Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+          <span className="flex items-center">
+            ({Number(formatEther(BigInt(row.original.bid))).toFixed(7)}{" "}
+            <FaEthereum />)
+          </span>
+        </div>
+      )
+    },
   },
   {
     accessorKey: "minBid",
@@ -283,6 +476,7 @@ export const adParcelAnnouncerColumns: ColumnDef<AdParcel>[] = [
             </DialogTrigger>
             <DialogContent>
               <DialogTitle>Ad parcel settings</DialogTitle>
+
               {!!adContents && !!adContents.length ? (
                 <>
                   <Select onValueChange={setSelectedCampaignId}>

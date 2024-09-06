@@ -514,6 +514,97 @@ export async function releaseAdParcel({
   }
 }
 
+interface WriteAddBudgetArg {
+  account: Address
+  adParcelId: number
+  amount: number
+}
+
+export async function writeAddBudget({
+  account,
+  adParcelId,
+  amount,
+}: WriteAddBudgetArg) {
+  if (!web3AuthInstance.provider) {
+    throw new Error("Failed to add budget: missing provider")
+  }
+
+  if (!account) {
+    throw new Error("Failed to add budget: missing account")
+  }
+
+  const value = parseEther(amount.toString())
+
+  try {
+    const walletClient = createWalletClient({
+      account,
+      chain: RPC.getViewChain(web3AuthInstance.provider),
+      transport: custom(web3AuthInstance.provider),
+    })
+
+    const { request: addBudgetRequest } = await simulateContract(config, {
+      account: walletClient.account,
+      address: LEMONADS_CONTRACT_ADDRESS,
+      abi: LEMONADS_CONTRACT_ABI,
+      functionName: "addBudget",
+      args: [adParcelId],
+      value,
+    })
+
+    const result = await writeContract(config, addBudgetRequest)
+
+    return result
+  } catch (error) {
+    console.error("Error adding budget:", error)
+    throw new Error("Failed to add budget")
+  }
+}
+
+interface WriteWithdrawBudgetArg {
+  account: Address
+  adParcelId: number
+  amount: number
+}
+
+export async function writeWithdrawBudget({
+  account,
+  adParcelId,
+  amount,
+}: WriteWithdrawBudgetArg) {
+  if (!web3AuthInstance.provider) {
+    throw new Error("Failed to withdraw budget: missing provider")
+  }
+
+  if (!account) {
+    throw new Error("Failed to withdraw budget: missing account")
+  }
+
+  const value = parseEther(amount.toString())
+
+  try {
+    const walletClient = createWalletClient({
+      account,
+      chain: RPC.getViewChain(web3AuthInstance.provider),
+      transport: custom(web3AuthInstance.provider),
+    })
+
+    const { request: withdrawBudgetRequest } = await simulateContract(config, {
+      account: walletClient.account,
+      address: LEMONADS_CONTRACT_ADDRESS,
+      abi: LEMONADS_CONTRACT_ABI,
+      functionName: "withdrawBudget",
+      args: [adParcelId, value],
+    })
+
+    const result = await writeContract(config, withdrawBudgetRequest)
+
+    return result
+  } catch (error) {
+    console.error("Error withdrawing budget:", error)
+    throw new Error("Failed to withdraw budget")
+  }
+}
+
 export enum ErrorType {
   Lemonads__NoPayableParcel = "Lemonads__NoPayableParcel",
   Lemonads__NotEnoughTimePassed = "Lemonads__NotEnoughTimePassed",

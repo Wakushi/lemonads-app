@@ -16,9 +16,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const body = await req.json()
   const { uuid, notificationList } = body
 
-  console.log("uuid: ", uuid)
-  console.log("notificationList: ", notificationList)
-
   const authorization = headers().get("authorization")
   const token = authorization && authorization.split(" ")[1]
   const secret = process.env.SECRET
@@ -56,7 +53,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       }
 
       for (let notification of uniqueNotifications) {
-        console.log("notification: ", notification)
 
         const renter = await getUserByAddress(
           notification.renterAddress.toLowerCase()
@@ -73,8 +69,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           notification.parcelId,
           renter.address
         )
-
-        console.log("budget: ", budget)
 
         await sendMail({
           to: renter.email!,
