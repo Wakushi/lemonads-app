@@ -10,7 +10,7 @@ import {
   LEMONADS_CONTRACT_ABI,
   LEMONADS_CONTRACT_ADDRESS,
 } from "@/lib/constants"
-import { Address, formatEther } from "viem"
+import { formatEther } from "viem"
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const body = await req.json()
