@@ -113,3 +113,9 @@ export async function deleteAdContent(
     }),
   })
 }
+
+export async function getUserConversions(uid: string): Promise<any[]> {
+  const reponse = await fetch(`/api/ad/conversion?uid=${uid}`)
+  const { conversions } = await reponse.json()
+  return conversions || []
+}

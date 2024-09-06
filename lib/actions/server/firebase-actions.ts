@@ -1,9 +1,11 @@
 import { admin, adminDb } from "@/firebase-admin"
 import { AdContent } from "@/lib/types/ad-content.type"
+import { Conversion, ConversionClick } from "@/lib/types/conversion.type"
 import { AdEvent } from "@/lib/types/interaction.type"
 import { User } from "@/lib/types/user.type"
 import { Website } from "@/lib/types/website.type"
 import { Address } from "viem"
+import { getAdContentByHash } from "../client/pinata-actions"
 
 const USER_COLLECTION = "users"
 const WEBSITE_COLLECTION = "websites"
@@ -12,6 +14,7 @@ const AD_CLICK = "ad-clicks"
 const AD_IMPRESSION = "ad-impressions"
 const UUIDS = "uuids"
 const CONVERSION_CLICK_ID_COLLECTION = "conversion-ids"
+const CONVERSIONS = "conversions"
 
 export const createUser = async (user: User): Promise<User | null> => {
   try {
@@ -349,4 +352,95 @@ export async function addConversionClickId(
     clickId,
     timestamp: admin.firestore.FieldValue.serverTimestamp(),
   })
+}
+
+export const getConversionClickById = async (
+  clickId: string
+): Promise<ConversionClick | null> => {
+  const userRef = adminDb
+    .collection(CONVERSION_CLICK_ID_COLLECTION)
+    .where("clickId", "==", clickId)
+  const snapshot = await userRef.get()
+
+  if (snapshot.empty) {
+    return null
+  }
+
+  return {
+    ...snapshot.docs[0].data(),
+    firebaseId: snapshot.docs[0].id,
+  } as ConversionClick
+}
+
+interface AddConversionArgs {
+  userFirebaseId: string
+  adParcelId: number
+  clickId: string
+  contentHash: string
+  websiteInfoHash: string
+}
+
+export async function addConversion({
+  userFirebaseId,
+  adParcelId,
+  clickId,
+  contentHash,
+  websiteInfoHash,
+}: AddConversionArgs) {
+  await adminDb
+    .collection(USER_COLLECTION)
+    .doc(userFirebaseId)
+    .collection(CONVERSIONS)
+    .add({
+      adParcelId,
+      clickId,
+      contentHash,
+      websiteInfoHash,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    })
+}
+
+export async function deleteAdConversionClick(firebaseId: string) {
+  await adminDb
+    .collection(CONVERSION_CLICK_ID_COLLECTION)
+    .doc(firebaseId)
+    .delete()
+}
+
+export async function getUserConversions(
+  userFirebaseId: string
+): Promise<any[]> {
+  try {
+    const conversionsSnapshot = await adminDb
+      .collection(USER_COLLECTION)
+      .doc(userFirebaseId)
+      .collection(CONVERSIONS)
+      .get()
+
+    if (conversionsSnapshot.empty) {
+      return []
+    }
+
+    const conversions: Conversion[] = []
+
+    for (let doc of conversionsSnapshot.docs) {
+      const data = doc.data()
+      const content = await getAdContentByHash(data.contentHash)
+
+      conversions.push({
+        firebaseId: doc.id,
+        adParcelId: data.adParcelId,
+        clickId: data.clickId,
+        websiteInfoHash: data.websiteInfoHash,
+        content: content!,
+        contentHash: data.contentHash,
+        timestamp: data.timestamp,
+      })
+    }
+
+    return conversions
+  } catch (error) {
+    console.error("Error fetching ad contents:", error)
+    throw new Error("Failed to fetch ad contents")
+  }
 }
