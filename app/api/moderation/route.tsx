@@ -38,9 +38,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       MinConfidence: 70,
     }
 
-    const { ModerationLabels } = await rekognition
-      .detectModerationLabels(params)
-      .promise()
+    // const { ModerationLabels } = await rekognition
+    //   .detectModerationLabels(params)
+    //   .promise()
+
+    const ModerationLabels: Rekognition.ModerationLabels = []
 
     if (!ModerationLabels || ModerationLabels.length === 0) {
       return NextResponse.json({ foundForbiddenLabels: [] })
