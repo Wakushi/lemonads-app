@@ -31,22 +31,33 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     let action = "WAIT"
     let amount = "0"
 
-    const success = await processUuid(uuid, async () => {
-      console.log(`Processing UUID ${uuid} for ${ownerAddress}`)
+    // const success = await processUuid(uuid, async () => {
+    //   console.log(`Processing UUID ${uuid} for ${ownerAddress}`)
 
-      action = "BUY"
-      token = "0x33A3303eE744f2Fd85994CAe5E625050b32db453"
-      amount = parseEther("10").toString()
-    })
+    //   action = "BUY"
+    //   token = "0x33A3303eE744f2Fd85994CAe5E625050b32db453"
+    //   amount = parseEther("10").toString()
+    // })
 
-    if (!success) {
-      return NextResponse.json(
-        { action: "WAIT", token: "", amount: "" },
-        { status: 200 }
-      )
-    }
+    console.log(`Processing UUID ${uuid} for ${ownerAddress}`)
 
-    return NextResponse.json({ action, token, amount }, { status: 200 })
+    return NextResponse.json(
+      {
+        action: "BUY",
+        token: "0x33A3303eE744f2Fd85994CAe5E625050b32db453",
+        amount: "",
+      },
+      { status: 200 }
+    )
+
+    // if (!success) {
+    //   return NextResponse.json(
+    //     { action: "WAIT", token: "", amount: "" },
+    //     { status: 200 }
+    //   )
+    // }
+
+    // return NextResponse.json({ action, token, amount }, { status: 200 })
   } catch (error: any) {
     return NextResponse.json({ message: error.message }, { status: 500 })
   }
