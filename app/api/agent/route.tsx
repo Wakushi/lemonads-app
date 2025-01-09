@@ -1,6 +1,7 @@
 import { processUuid } from "@/lib/actions/server/firebase-actions"
 import { headers } from "next/headers"
 import { NextRequest, NextResponse } from "next/server"
+import { parseEther } from "viem"
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const body = await req.json()
@@ -28,12 +29,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     let token = ""
     let action = "WAIT"
+    let amount = "0"
 
     const success = await processUuid(uuid, async () => {
       console.log(`Processing UUID ${uuid} for ${ownerAddress}`)
 
       action = "BUY"
       token = "0x33A3303eE744f2Fd85994CAe5E625050b32db453"
+      amount = parseEther("10").toString()
     })
 
     if (!success) {
@@ -43,7 +46,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       )
     }
 
-    return NextResponse.json({ action, token }, { status: 200 })
+    return NextResponse.json({ action, token, amount }, { status: 200 })
   } catch (error: any) {
     return NextResponse.json({ message: error.message }, { status: 500 })
   }
