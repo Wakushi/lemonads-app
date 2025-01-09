@@ -45,7 +45,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       {
         action: "BUY",
         token: "0x33A3303eE744f2Fd85994CAe5E625050b32db453",
-        amount: "",
+        amount: "0",
       },
       { status: 200 }
     )
