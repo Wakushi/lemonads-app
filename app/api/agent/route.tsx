@@ -41,8 +41,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     if (!success) {
       return NextResponse.json(
-        { message: "Request is already being processed." },
-        { status: 409 }
+        { action: "WAIT", token: "", amount: "" },
+        { status: 200 }
       )
     }
 
