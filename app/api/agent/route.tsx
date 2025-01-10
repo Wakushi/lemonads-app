@@ -354,8 +354,9 @@ async function handleAnalysis(
   walletAddress: Address
 ) {
   try {
-    // Simulate complex analysis with delay
-    await new Promise((resolve) => setTimeout(resolve, 3000))
+    console.log(
+      `Initiating analysis for UUID ${uuid} (Wallet: ${walletAddress} | Owner: ${owner}).`
+    )
 
     // Mock decision (replace with your actual analysis logic)
     const decision = {
