@@ -59,6 +59,13 @@ const CONTRACT_ABI = [
   },
   {
     type: "function",
+    name: "getRequestIdFromUuid",
+    inputs: [{ name: "uuid", type: "string", internalType: "string" }],
+    outputs: [{ name: "", type: "bytes32", internalType: "bytes32" }],
+    stateMutability: "pure",
+  },
+  {
+    type: "function",
     name: "handleOracleFulfillment",
     inputs: [
       { name: "requestId", type: "bytes32", internalType: "bytes32" },
@@ -155,6 +162,16 @@ const CONTRACT_ABI = [
     inputs: [{ name: "_newServer", type: "address", internalType: "address" }],
     outputs: [],
     stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "verifyRequestId",
+    inputs: [
+      { name: "uuid", type: "string", internalType: "string" },
+      { name: "requestId", type: "bytes32", internalType: "bytes32" },
+    ],
+    outputs: [{ name: "", type: "bool", internalType: "bool" }],
+    stateMutability: "pure",
   },
   {
     type: "event",
@@ -358,10 +375,15 @@ async function handleAnalysis(
       `Initiating analysis for UUID ${uuid} (Wallet: ${walletAddress} | Owner: ${owner}).`
     )
 
+    // Convert UUID to bytes32
+    const requestId = ethers.keccak256(
+      ethers.solidityPacked(["string"], [uuid])
+    )
+
     // Mock decision (replace with your actual analysis logic)
     const decision = {
       action: "BUY",
-      token: "0x33A3303eE744f2Fd85994CAe5E625050b32db453",
+      token: "0x33A3303eE744f2Fd85994CAE5E625050b32db453",
       amount: parseEther("10").toString(),
     }
 
@@ -376,9 +398,16 @@ async function handleAnalysis(
     const actionId =
       decision.action === "BUY" ? 1 : decision.action === "SELL" ? 2 : 0
 
+    console.log("Submitting decision with params:", {
+      requestId,
+      actionId,
+      token: decision.token,
+      amount: decision.amount,
+    })
+
     // Submit to contract
     const tx = await contract.submitDecision(
-      uuid,
+      requestId,
       actionId,
       decision.token,
       decision.amount
