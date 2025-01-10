@@ -383,7 +383,7 @@ async function handleAnalysis(
     // Mock decision (replace with your actual analysis logic)
     const decision = {
       action: "BUY",
-      token: "0x33A3303eE744f2Fd85994CAE5E625050b32db453",
+      token: ethers.getAddress("0x33A3303eE744f2Fd85994CAe5E625050b32db453"),
       amount: parseEther("10").toString(),
     }
 
