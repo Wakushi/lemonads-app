@@ -450,33 +450,24 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    // Process UUID to ensure we only handle each request once
     const success = await processUuid(uuid, async () => {
-      console.log(`Received analysis request for UUID ${uuid}, wallet ${owner}`)
-
-      // Start analysis in background without awaiting
-      handleAnalysis(uuid, owner, wallet).catch((error) => {
-        console.error("Background analysis failed:", error)
-      })
+      console.log("[processUuid callback]: ", uuid)
     })
 
     if (!success) {
       return NextResponse.json(
         { message: "Request already processed" },
-        { status: 409 }
+        { status: 200 }
       )
     }
 
-    // Immediately return acknowledgment
-    return NextResponse.json(
-      { message: "Analysis initiated", requestId: uuid },
-      { status: 202 }
-    )
+    handleAnalysis(uuid, owner, wallet).catch((error) => {
+      console.error("Background analysis failed:", error)
+    })
+
+    return NextResponse.json({ message: "Analysis initiated" }, { status: 200 })
   } catch (error: any) {
     console.error("Error in POST handler:", error)
-    return NextResponse.json(
-      { message: "Internal server error" },
-      { status: 500 }
-    )
+    return NextResponse.json({ message: error.message }, { status: 500 })
   }
 }
